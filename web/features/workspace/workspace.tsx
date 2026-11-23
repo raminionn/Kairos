@@ -24,6 +24,8 @@ export interface ModuleConfig {
   promptFields: React.ReactNode;
   /** When present, the top bar shows All / Passed / Failed. */
   filter?(o: Output, f: Filter): boolean;
+  /** Tile order inside a row; API order when absent. */
+  sort?(a: Output, b: Output): number;
   expectedCount(job: Job): number;
 }
 
@@ -76,7 +78,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
               <p className="mx-3 mt-10 text-center text-muted">Nothing here yet. Add your input below and press Generate.</p>
             )}
             {jobs.map((job) => (
-              <BatchRow key={job.id} job={job} outputs={(outputs[job.id] ?? []).filter(visible)}
+              <BatchRow key={job.id} job={job} outputs={(outputs[job.id] ?? []).filter(visible).sort(module.sort)}
                 summary={module.summary(job)} gridClass={module.gridClass} tileAspect={module.tileAspect}
                 expected={module.expectedCount(job)} selectedId={selected?.id} highlight={job.id === openJobId}
                 renderTile={module.renderTile} onSelect={setSelected} />
