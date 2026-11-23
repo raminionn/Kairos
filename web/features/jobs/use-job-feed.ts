@@ -8,11 +8,12 @@ const POLL_MS = 2000;
 const busy = (j: Job) => j.status === "queued" || j.status === "running";
 
 /**
- * Jobs (optionally of one kind), newest first, plus outputs of finished jobs.
+ * Jobs (optionally of one kind), newest first, plus outputs of finished jobs of that kind.
+ * `all` holds every job, for module-wide status such as the rail's running dots.
  * Polls every 2 s while a job is queued or running, or while the server is unreachable.
  */
 export function useJobFeed(kind?: JobKind) {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [all, setAll] = useState<Job[]>([]);
   const [outputs, setOutputs] = useState<Record<string, Output[]>>({});
   const [offline, setOffline] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -27,13 +28,13 @@ export function useJobFeed(kind?: JobKind) {
       window.clearTimeout(timer);
       let again = true;
       try {
-        const all = await listJobs();
-        const list = kind ? all.filter((j) => j.kind === kind) : all;
+        const fresh = await listJobs();
+        const list = kind ? fresh.filter((j) => j.kind === kind) : fresh;
         if (!alive) return;
-        setJobs(list);
+        setAll(fresh);
         setOffline(false);
         setLoaded(true);
-        again = list.some(busy);
+        again = fresh.some(busy);
         for (const j of list) {
           if (j.status !== "done" || requested.has(j.id)) continue;
           requested.add(j.id);
@@ -69,5 +70,6 @@ export function useJobFeed(kind?: JobKind) {
     [kind],
   );
 
-  return { jobs, outputs, offline, loaded, submit };
+  const jobs = kind ? all.filter((j) => j.kind === kind) : all;
+  return { jobs, all, outputs, offline, loaded, submit };
 }

@@ -30,6 +30,15 @@ body {
   color: var(--color-ink);
 }
 
+/* Placeholder tile while a result is being made. */
+.shimmer {
+  background: linear-gradient(110deg, #ecebe6 30%, #f6f5f1 50%, #ecebe6 70%) 0 0 / 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
