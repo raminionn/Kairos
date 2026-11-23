@@ -20,8 +20,12 @@ class GenerationError(Exception):
     pass
 
 
-class MissingKeyError(GenerationError):
-    """Fatal: no API key. run() does not treat this as one failed attempt."""
+class FatalGenerationError(GenerationError):
+    """Retrying cannot help (no key, bad key, no credits). run() stops the job instead of counting an attempt."""
+
+
+class MissingKeyError(FatalGenerationError):
+    pass
 
 
 def _data_url(path: Path) -> str:
@@ -38,11 +42,12 @@ def _cache_key(model: str, prompt: str, aspect_ratio: str | None, images: list[P
     return h.hexdigest()
 
 
-def _decode(body: dict) -> bytes:
+def _decode(r: httpx.Response) -> bytes:
     try:
-        raw = base64.b64decode(body["data"][0]["b64_json"])
-        Image.open(io.BytesIO(raw)).verify()
-    except Exception as e:  # missing field, empty list, bad base64, not an image
+        raw = base64.b64decode(r.json()["data"][0]["b64_json"])
+        with Image.open(io.BytesIO(raw)) as im:
+            im.load()  # full decode: verify() lets truncated files through
+    except Exception as e:  # not JSON, missing field, empty list, bad base64, not an image, truncated
         raise GenerationError(f"response has no valid image: {type(e).__name__}") from e
     return raw
 
@@ -75,23 +80,30 @@ def generate_image(
     if aspect_ratio:
         body["aspect_ratio"] = aspect_ratio
 
+    own = client is None
     client = client or httpx.Client(timeout=180)
-    last = ""
-    for attempt in range(3):
-        if attempt:
-            _sleep(_BACKOFF[attempt - 1])
-        try:
-            r = client.post(URL, json=body, headers={"Authorization": f"Bearer {api_key}"})
-        except httpx.TransportError as e:  # timeout, connection drop, DNS
-            last = f"network error: {type(e).__name__}"
-            continue
-        if r.status_code == 429 or r.status_code >= 500:
-            last = f"HTTP {r.status_code}"
-            continue
-        if r.status_code != 200:
-            raise GenerationError(f"HTTP {r.status_code}: {r.text[:300]}")
-        raw = _decode(r.json())
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        cached.write_bytes(raw)
-        return raw
-    raise GenerationError(f"gave up after 3 tries ({last})")
+    try:
+        last = ""
+        for attempt in range(3):
+            if attempt:
+                _sleep(_BACKOFF[attempt - 1])
+            try:
+                r = client.post(URL, json=body, headers={"Authorization": f"Bearer {api_key}"})
+            except httpx.TransportError as e:  # timeout, connection drop, DNS
+                last = f"network error: {type(e).__name__}"
+                continue
+            if r.status_code == 429 or r.status_code >= 500:
+                last = f"HTTP {r.status_code}"
+                continue
+            if r.status_code in (401, 402):
+                raise FatalGenerationError(f"HTTP {r.status_code} (bad API key or no credits): {r.text[:300]}")
+            if r.status_code != 200:
+                raise GenerationError(f"HTTP {r.status_code}: {r.text[:300]}")
+            raw = _decode(r)  # cache only fully decoded images
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            cached.write_bytes(raw)
+            return raw
+        raise GenerationError(f"gave up after 3 tries ({last})")
+    finally:
+        if own:
+            client.close()

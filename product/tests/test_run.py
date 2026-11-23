@@ -44,7 +44,8 @@ def job(tmp_path, monkeypatch):
     state = {"images": [], "checks": [], "mask_empty": False}
 
     def fake_generate(model, prompt, images, key, cache_dir, aspect_ratio=None, client=None):
-        calls["generate"].append({"prompt": prompt, "key": key, "images": images})
+        sizes = [(Image.open(p).size, p.suffix) for p in images]  # temp files are gone after run()
+        calls["generate"].append({"prompt": prompt, "key": key, "images": images, "sizes": sizes})
         nxt = state["images"].pop(0) if state["images"] else disk_image()
         if isinstance(nxt, Exception):
             raise nxt
@@ -53,7 +54,8 @@ def job(tmp_path, monkeypatch):
     def fake_mask(img):
         m = np.zeros(img.shape[:2], bool)
         if not state["mask_empty"]:
-            m[30:90, 30:90] = True
+            h, w = m.shape
+            m[h // 4 : 3 * h // 4, w // 4 : 3 * w // 4] = True
         return m
 
     def fake_check(source, source_mask, reference_text, output, thresholds):
@@ -71,9 +73,9 @@ def job(tmp_path, monkeypatch):
 
     def go(category="product", image="source.jpg", n=3, props=None):
         req = tmp_path / "request.json"
-        req.write_text(json.dumps({"category": category, "image": image, "n_variants": n, "props": props}))
+        req.write_text(json.dumps({"category": category, "image": image, "n_variants": n, "props": props}), encoding="utf-8")
         run(req, tmp_path / "result.json", config)
-        return ProductResult.model_validate_json((tmp_path / "result.json").read_text())
+        return ProductResult.model_validate_json((tmp_path / "result.json").read_text(encoding="utf-8"))
 
     return {"dir": tmp_path, "go": go, "calls": calls, "state": state}
 
@@ -182,3 +184,33 @@ def test_cli_exit_code_on_missing_key(tmp_path):
     )
     assert p.returncode == 1
     assert "OPENROUTER_API_KEY" in p.stderr
+
+
+def test_fatal_generation_error_stops_job(job):
+    job["state"]["images"] = [generate.FatalGenerationError("HTTP 402: no credits")]
+    with pytest.raises(generate.FatalGenerationError):
+        job["go"](n=1)
+
+
+def test_generation_error_reason_is_printed(job, capsys):
+    job["state"]["images"] = [GenerationError("HTTP 400: model has no input_references")]
+    job["go"](n=1)
+    assert "input_references" in capsys.readouterr().err
+
+
+def test_unicode_props_and_label_text(job, monkeypatch):
+    monkeypatch.setattr(gate, "read_text", lambda img: "蜂蜜 HONEY")
+    res = job["go"](n=1, props="شہد کے پھول")
+    assert res.reference_text == "蜂蜜 HONEY"
+    assert "شہد کے پھول" in job["calls"]["generate"][0]["prompt"]
+
+
+def test_sends_upright_resized_png_not_raw_upload(job):
+    exif = Image.Exif()
+    exif[0x0112] = 6  # rotate 90 CW: stored 4000x1000 landscape, shown 1000x4000 portrait
+    img = Image.new("RGB", (4000, 1000), (200, 0, 0))
+    img.save(job["dir"] / "source.jpg", exif=exif)
+    job["go"](n=1)
+    (w, h), suffix = job["calls"]["generate"][0]["sizes"][0]
+    assert suffix == ".png"
+    assert h > w and max(w, h) <= 2048

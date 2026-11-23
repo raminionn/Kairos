@@ -1,12 +1,12 @@
 """Product photo stage: request.json + upload -> variants/*.png + result.json."""
 
+import sys
 import tempfile
 from pathlib import Path
 
 import numpy as np
 import yaml
 from PIL import Image
-from pydantic import ValidationError
 
 from contracts.product import Checks, ProductRequest, ProductResult, Variant
 from product import gate, generate, repair
@@ -22,11 +22,11 @@ class ProductError(Exception):
 
 
 def load_config(path: Path = Path(__file__).parent / "config.yaml") -> dict:
-    return yaml.safe_load(Path(path).read_text())
+    return yaml.safe_load(Path(path).read_text(encoding="utf-8"))
 
 
 def load_template(category: str) -> dict:
-    return yaml.safe_load((TEMPLATES / f"{category}.yaml").read_text())
+    return yaml.safe_load((TEMPLATES / f"{category}.yaml").read_text(encoding="utf-8"))
 
 
 def build_prompt(template: dict, props: str | None) -> str:
@@ -35,8 +35,8 @@ def build_prompt(template: dict, props: str | None) -> str:
 
 def _load_request(input_path: Path) -> tuple[ProductRequest, Path, np.ndarray]:
     try:
-        req = ProductRequest.model_validate_json(input_path.read_text())
-    except (OSError, ValidationError) as e:
+        req = ProductRequest.model_validate_json(input_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:  # ValueError covers ValidationError and bad UTF-8
         raise ProductError(f"bad request file: {e}") from e
     src = input_path.parent / req.image
     if src.suffix.lower() not in ALLOWED:
@@ -51,6 +51,17 @@ def _load_request(input_path: Path) -> tuple[ProductRequest, Path, np.ndarray]:
         raise ProductError("upload is not a readable image") from e
 
 
+MAX_SIDE = 2048  # long side sent to the image model (a 20 MB upload as base64 can hit request size limits)
+
+
+def _upload_copy(img: np.ndarray) -> np.ndarray:
+    h, w = img.shape[:2]
+    s = MAX_SIDE / max(h, w)
+    if s >= 1:
+        return img
+    return np.asarray(Image.fromarray(img).resize((round(w * s), round(h * s)), Image.LANCZOS))
+
+
 def _save(img: np.ndarray, path: Path) -> Path:
     Image.fromarray(img).save(path)
     return path
@@ -58,7 +69,7 @@ def _save(img: np.ndarray, path: Path) -> Path:
 
 def run(input_path: Path, output_path: Path, config: dict) -> None:
     input_path, output_path = Path(input_path), Path(output_path)
-    req, src_path, source = _load_request(input_path)
+    req, _, source = _load_request(input_path)
     cat = req.category
     template = load_template(cat)
     thresholds = config["thresholds"][cat]
@@ -70,7 +81,7 @@ def run(input_path: Path, output_path: Path, config: dict) -> None:
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
-        refs = [src_path]
+        refs = [_save(_upload_copy(source), tmp / "source.png")]  # upright, RGB, size-limited
         source_mask, reference_text = None, ""
         if cat != "app":
             source_mask = gate.get_mask(source)
@@ -98,9 +109,10 @@ def run(input_path: Path, output_path: Path, config: dict) -> None:
                         img = gen(prompt, refs, key)
                     else:  # relight the pasted real cutout to the template's light
                         img = gen(repair.RELIGHT_PROMPT, [_save(pasted, tmp / f"pasted{i}.png")], key)
-                except generate.MissingKeyError:
+                except generate.FatalGenerationError:
                     raise
-                except generate.GenerationError:
+                except generate.GenerationError as e:
+                    print(f"v{i} attempt {attempts}: {e}", file=sys.stderr)
                     reasons = ["generation_error"]
                     step = ("gen", f"v{i}-a{attempts}", None)
                     continue
@@ -143,4 +155,4 @@ def run(input_path: Path, output_path: Path, config: dict) -> None:
             )
 
     result = ProductResult(category=cat, model=model, reference_text=reference_text, variants=variants)
-    output_path.write_text(result.model_dump_json(indent=2))
+    output_path.write_text(result.model_dump_json(indent=2), encoding="utf-8")

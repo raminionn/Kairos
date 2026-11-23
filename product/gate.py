@@ -55,8 +55,8 @@ def delta_e(a: np.ndarray, mask_a: np.ndarray, b: np.ndarray, mask_b: np.ndarray
 
     No pixel correspondence exists between two different images, so region means are compared.
     """
-    la = rgb2lab(a)[mask_a].mean(axis=0)
-    lb = rgb2lab(b)[mask_b].mean(axis=0)
+    la = rgb2lab(a[mask_a][None])[0].mean(axis=0)  # convert masked pixels only (full photo in float64 is >1 GB)
+    lb = rgb2lab(b[mask_b][None])[0].mean(axis=0)
     return float(deltaE_ciede2000(la, lb))
 
 
@@ -101,7 +101,8 @@ def decide(checks: Checks, thresholds: dict[str, float]) -> list[str]:
 # ---------------------------------------------------------------- model wrappers
 # torch / transformers / rapidocr import lazily: the pure part above runs without the `gpu` extra.
 
-_slot: dict = {"name": None, "model": None}  # one GPU model at a time keeps peak VRAM under 6 GB
+_slot: dict = {"name": None, "model": None}  # one model on the GPU at a time keeps peak VRAM under 6 GB
+_parked: dict = {}  # inactive models wait in CPU RAM, so a swap does not reload from disk
 _ocr = None
 
 
@@ -113,15 +114,15 @@ def _device():
 
 def _gpu_model(name: str, loader):
     if _slot["name"] != name:
-        import gc
-
         import torch
 
-        _slot.update(name=None, model=None)
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        _slot.update(name=name, model=loader())
+        if _slot["model"] is not None:
+            _parked[_slot["name"]] = _slot["model"].to("cpu")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        model = _parked.pop(name, None)
+        model = loader() if model is None else model.to(_device()[0])
+        _slot.update(name=name, model=model)
     return _slot["model"]
 
 

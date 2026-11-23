@@ -84,3 +84,44 @@ def test_load_image_applies_exif_rotation(tmp_path):
     exif[0x0112] = 6  # Orientation: rotate 90 CW
     Image.new("RGB", (40, 20), (0, 255, 0)).save(p, exif=exif)
     assert load_image(p).shape == (40, 20, 3)
+
+
+def test_delta_e_memory_does_not_scale_with_full_image():
+    import tracemalloc
+
+    big = np.zeros((3000, 4000, 3), np.uint8)
+    m = np.zeros((3000, 4000), bool)
+    m[:10, :10] = True
+    tracemalloc.start()
+    delta_e(big, m, big, m)
+    peak = tracemalloc.get_traced_memory()[1]
+    tracemalloc.stop()
+    assert peak < 100e6
+
+
+def test_gpu_models_load_once_and_swap_via_cpu(monkeypatch):
+    from product import gate as g
+
+    class Fake:
+        def __init__(self):
+            self.where = []
+
+        def to(self, device):
+            self.where.append(device)
+            return self
+
+    loads = {"a": 0, "b": 0}
+
+    def loader(name):
+        def f():
+            loads[name] += 1
+            return Fake()
+        return f
+
+    monkeypatch.setattr(g, "_slot", {"name": None, "model": None})
+    monkeypatch.setattr(g, "_parked", {})
+    a = g._gpu_model("a", loader("a"))
+    g._gpu_model("b", loader("b"))
+    assert g._gpu_model("a", loader("a")) is a
+    assert loads == {"a": 1, "b": 1}
+    assert a.where[0] == "cpu"  # parked on CPU while b ran

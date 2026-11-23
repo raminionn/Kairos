@@ -36,9 +36,18 @@ def test_collect_writes_one_row_per_variant_and_skips_failures(tmp_path, monkeyp
 
     metrics = collect.collect(items, tmp_path / "out", run_mod.load_config())
 
-    rows = list(csv.reader(metrics.open()))
+    rows = list(csv.reader(metrics.open(encoding="utf-8")))
     assert rows[0] == HEADER and len(rows) == 7
     assert {r[1] for r in rows[1:]} == {"product", "app"}
     product_row = next(r for r in rows[1:] if r[1] == "product")
     app_row = next(r for r in rows[1:] if r[1] == "app")
     assert float(product_row[12]) == 0 and app_row[12] == ""
+
+
+def test_collect_reads_excel_bom_csv(tmp_path, monkeypatch):
+    monkeypatch.setattr(run_mod, "run", fake_run)
+    Image.new("RGB", (32, 32), "red").save(tmp_path / "a.png")
+    items = tmp_path / "items.csv"
+    items.write_bytes("﻿image,category,label_text,props\na.png,app,,\n".encode("utf-8"))
+    rows = list(csv.reader(collect.collect(items, tmp_path / "out", run_mod.load_config()).open(encoding="utf-8")))
+    assert len(rows) == 4

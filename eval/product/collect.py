@@ -39,19 +39,19 @@ def collect(items_csv: Path, out_dir: Path, config: dict) -> Path:
     items_csv, out_dir = Path(items_csv), Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     rows = []
-    for n, item in enumerate(csv.DictReader(items_csv.open(newline="")), 1):
+    for n, item in enumerate(csv.DictReader(items_csv.open(newline="", encoding="utf-8-sig")), 1):
         src = items_csv.parent / item["image"]
         job = out_dir / f"{n:02d}_{src.stem}"
         job.mkdir(exist_ok=True)
         shutil.copy(src, job / f"source{src.suffix.lower()}")
         req = {"category": item["category"], "image": f"source{src.suffix.lower()}", "props": item.get("props") or None}
-        (job / "request.json").write_text(json.dumps(req))
+        (job / "request.json").write_text(json.dumps(req), encoding="utf-8")
         try:
             run_mod.run(job / "request.json", job / "result.json", config)
         except Exception as e:  # one bad item must not stop the eval run
             print(f"skip {src.name}: {e}", file=sys.stderr)
             continue
-        res = ProductResult.model_validate_json((job / "result.json").read_text())
+        res = ProductResult.model_validate_json((job / "result.json").read_text(encoding="utf-8"))
         for v in res.variants:
             c = v.checks
             label = _label_cer(item.get("label_text", ""), job / v.path) if v.path else ""
@@ -60,7 +60,7 @@ def collect(items_csv: Path, out_dir: Path, config: dict) -> Path:
                          ";".join(v.fail_reasons), label])
 
     metrics = out_dir / "metrics.csv"
-    with metrics.open("w", newline="") as f:
+    with metrics.open("w", newline="", encoding="utf-8") as f:
         csv.writer(f).writerows([HEADER, *rows])
     _summary(rows)
     return metrics

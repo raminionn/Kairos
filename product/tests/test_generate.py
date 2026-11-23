@@ -117,3 +117,32 @@ def test_real_openrouter(src, tmp_path):
     model = os.environ.get("PRODUCT_TEST_MODEL", "google/gemini-2.5-flash-image")
     out = generate_image(model, "Place this red square on a wooden table, studio light.", [src], "api-test", tmp_path)
     Image.open(io.BytesIO(out)).verify()
+
+
+def test_non_json_200_raises(src, tmp_path):
+    def handler(request):
+        return httpx.Response(200, text="<html>proxy error</html>")
+
+    with pytest.raises(GenerationError):
+        call(src, tmp_path, httpx.Client(transport=httpx.MockTransport(handler)))
+
+
+def test_truncated_image_raises_and_is_not_cached(src, tmp_path):
+    good = png_bytes((0, 0, 255))
+    import numpy as np
+
+    noise = (np.random.default_rng(0).random((256, 256, 3)) * 255).astype("uint8")
+    buf = io.BytesIO()
+    Image.fromarray(noise).save(buf, "JPEG")
+    half = buf.getvalue()[: len(buf.getvalue()) // 2]  # Image.verify() accepts this; a full decode does not
+    bad_calls, good_calls = [], []
+    with pytest.raises(GenerationError):
+        call(src, tmp_path, client_for([(200, ok_body(half))], bad_calls))
+    out = call(src, tmp_path, client_for([(200, ok_body(good))], good_calls))
+    assert out == good and len(good_calls) == 1  # bad bytes were not cached
+
+
+@pytest.mark.parametrize("status", [401, 402])
+def test_auth_and_credit_errors_are_fatal(src, tmp_path, status):
+    with pytest.raises(generate.FatalGenerationError, match=str(status)):
+        call(src, tmp_path, client_for([(status, {"error": "x"})], []))
