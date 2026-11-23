@@ -1,3 +1,5 @@
+import { Landing } from "@/features/landing/landing";
+
 export default function Home() {
-  return <main className="p-16 text-5xl font-wide font-light">Kairos</main>;
+  return <Landing />;
 }
