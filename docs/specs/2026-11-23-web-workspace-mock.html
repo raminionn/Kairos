@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,200..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbfbf7;--ink:#0c0c0c;--muted:#6b6b70;--line:#e7e7e1;--panel:#fff;--violet:#4b0fc8;--violet2:#5b12f5;--pink:#f05bb5;--yellow:#fbd431;--orange:#f27a2e;--green:#16a34a;--red:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;background:#dfe1dd;font-family:'Archivo',system-ui,sans-serif;font-stretch:104%;color:var(--ink);padding:24px}
+h2.t{font-weight:400;font-size:28px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:#555;margin:0 0 18px;font-size:14px}
+.opt{background:#fff;border-radius:18px;padding:14px;margin-bottom:28px;cursor:pointer;border:3px solid transparent;transition:border .2s}
+.opt.selected{border-color:var(--violet2)}
+.opt>header{display:flex;align-items:baseline;gap:10px;margin:2px 6px 12px}
+.opt>header b{font-size:18px;font-weight:500}.opt>header span{color:var(--muted);font-size:13px}
+.app{height:700px;border-radius:12px;overflow:hidden;display:flex;background:var(--bg);border:1px solid var(--line);font-size:13px}
+/* rail */
+.rail{width:60px;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+.rail .lg{font-weight:700;font-size:18px;margin-bottom:12px;font-stretch:100%}
+.ri{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:#555;position:relative}
+.ri svg{width:20px;height:20px}
+.ri.on{background:#f1ecff;color:var(--violet2)}
+.ri.on:before{content:"";position:absolute;left:-10px;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--violet2)}
+.ri .dot{position:absolute;right:6px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--pink);border:2px solid #fff}
+.rail .sp{flex:1}
+/* top bar */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.top{height:50px;border-bottom:1px solid var(--line);background:#fff;display:flex;align-items:center;padding:0 14px;gap:10px}
+.crumb{color:var(--muted)}.crumb b{color:var(--ink);font-weight:500}
+.chip{border-radius:20px;padding:3px 10px;font-size:12px}
+.run{background:#fff4d6;color:#a16207}.done{background:#dcfce7;color:#15803d}
+.top .grow{flex:1}
+.tbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font:inherit;font-size:12px}
+.tbtn.black{background:var(--ink);color:#fff;border-color:var(--ink)}
+.body{flex:1;display:flex;min-height:0}
+/* panels */
+.side{width:250px;background:#fff;border-right:1px solid var(--line);padding:14px;overflow:auto}
+.side.r{border-right:0;border-left:1px solid var(--line);width:270px}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 0 8px}
+.lbl:first-child{margin-top:0}
+.drop{border:1.5px dashed #cfcfc8;border-radius:12px;height:120px;display:grid;place-items:center;color:var(--muted);background:repeating-linear-gradient(45deg,#fafaf6,#fafaf6 8px,#f4f4ef 8px,#f4f4ef 16px);position:relative;overflow:hidden}
+.drop .src{position:absolute;inset:10px;border-radius:8px;background:linear-gradient(160deg,#f3efe6,#e2dccd);display:grid;place-items:center}
+.jar{width:46px;height:62px;border-radius:12px 12px 14px 14px;background:#ffb12e;position:relative;box-shadow:inset -6px 0 0 rgba(0,0,0,.06)}
+.jar:before{content:"";position:absolute;left:6px;right:6px;top:-10px;height:12px;border-radius:4px;background:#3a1fa8}
+.jar:after{content:"HONEY";position:absolute;left:5px;right:5px;top:20px;background:#fff;border-radius:3px;font-size:7px;font-weight:700;text-align:center;padding:4px 0}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cat{border:1px solid var(--line);border-radius:10px;padding:9px;display:flex;gap:8px;align-items:center}
+.cat i{width:14px;height:14px;border-radius:4px}
+.cat.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.inp{border:1px solid var(--line);border-radius:10px;padding:9px 10px;color:#333;background:#fff}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg span{flex:1;text-align:center;padding:5px;border-radius:7px}.seg span.on{background:var(--ink);color:#fff}
+.gen{margin-top:16px;width:100%;border:0;border-radius:10px;padding:12px;background:var(--violet2);color:#fff;font:inherit;font-size:14px}
+.layers .ly{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px}
+.layers .ly.on{background:#f1ecff}
+.layers .ly i{width:22px;height:28px;border-radius:4px;background:linear-gradient(#ffd7f0,#f05bb5)}
+.layers .ly em{margin-left:auto;font-style:normal;font-size:11px}
+/* canvas */
+.canvas{flex:1;position:relative;overflow:hidden;background-color:#f6f6f2;background-image:radial-gradient(#d6d6cf 1px,transparent 1px);background-size:20px 20px}
+.frame{position:absolute;background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.06)}
+.frame .fl{position:absolute;top:-20px;left:0;font-size:11px;color:var(--muted);white-space:nowrap}
+.frame .img{position:absolute;inset:0;border-radius:6px;overflow:hidden;display:grid;place-items:center}
+.frame.sel{outline:2px solid var(--violet2)}
+.frame.sel .h{position:absolute;width:8px;height:8px;background:#fff;border:1.5px solid var(--violet2)}
+.badge{position:absolute;right:8px;top:8px;border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;color:#fff}
+.pass{background:var(--green)}.fail{background:var(--red)}
+.conn{position:absolute;border-top:1.5px dashed #b9b4f5}
+.zoom{position:absolute;left:12px;bottom:12px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;display:flex;gap:12px;color:#555}
+.tools{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:6px;display:flex;gap:4px}
+.tools span{width:34px;height:34px;border-radius:8px;display:grid;place-items:center}.tools span.on{background:var(--violet2)}
+.tools svg{width:18px;height:18px}
+/* inspector */
+.check{margin-bottom:12px}
+.check .row{display:flex;justify-content:space-between;margin-bottom:5px}
+.check .row b{font-weight:500}
+.meter{height:6px;border-radius:3px;background:#eee;position:relative}
+.meter span{position:absolute;inset:0 auto 0 0;border-radius:3px}
+.meter i{position:absolute;top:-3px;width:2px;height:12px;background:var(--ink)}
+.kv{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0ea;color:var(--muted)}.kv b{color:var(--ink);font-weight:500}
+.act{display:flex;gap:6px;margin-top:14px}.act button{flex:1}
+/* B: feed */
+.feed{flex:1;overflow:hidden;padding:18px 18px 110px;position:relative;background:var(--bg)}
+.batch{margin-bottom:22px}
+.bh{display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--muted)}
+.bh .ref{width:28px;height:28px;border-radius:6px;background:linear-gradient(160deg,#f3efe6,#e2dccd);display:grid;place-items:center}
+.bh .ref .jar{transform:scale(.35)}
+.bh b{color:var(--ink);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tile{aspect-ratio:4/5;border-radius:12px;position:relative;overflow:hidden;display:grid;place-items:center;transition:transform .2s}
+.tile:hover{transform:scale(1.02)}
+.tile .hov{position:absolute;inset:auto 8px 8px 8px;display:flex;gap:4px;justify-content:space-between;align-items:center;color:#fff;font-size:11px}
+.tile.gen2{background:linear-gradient(110deg,#ecebe6 30%,#f6f5f1 50%,#ecebe6 70%);background-size:200% 100%;animation:sh 1.4s linear infinite;color:var(--muted)}
+@keyframes sh{to{background-position:-200% 0}}
+.prompt{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:min(760px,92%);background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 40px rgba(20,0,60,.12);padding:10px}
+.prompt .pr{display:flex;gap:10px;align-items:center}
+.thumb{width:54px;height:54px;border-radius:10px;background:linear-gradient(160deg,#f3efe6,#e2dccd);display:grid;place-items:center;position:relative}
+.thumb .jar{transform:scale(.55)}
+.thumb:after{content:"×";position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;display:grid;place-items:center}
+.ptext{flex:1;color:#333;font-size:14px}
+.ptext small{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+.pbar{display:flex;gap:6px;margin-top:10px;align-items:center}
+.pill{border:1px solid var(--line);border-radius:20px;padding:5px 11px;color:#333;display:flex;gap:6px;align-items:center}
+.pill i{width:10px;height:10px;border-radius:3px}
+.pgen{margin-left:auto;background:var(--violet2);color:#fff;border:0;border-radius:12px;padding:10px 20px;font:inherit;font-size:14px;display:flex;gap:8px;align-items:center}
+.pgen small{opacity:.7;font-size:11px}
+.drawer{width:280px;border-left:1px solid var(--line);background:#fff;padding:14px}
+.big{aspect-ratio:4/5;border-radius:12px;display:grid;place-items:center;margin-bottom:12px;position:relative}
+</style></head>
+<body>
+<h2 class="t">Workspace for the feature pages</h2>
+<p class="sub">Both use the landing look (Archivo, violet / pink / yellow), but as a calm work tool. Product photos shown, because its backend is ready. Click the one you want.</p>
+
+<!-- ============ A: Figma-like ============ -->
+<div class="opt" data-choice="figma" onclick="toggleSelect(this)">
+<header><b>A. Canvas workspace (like Figma)</b><span>inputs left · infinite dot-grid canvas centre · inspector right · floating tool bar</span></header>
+<div class="app">
+  <div class="rail">
+    <div class="lg">k</div>
+    <div class="ri" title="Jobs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg></div>
+    <div class="ri" title="Video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10.5 9.5l4 2.5-4 2.5z" fill="currentColor"/></svg></div>
+    <div class="ri on" title="Product"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="7" width="14" height="14" rx="4"/><path d="M8 3h8v4H8z"/></svg><span class="dot"></span></div>
+    <div class="ri" title="Carousel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="4" width="11" height="15" rx="2"/><path d="M4 7v11M21 7v11"/></svg></div>
+    <div class="sp"></div>
+    <div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></div>
+  </div>
+  <div class="main">
+    <div class="top"><span class="crumb">Product / <b>honey_jar.jpg</b></span><span class="chip run">● running · gate check 2/3</span><span class="grow"></span><button class="tbtn">Share</button><button class="tbtn black">Download all</button></div>
+    <div class="body">
+      <div class="side">
+        <div class="lbl">Source photo</div>
+        <div class="drop"><div class="src"><div class="jar"></div></div></div>
+        <div class="lbl">Category</div>
+        <div class="cats"><div class="cat"><i style="background:var(--pink)"></i>Fashion</div><div class="cat"><i style="background:var(--violet2)"></i>App</div><div class="cat on"><i style="background:var(--orange)"></i>Product</div><div class="cat"><i style="background:var(--yellow)"></i>Packaging</div></div>
+        <div class="lbl">Props</div><div class="inp">eucalyptus leaves</div>
+        <div class="lbl">Variants</div><div class="seg"><span>1</span><span>2</span><span class="on">3</span><span>4</span></div>
+        <button class="gen">Generate ✦</button>
+        <div class="lbl" style="margin-top:20px">Layers</div>
+        <div class="layers"><div class="ly"><i style="background:linear-gradient(160deg,#f3efe6,#e2dccd)"></i>source</div><div class="ly on"><i></i>v1<em style="color:var(--green)">pass</em></div><div class="ly"><i></i>v2<em style="color:var(--green)">pass</em></div><div class="ly"><i></i>v3<em style="color:var(--red)">fail</em></div></div>
+      </div>
+      <div class="canvas">
+        <div class="frame" style="left:40px;top:90px;width:150px;height:188px"><span class="fl">source.jpg</span><div class="img" style="background:linear-gradient(160deg,#f3efe6,#e2dccd)"><div class="jar"></div></div></div>
+        <div class="conn" style="left:190px;top:184px;width:60px"></div>
+        <div class="frame sel" style="left:250px;top:60px;width:190px;height:238px"><span class="fl">v1 · attempt 2 · repaired</span><div class="img" style="background:radial-gradient(circle at 50% 70%,#fff3d6,#f2c98a 60%,#c58a3f)"><div class="jar" style="transform:scale(1.5)"></div></div><span class="badge pass">✓ passed</span>
+          <span class="h" style="left:-5px;top:-5px"></span><span class="h" style="right:-5px;top:-5px"></span><span class="h" style="left:-5px;bottom:-5px"></span><span class="h" style="right:-5px;bottom:-5px"></span></div>
+        <div class="frame" style="left:460px;top:60px;width:190px;height:238px"><span class="fl">v2 · attempt 1</span><div class="img" style="background:radial-gradient(circle at 50% 70%,#e7f3e4,#a9c99b 60%,#5d8752)"><div class="jar" style="transform:scale(1.5)"></div></div><span class="badge pass">✓ passed</span></div>
+        <div class="frame" style="left:250px;top:330px;width:190px;height:238px"><span class="fl">v3 · attempt 3</span><div class="img" style="background:radial-gradient(circle at 50% 70%,#f3e4f0,#d29ac4 60%,#8a4d80)"><div class="jar" style="transform:scale(1.5);filter:hue-rotate(40deg)"></div></div><span class="badge fail">✗ label text</span></div>
+        <div class="frame" style="left:460px;top:330px;width:190px;height:238px;background:linear-gradient(110deg,#ecebe6 30%,#f6f5f1 50%,#ecebe6 70%);background-size:200% 100%;animation:sh 1.4s linear infinite"><span class="fl">v4 · generating…</span></div>
+        <div class="zoom"><span>−</span><span>84%</span><span>+</span><span>⤢ Fit</span></div>
+        <div class="tools"><span class="on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 8-6 2-2 6z"/></svg></span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11V5a2 2 0 014 0v5M11 10V4a2 2 0 014 0v6M15 10V6a2 2 0 014 0v8a7 7 0 01-14 0v-3a2 2 0 014 0"/></svg></span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M8 11h6M11 8v6"/></svg></span><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h4l3-8 4 16 3-8h2"/></svg></span></div>
+      </div>
+      <div class="side r">
+        <div class="lbl">Selected · v1</div>
+        <div class="kv"><span>Status</span><b style="color:var(--green)">Passed</b></div>
+        <div class="kv"><span>Attempts</span><b>2 of 3</b></div>
+        <div class="kv"><span>Repaired</span><b>Yes · paste + relight</b></div>
+        <div class="lbl">Fidelity checks</div>
+        <div class="check"><div class="row"><span>Label text (OCR CER)</span><b>0.04</b></div><div class="meter"><span style="width:12%;background:var(--green)"></span><i style="left:30%"></i></div></div>
+        <div class="check"><div class="row"><span>Look (DINOv2)</span><b>0.91</b></div><div class="meter"><span style="width:91%;background:var(--green)"></span><i style="left:80%"></i></div></div>
+        <div class="check"><div class="row"><span>Colour (ΔE)</span><b>3.2</b></div><div class="meter"><span style="width:32%;background:var(--green)"></span><i style="left:60%"></i></div></div>
+        <div class="check"><div class="row"><span>Shape (silhouette IoU)</span><b>0.88</b></div><div class="meter"><span style="width:88%;background:var(--green)"></span><i style="left:85%"></i></div></div>
+        <div style="color:var(--muted);font-size:11px">Black tick = pass threshold</div>
+        <div class="act"><button class="tbtn">Regenerate</button><button class="tbtn black">Download</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============ B: Higgsfield-like ============ -->
+<div class="opt" data-choice="feed" onclick="toggleSelect(this)">
+<header><b>B. Generation feed (like Higgsfield / Imagine.art)</b><span>results stream in batches · prompt bar docked at bottom · detail drawer right</span></header>
+<div class="app">
+  <div class="rail">
+    <div class="lg">k</div>
+    <div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/></svg></div>
+    <div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10.5 9.5l4 2.5-4 2.5z" fill="currentColor"/></svg></div>
+    <div class="ri on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="7" width="14" height="14" rx="4"/><path d="M8 3h8v4H8z"/></svg></div>
+    <div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="4" width="11" height="15" rx="2"/><path d="M4 7v11M21 7v11"/></svg></div>
+  </div>
+  <div class="main">
+    <div class="top"><span class="crumb"><b>Product photos</b></span><span class="grow"></span><span class="seg" style="width:220px"><span class="on">All</span><span>Passed</span><span>Failed</span></span></div>
+    <div class="body">
+      <div class="feed">
+        <div class="batch"><div class="bh"><span class="ref"><span class="jar"></span></span><b>honey_jar.jpg</b> · Product · eucalyptus leaves · <span class="chip run">generating 3/4</span></div>
+          <div class="grid">
+            <div class="tile" style="background:radial-gradient(circle at 50% 70%,#fff3d6,#f2c98a 60%,#c58a3f);outline:2px solid var(--violet2)"><div class="jar" style="transform:scale(1.4)"></div><span class="badge pass">✓</span></div>
+            <div class="tile" style="background:radial-gradient(circle at 50% 70%,#e7f3e4,#a9c99b 60%,#5d8752)"><div class="jar" style="transform:scale(1.4)"></div><span class="badge pass">✓</span></div>
+            <div class="tile" style="background:radial-gradient(circle at 50% 70%,#f3e4f0,#d29ac4 60%,#8a4d80)"><div class="jar" style="transform:scale(1.4);filter:hue-rotate(40deg)"></div><span class="badge fail">✗ label</span></div>
+            <div class="tile gen2">checking label…</div>
+          </div></div>
+        <div class="batch"><div class="bh"><span class="ref" style="background:#dfe6ff"></span><b>sneaker.png</b> · Fashion · <span class="chip done">done · 4/4 passed</span></div>
+          <div class="grid">
+            <div class="tile" style="background:linear-gradient(160deg,#ffd7f0,#f05bb5)"></div><div class="tile" style="background:linear-gradient(160deg,#fff3c4,#fbd431)"></div><div class="tile" style="background:linear-gradient(160deg,#dcd6ff,#5b12f5)"></div><div class="tile" style="background:linear-gradient(160deg,#ffe0cc,#f27a2e)"></div>
+          </div></div>
+        <div class="prompt">
+          <div class="pr"><div class="thumb"><div class="jar"></div></div><div class="ptext">eucalyptus leaves, soft morning light<small>Props and mood. The product itself is never changed.</small></div></div>
+          <div class="pbar"><span class="pill"><i style="background:var(--orange)"></i>Product ▾</span><span class="pill">4 variants ▾</span><span class="pill">4:5 ▾</span><span class="pill">Gate: strict ▾</span><button class="pgen">Generate <small>✦</small></button></div>
+        </div>
+      </div>
+      <div class="drawer">
+        <div class="big" style="background:radial-gradient(circle at 50% 70%,#fff3d6,#f2c98a 60%,#c58a3f)"><div class="jar" style="transform:scale(2)"></div><span class="badge pass">✓ passed</span></div>
+        <div class="kv"><span>Attempts</span><b>2 · repaired</b></div>
+        <div class="check" style="margin-top:10px"><div class="row"><span>Label text</span><b>0.04</b></div><div class="meter"><span style="width:12%;background:var(--green)"></span><i style="left:30%"></i></div></div>
+        <div class="check"><div class="row"><span>Look</span><b>0.91</b></div><div class="meter"><span style="width:91%;background:var(--green)"></span><i style="left:80%"></i></div></div>
+        <div class="check"><div class="row"><span>Colour ΔE</span><b>3.2</b></div><div class="meter"><span style="width:32%;background:var(--green)"></span><i style="left:60%"></i></div></div>
+        <div class="check"><div class="row"><span>Shape</span><b>0.88</b></div><div class="meter"><span style="width:88%;background:var(--green)"></span><i style="left:85%"></i></div></div>
+        <div class="act"><button class="tbtn">Regenerate</button><button class="tbtn black">Download</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</body></html>
