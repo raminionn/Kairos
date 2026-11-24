@@ -72,22 +72,22 @@ export function Workspace({ module }: { module: ModuleConfig }) {
         </div>
 
         <div className="relative flex min-h-0 flex-1">
-          <main className="min-w-0 flex-1 overflow-y-auto px-2 pt-3 pb-48 md:px-4">
+          <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-2 pt-3 md:px-4">
             {offline && <p role="status" className="mx-3 mb-3 rounded-xl bg-[#fee2e2] px-4 py-2 text-sm text-fail">Can&apos;t reach the server. Retrying…</p>}
             {loaded && jobs.length === 0 && (
               <p className="mx-3 mt-10 text-center text-muted">Nothing here yet. Add your input below and press Generate.</p>
             )}
             {jobs.map((job) => (
-              <BatchRow key={job.id} job={job} outputs={(outputs[job.id] ?? []).filter(visible).sort(module.sort)}
+              <BatchRow key={job.id} job={job} outputs={(outputs[job.id] ?? []).filter(visible).sort(module.sort)} loaded={job.id in outputs}
                 summary={module.summary(job)} gridClass={module.gridClass} tileAspect={module.tileAspect}
                 expected={module.expectedCount(job)} selectedId={selected?.id} highlight={job.id === openJobId}
                 renderTile={module.renderTile} onSelect={setSelected} />
             ))}
+            {/* Sticky, not absolute: at the end of the feed it sits below the last row instead of over it. */}
+            <div className="sticky bottom-0 mt-auto px-1 pt-6 pb-4">
+              <PromptBar onSubmit={submit}>{module.promptFields}</PromptBar>
+            </div>
           </main>
-
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-4 md:right-80">
-            <PromptBar onSubmit={submit}>{module.promptFields}</PromptBar>
-          </div>
 
           <aside aria-label="Details"
             className={`${selected ? "fixed inset-x-0 bottom-0 z-20 max-h-[85dvh] rounded-t-2xl shadow-2xl" : "hidden"} overflow-y-auto border-line bg-white p-4 md:static md:block md:max-h-none md:w-80 md:shrink-0 md:rounded-none md:border-l md:shadow-none`}>

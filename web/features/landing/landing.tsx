@@ -90,7 +90,10 @@ export function Landing() {
         bars.forEach((b, k) => gsap.set(b, { width: k < i ? "100%" : "0%" }));
         gsap.fromTo(bars[i], { width: "0%" }, { width: "100%", duration: 5, ease: "none", onComplete: () => show((i + 1) % 3) });
       };
-      ScrollTrigger.create({ trigger: "#features", start: "top 60%", once: true, onEnter: () => show(0) });
+      // Auto-advance only when motion is allowed; with "reduce motion" the first tab stays still.
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        ScrollTrigger.create({ trigger: "#features", start: "top 60%", once: true, onEnter: () => show(0) });
+      });
 
       // ---- ranking chart: time pills redraw the line and count the stats ----
       const tip1 = $("#tip1"), tip2 = $("#tip2");
@@ -114,9 +117,18 @@ export function Landing() {
         segButtons.forEach((x) => x.classList.toggle("on", x === b));
         setChart(k);
       };
-      segButtons.forEach((b, k) => (b.onclick = () => select(b, k)));
-      let auto = 1;
-      timers.push(window.setInterval(() => { auto = (auto + 1) % SETS.length; select(segButtons[auto], auto); }, 3500));
+      let userPicked = false;
+      segButtons.forEach((b, k) => (b.onclick = () => { userPicked = true; select(b, k); }));
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        let auto = 1;
+        const t = window.setInterval(() => {
+          if (userPicked) return window.clearInterval(t); // a user's choice is never overridden
+          auto = (auto + 1) % SETS.length;
+          select(segButtons[auto], auto);
+        }, 3500);
+        timers.push(t);
+        return () => window.clearInterval(t);
+      });
 
       // ---- stats: count up and pop the tag ----
       $$(".srow").forEach((r) =>

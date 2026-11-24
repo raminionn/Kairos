@@ -5,6 +5,8 @@ import { timeAgo } from "@/features/jobs/kinds";
 interface Props {
   job: Job;
   outputs: Output[];
+  /** True once the job's outputs have been fetched (they may still be empty or filtered out). */
+  loaded: boolean;
   summary: string;
   gridClass: string;
   tileAspect: string;
@@ -16,12 +18,14 @@ interface Props {
 }
 
 /** One job: header line, then its result tiles (or shimmers while it runs). */
-export function BatchRow({ job, outputs, summary, gridClass, tileAspect, expected, selectedId, highlight, renderTile, onSelect }: Props) {
+export function BatchRow({ job, outputs, loaded, summary, gridClass, tileAspect, expected, selectedId, highlight, renderTile, onSelect }: Props) {
   const busy = job.status === "queued" || job.status === "running";
+  const waiting = busy || (job.status === "done" && !loaded);
+  const shimmers = waiting ? Math.max(expected - outputs.length, 0) : 0;
   return (
     <section id={`job-${job.id}`} className={`scroll-mt-4 rounded-2xl p-3 transition-colors ${highlight ? "bg-[#f1ecff]" : ""}`}>
       <header className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
-        <b className="font-medium text-ink">{String(job.input.name ?? job.id)}</b>
+        <b className="font-medium text-ink">{String(job.input?.name ?? job.id)}</b>
         {summary && <span>· {summary}</span>}
         <StatusChip job={job} />
         <span className="ml-auto text-xs">{timeAgo(job.created_at)}</span>
@@ -34,8 +38,8 @@ export function BatchRow({ job, outputs, summary, gridClass, tileAspect, expecte
               {renderTile(o, o.id === selectedId)}
             </button>
           ))}
-          {(busy || (job.status === "done" && outputs.length === 0)) &&
-            Array.from({ length: Math.max(expected - outputs.length, 0) }, (_, i) => (
+          {!waiting && outputs.length === 0 && <p className="col-span-full text-sm text-muted">No results to show.</p>}
+          {Array.from({ length: shimmers }, (_, i) => (
               <div key={i} className={`shimmer grid place-items-center rounded-xl text-center text-xs text-muted ${tileAspect}`}>
                 {busy ? (job.stage ?? "queued") + "…" : "loading…"}
               </div>

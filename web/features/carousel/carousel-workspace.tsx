@@ -7,7 +7,7 @@ import { CarouselDrawer, CarouselTile } from "./components/carousel-views";
 const carouselModule: ModuleConfig = {
   kind: "carousel",
   title: "LinkedIn carousels",
-  summary: (job) => (job.input.source_job_id ? "from a video" : job.input.text ? "from text" : ""),
+  summary: (job) => (job.input?.source_job_id ? "from a video" : job.input?.text ? "from text" : ""),
   gridClass: "grid-cols-2 sm:grid-cols-3 xl:grid-cols-5",
   tileAspect: "aspect-[4/5]",
   renderTile: (o) => o.kind === "carousel_pdf" && <CarouselTile output={o} />,

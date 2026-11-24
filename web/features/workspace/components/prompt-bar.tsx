@@ -19,7 +19,7 @@ export function PromptBar({ children, onSubmit }: { children: React.ReactNode; o
   }
 
   return (
-    <form onSubmit={handle} noValidate className="pointer-events-auto mx-auto w-full max-w-3xl rounded-2xl border border-line bg-white p-3 shadow-[0_12px_40px_rgba(20,0,60,.12)]">
+    <form onSubmit={handle} noValidate className="mx-auto w-full max-w-3xl rounded-2xl border border-line bg-white p-3 shadow-[0_12px_40px_rgba(20,0,60,.12)]">
       <div className="flex flex-wrap items-end gap-2" key={version}>
         <div className="w-full min-w-0 sm:w-auto sm:flex-1">{children}</div>
         <button type="submit" disabled={sending}

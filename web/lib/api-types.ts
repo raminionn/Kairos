@@ -13,8 +13,9 @@ export interface Job {
   error: string | null;
   created_at: string;
   updated_at: string;
-  /** Request fields. `name` is the uploaded file name or the carousel topic. */
-  input: Record<string, unknown>;
+  /** Request fields. `name` is the uploaded file name or the carousel topic. Not in the system design
+   *  Job contract yet (only in the DB table), so it may be missing: always read it with `?.`. */
+  input?: Record<string, unknown>;
 }
 
 export type Category = "fashion" | "app" | "product" | "packaging";

@@ -31,7 +31,7 @@ export function CarouselFields() {
           <span className="size-2.5 rounded-[3px] bg-yellow" aria-hidden />From video
           <select name="source_job_id" defaultValue="" className="max-w-40 bg-transparent outline-none">
             <option value="">none</option>
-            {videos.map((v) => <option key={v.id} value={v.id}>{String(v.input.name ?? v.id)}</option>)}
+            {videos.map((v) => <option key={v.id} value={v.id}>{String(v.input?.name ?? v.id)}</option>)}
           </select>
         </label>
       </div>

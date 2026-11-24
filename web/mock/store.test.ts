@@ -39,7 +39,7 @@ describe("store", () => {
     const b = createJob("carousel", { name: "newer" }, T0 + 10);
     const ids = listJobs(T0 + 20).map((j) => j.id);
     expect(ids.indexOf(b.id)).toBeLessThan(ids.indexOf(a.id));
-    expect(getJob(a.id, T0 + 20)?.input.name).toBe("older");
+    expect(getJob(a.id, T0 + 20)?.input?.name).toBe("older");
     expect(getJob("nope", T0)).toBeUndefined();
   });
 });

@@ -20,7 +20,7 @@ export function JobsTable() {
             <Link href={`/${j.kind}/${j.id}`} className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-2 px-5 py-4 hover:bg-page sm:grid-cols-[auto_1fr_auto_10rem_7rem]">
               <span className={`size-2.5 rounded-full ${KIND_DOT[j.kind]}`} aria-hidden />
               <span className="min-w-0">
-                <span className="block truncate font-medium">{String(j.input.name ?? j.id)}</span>
+                <span className="block truncate font-medium">{String(j.input?.name ?? j.id)}</span>
                 <span className="text-xs text-muted">{KIND_LABEL[j.kind]}</span>
               </span>
               <StatusChip job={j} />

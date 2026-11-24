@@ -36,7 +36,7 @@ export function jobAt(job: Job, now: number): Job {
     const stages = STAGES[job.kind];
     return { ...job, status: "running", progress, error: null, stage: stages[Math.floor((progress / 100) * stages.length)], updated_at: at(t) };
   }
-  if (String(job.input.name ?? "").includes("fail")) {
+  if (String(job.input?.name ?? "").includes("fail")) {
     return { ...job, status: "failed", stage: null, progress: 60, error: "Mock failure", updated_at: at(RUN_MS) };
   }
   return { ...job, status: "done", stage: null, progress: 100, error: null, updated_at: at(RUN_MS) };
@@ -56,8 +56,8 @@ export function outputsFor(job: Job): Output[] {
   const file = (path: string) => (path ? `/files/${job.id}/${path}` : "");
 
   if (job.kind === "product") {
-    const category = job.input.category as Category;
-    const n = Number(job.input.n_variants ?? 3);
+    const category = job.input?.category as Category;
+    const n = Number(job.input?.n_variants ?? 3);
     return VARIANTS.slice(0, n).map(({ path, ...v }, i) => ({
       id: `${job.id}-v${i + 1}`, job_id: job.id, url: file(path), kind: "product_image",
       meta: { ...v, category, checks: category === "app" && path ? APP_CHECKS : v.checks },

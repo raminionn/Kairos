@@ -12,8 +12,8 @@ export function StatusChip({ job }: { job: Job }) {
     job.status === "running" ? `${job.stage ?? "running"} · ${job.progress}%`
     : job.status === "failed" ? `failed · ${job.error ?? "unknown error"}`
     : job.status;
-  return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs whitespace-nowrap ${STYLE[job.status]}`}>
-    {job.status === "running" && <span className="size-1.5 animate-pulse rounded-full bg-current" />}
-    {text}
+  return <span title={text} className={`inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs ${STYLE[job.status]}`}>
+    {job.status === "running" && <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-current" />}
+    <span className="truncate">{text}</span>
   </span>;
 }

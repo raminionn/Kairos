@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Job, JobKind, Output } from "@/lib/api-types";
 import { createJob, getOutputs, listJobs } from "./api";
+import { shouldPoll } from "./poll";
 
 const POLL_MS = 2000;
-const busy = (j: Job) => j.status === "queued" || j.status === "running";
 
 /**
- * Jobs (optionally of one kind), newest first, plus outputs of finished jobs of that kind.
+ * Jobs (optionally of one kind), newest first. With a kind, also the outputs of its finished jobs;
+ * a job id is in `outputs` once its outputs have loaded.
  * `all` holds every job, for module-wide status such as the rail's running dots.
- * Polls every 2 s while a job is queued or running, or while the server is unreachable.
+ * Polls every 2 s while a job is queued or running, a finished job still lacks its outputs,
+ * or the server is unreachable.
  */
 export function useJobFeed(kind?: JobKind) {
   const [all, setAll] = useState<Job[]>([]);
@@ -23,6 +25,7 @@ export function useJobFeed(kind?: JobKind) {
     let alive = true;
     let timer: number | undefined;
     const requested = new Set<string>();
+    const have = new Set<string>();
 
     const tick = async () => {
       window.clearTimeout(timer);
@@ -34,13 +37,20 @@ export function useJobFeed(kind?: JobKind) {
         setAll(fresh);
         setOffline(false);
         setLoaded(true);
-        again = fresh.some(busy);
-        for (const j of list) {
+        const withOutputs = kind ? list : []; // the jobs list page shows no outputs
+        again = shouldPoll(fresh, withOutputs, have);
+        for (const j of withOutputs) {
           if (j.status !== "done" || requested.has(j.id)) continue;
           requested.add(j.id);
           getOutputs(j.id)
-            .then((o) => alive && setOutputs((prev) => ({ ...prev, [j.id]: o })))
-            .catch(() => requested.delete(j.id)); // retried on the next tick
+            .then((o) => {
+              have.add(j.id);
+              if (alive) setOutputs((prev) => ({ ...prev, [j.id]: o }));
+            })
+            .catch(() => {
+              requested.delete(j.id); // shouldPoll keeps the loop going, so the next tick retries
+              if (alive) setOffline(true);
+            });
         }
       } catch {
         if (alive) setOffline(true);
