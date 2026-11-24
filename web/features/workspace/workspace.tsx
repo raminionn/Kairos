@@ -14,6 +14,8 @@ export type Filter = "all" | "passed" | "failed";
 export interface ModuleConfig {
   kind: JobKind;
   title: string;
+  headline?: string;
+  description?: string;
   /** Settings shown after the job name, e.g. "Product · eucalyptus leaves". */
   summary(job: Job): string;
   /** Tailwind grid columns for the tiles, and the shimmer tile's aspect ratio. */
@@ -63,20 +65,40 @@ export function Workspace({ module }: { module: ModuleConfig }) {
       {/* Top Studio Bar */}
       <Rail active={module.kind} all={all} />
 
-      {/* Main Studio Viewport */}
-      <div className="relative flex min-h-0 flex-1 overflow-hidden">
-        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-4 pt-6 pb-2 md:px-8">
+      {/* Studio Workbench Two-Column Layout (Matching Higgsfield Studio) */}
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        {/* Left Studio Creation Panel */}
+        <aside
+          aria-label="Creation controls"
+          className="w-full shrink-0 border-b border-line bg-card/30 overflow-y-auto lg:w-96 xl:w-[410px] lg:border-b-0 lg:border-r"
+        >
+          <PromptBar onSubmit={submit} kind={module.kind} title={module.title}>
+            {module.promptFields}
+          </PromptBar>
+        </aside>
+
+        {/* Right Studio Stage & Media Feed */}
+        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-4 py-6 md:px-8">
           <div className="mx-auto w-full max-w-6xl">
-            {/* Stage Header & Filter Row */}
-            <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-line/80 pb-4">
+            {/* Stage Hero & Subnav matching Higgsfield */}
+            <div className="mb-6 flex flex-col gap-4 border-b border-line/80 pb-6 text-center">
+              <div className="flex items-center justify-center gap-6 text-xs font-semibold text-muted">
+                <span className="text-violet2 font-bold border-b-2 border-violet2 pb-1">Motion Library</span>
+                <span className="hover:text-ink cursor-pointer">History</span>
+                <span className="hover:text-ink cursor-pointer">Styles</span>
+              </div>
+
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-ink md:text-2xl">{module.title}</h1>
-                <p className="mt-0.5 text-xs text-muted md:text-sm">
-                  Generate, evaluate and inspect creative outputs with AI precision.
+                <h1 className="text-2xl font-black tracking-tight text-ink md:text-3xl uppercase">
+                  {module.headline ?? module.title}
+                </h1>
+                <p className="mx-auto mt-1.5 max-w-2xl text-xs text-muted md:text-sm">
+                  {module.description ?? "Generate, evaluate and inspect creative outputs with AI precision."}
                 </p>
               </div>
 
-              {module.filter && (
+              {/* Filter Tabs matching Higgsfield */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 <div
                   role="group"
                   aria-label="Filter results"
@@ -101,7 +123,11 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                     );
                   })}
                 </div>
-              )}
+
+                <div className="text-xs font-semibold text-muted">
+                  <span>Trending</span>
+                </div>
+              </div>
             </div>
 
             {offline && (
@@ -120,12 +146,12 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                   <Inbox className="size-7" strokeWidth={1.5} aria-hidden />
                 </div>
                 <h3 className="font-semibold text-ink">No creations yet</h3>
-                <p className="max-w-sm text-sm">Add an input in the prompt bar below and press Generate to start.</p>
+                <p className="max-w-sm text-sm">Add inputs in the creation panel on the left and click Generate to start.</p>
               </div>
             )}
 
             {/* Batch Rows & Media Tiles */}
-            <div className="space-y-6 pb-28">
+            <div className="space-y-6 pb-12">
               {jobs.map((job) => (
                 <BatchRow
                   key={job.id}
@@ -144,20 +170,13 @@ export function Workspace({ module }: { module: ModuleConfig }) {
               ))}
             </div>
           </div>
-
-          {/* Higgsfield-Style Centered Floating Prompt Dock */}
-          <div className="fixed inset-x-0 bottom-5 z-30 pointer-events-none px-4">
-            <div className="pointer-events-auto">
-              <PromptBar onSubmit={submit}>{module.promptFields}</PromptBar>
-            </div>
-          </div>
         </main>
 
         {/* Side Inspector Drawer */}
         {selected && (
           <aside
             aria-label="Details"
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] rounded-t-3xl border-t border-line bg-white/95 p-6 shadow-2xl backdrop-blur-xl overflow-y-auto md:static md:block md:max-h-none md:w-96 md:shrink-0 md:rounded-none md:border-l md:border-line md:bg-white/95 md:shadow-xl"
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] rounded-t-3xl border-t border-line bg-white/95 p-6 shadow-2xl backdrop-blur-xl overflow-y-auto lg:static lg:block lg:max-h-none lg:w-96 lg:shrink-0 lg:rounded-none lg:border-l lg:border-line lg:bg-white/95 lg:shadow-xl"
           >
             <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
               <span className="text-xs font-bold tracking-wider text-muted uppercase">Inspector</span>

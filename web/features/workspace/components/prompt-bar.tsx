@@ -1,16 +1,36 @@
 "use client";
 
-import { LoaderCircle, Sparkles } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
+import type { JobKind } from "@/lib/api-types";
 
-/** Floating studio prompt dock matching Higgsfield's creation bar layout. */
-export function PromptBar({
-  children,
-  onSubmit,
-}: {
+interface PromptBarProps {
   children: React.ReactNode;
   onSubmit: (form: FormData) => Promise<{ error?: string }>;
-}) {
+  title?: string;
+  kind?: JobKind;
+}
+
+const MODULE_META: Record<JobKind, { studio: string; tag: string; badge: string }> = {
+  product: {
+    studio: "KAIROS PRODUCT STUDIO",
+    tag: "High-fidelity e-commerce staging",
+    badge: "Fidelity engine",
+  },
+  video: {
+    studio: "KAIROS SHORT CLIPS",
+    tag: "Viral detection & auto-captions",
+    badge: "Motion engine",
+  },
+  carousel: {
+    studio: "KAIROS CAROUSEL ENGINE",
+    tag: "Multi-slide narrative synthesis",
+    badge: "Narrative engine",
+  },
+};
+
+/** Studio creation workbench panel matching Higgsfield's sidebar creation flow. */
+export function PromptBar({ children, onSubmit, kind = "product" }: PromptBarProps) {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [version, setVersion] = useState(0); // remounts the fields to clear them after a job starts
@@ -25,18 +45,51 @@ export function PromptBar({
     else setVersion((v) => v + 1);
   }
 
+  const meta = MODULE_META[kind] ?? MODULE_META.product;
+
   return (
     <form
       onSubmit={handle}
       noValidate
-      className="mx-auto w-full max-w-4xl rounded-2xl border border-line bg-white/95 p-3.5 shadow-[0_20px_50px_rgba(0,0,0,0.12)] backdrop-blur-2xl ring-1 ring-black/5 md:p-4"
+      className="flex h-full flex-col justify-between p-4 md:p-5"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4" key={version}>
-        <div className="min-w-0 flex-1">{children}</div>
+      <div className="flex flex-col gap-4">
+        {/* Panel Header & Tabs matching Higgsfield */}
+        <div className="flex items-center justify-between border-b border-line pb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold tracking-wider text-ink uppercase">Create</span>
+            <span className="size-1.5 rounded-full bg-emerald-500" aria-label="ready" />
+          </div>
+          <span className="rounded-md border border-line bg-card/60 px-2 py-0.5 text-[10px] font-semibold text-muted">
+            {meta.badge}
+          </span>
+        </div>
+
+        {/* Feature Engine Preview Card */}
+        <div className="rounded-2xl border border-line/80 bg-gradient-to-br from-card to-card/40 p-3.5 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-extrabold tracking-wide text-violet2">
+              {meta.studio}
+            </span>
+            <span className="rounded-full bg-violet2/10 px-2 py-0.5 text-[10px] font-bold text-violet2">
+              Studio v2
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-muted leading-relaxed">{meta.tag}</p>
+        </div>
+
+        {/* Inputs container */}
+        <div className="flex flex-col gap-3" key={version}>
+          {children}
+        </div>
+      </div>
+
+      {/* Action footer with full-width Generate button */}
+      <div className="mt-6 pt-4 border-t border-line/60">
         <button
           type="submit"
           disabled={sending}
-          className="flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-violet2 px-6 text-sm font-bold tracking-wide text-white shadow-md shadow-violet2/20 transition-all duration-200 hover:bg-violet hover:-translate-y-px hover:shadow-lg focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-violet2 px-6 text-sm font-bold tracking-wide text-white shadow-md shadow-violet2/20 transition-all duration-200 hover:bg-violet hover:-translate-y-px hover:shadow-lg focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {sending ? (
             <>
@@ -44,18 +97,15 @@ export function PromptBar({
               Starting…
             </>
           ) : (
-            <>
-              Generate
-              <Sparkles className="size-4 text-white" aria-hidden />
-            </>
+            "Generate"
           )}
         </button>
+        {error && (
+          <p role="alert" className="mt-2.5 text-center text-xs font-semibold text-fail">
+            {error}
+          </p>
+        )}
       </div>
-      {error && (
-        <p role="alert" className="mt-2.5 text-sm font-medium text-fail">
-          {error}
-        </p>
-      )}
     </form>
   );
 }
