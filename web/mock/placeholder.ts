@@ -19,8 +19,16 @@ export function placeholderSvg(path: string): string {
   }
   if (path.startsWith("slides/")) {
     const n = Number.parseInt(name, 10) || 1;
+    // ~16 characters fit on one line at this size; wrap on spaces.
+    const lines = (SLIDES[n - 1] ?? "Slide").split(" ").reduce<string[]>((acc, w) => {
+      const last = acc.at(-1);
+      if (last !== undefined && (last + " " + w).length <= 16) acc[acc.length - 1] = last + " " + w;
+      else acc.push(w);
+      return acc;
+    }, []);
+    const tspans = lines.map((l, i) => `<tspan x="90" dy="${i ? 115 : 0}">${esc(l)}</tspan>`).join("");
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1350"><rect width="1080" height="1350" fill="#fff"/>
-<rect x="0" y="0" width="1080" height="24" fill="${b}"/><text x="90" y="300" font-family="sans-serif" font-size="96" font-weight="600">${esc(SLIDES[n - 1] ?? "Slide")}</text>
+<rect x="0" y="0" width="1080" height="24" fill="${b}"/><text x="90" y="300" font-family="sans-serif" font-size="96" font-weight="600">${tspans}</text>
 <text x="990" y="1260" font-family="sans-serif" font-size="40" fill="#999" text-anchor="end">${n}/${SLIDES.length}</text></svg>`;
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">${bg}<rect width="400" height="500" fill="url(#g)"/>
