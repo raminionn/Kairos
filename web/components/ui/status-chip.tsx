@@ -1,10 +1,17 @@
 import type { Job } from "@/lib/api-types";
 
-const STYLE: Record<Job["status"], string> = {
-  queued: "bg-white/5 text-muted border border-white/10",
-  running: "bg-[#d9f928]/10 text-[#d9f928] border border-[#d9f928]/30 shadow-[0_0_12px_rgba(217,249,40,0.15)]",
-  done: "bg-emerald-500/10 text-emerald-300 border border-emerald-500/25",
-  failed: "bg-fail/15 text-red-400 border border-fail/30",
+const DOT: Record<Job["status"], string> = {
+  queued: "bg-white/40",
+  running: "bg-lime animate-pulse",
+  done: "bg-emerald-400",
+  failed: "bg-red-400",
+};
+
+const TEXT: Record<Job["status"], string> = {
+  queued: "text-muted",
+  running: "text-white/85",
+  done: "text-muted",
+  failed: "text-red-400",
 };
 
 /** `short`: no error text (for lists and headers; the page shows the error once in full). */
@@ -14,11 +21,8 @@ export function StatusChip({ job, short = false }: { job: Job; short?: boolean }
     : job.status === "failed" ? (short ? "failed" : `failed · ${job.error ?? "unknown error"}`)
     : job.status;
   return (
-    <span
-      title={text}
-      className={`inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide backdrop-blur-xs ${STYLE[job.status]}`}
-    >
-      {job.status === "running" && <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-current" />}
+    <span title={text} className={`inline-flex max-w-full min-w-0 items-center gap-1.5 text-xs ${TEXT[job.status]}`}>
+      <span className={`size-1.5 shrink-0 rounded-full ${DOT[job.status]}`} aria-hidden />
       <span className="truncate">{text}</span>
     </span>
   );

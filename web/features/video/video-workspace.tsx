@@ -8,9 +8,7 @@ import { VideoFields } from "./components/video-fields";
 const videoModule: ModuleConfig = {
   kind: "video",
   title: "Video clips",
-  headline: "TURN ONE VIDEO INTO MANY",
-  description:
-    "Remix raw footage into viral clips with automated hook detection, captions, and engagement ranking.",
+  description: "Upload a long video. Kairos finds the strongest moments and ranks them as short clips.",
   summary: () => "",
   gridClass: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5",
   tileAspect: "aspect-[9/16]",

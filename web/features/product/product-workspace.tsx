@@ -7,9 +7,7 @@ import { ProductDrawer, ProductTile } from "./components/product-views";
 const productModule: ModuleConfig = {
   kind: "product",
   title: "Product shots",
-  headline: "TURN CONCEPTS INTO PRODUCTION ASSETS",
-  description:
-    "Generate photorealistic e-commerce imagery with automated multi-model fidelity verification and pass/fail thresholds.",
+  description: "Upload one product photo. Kairos places it in new scenes and checks each image stays true to your product.",
   summary: (job) => [job.input?.category, job.input?.props].filter(Boolean).join(" · "),
   gridClass: "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4",
   tileAspect: "aspect-[4/5]",

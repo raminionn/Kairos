@@ -1,93 +1,35 @@
 "use client";
 
-import { GalleryHorizontalEnd, Minus, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Field, inputClass } from "@/components/ui/field";
 import type { Job } from "@/lib/api-types";
 import { listJobs } from "@/features/jobs/api";
 
 export function CarouselFields() {
   const [videos, setVideos] = useState<Job[]>([]);
-  const [showText, setShowText] = useState(false);
 
   useEffect(() => {
     let alive = true;
     listJobs()
       .then((all) => alive && setVideos(all.filter((j) => j.kind === "video" && j.status === "done")))
-      .catch(() => {}); // the source list is optional; the feed shows the offline banner
+      .catch(() => {}); // the source list is optional; the page shows the offline banner
     return () => { alive = false; };
   }, []);
 
   return (
-    <div className="space-y-4">
-      {/* Topic Prompt Textarea */}
-      <div>
-        <label htmlFor="carousel-topic" className="text-[11px] font-bold tracking-wider text-muted uppercase block mb-1.5">
-          Carousel Topic
-        </label>
-        <textarea
-          id="carousel-topic"
-          name="topic"
-          rows={3}
-          placeholder="Describe the carousel topic, e.g. 5 SaaS growth myths every founder falls for..."
-          aria-label="Topic"
-          className="w-full rounded-xl border border-line bg-[#13141f] p-3 text-xs text-white outline-none transition-all placeholder:text-muted/60 focus:border-lime focus:ring-1 focus:ring-lime/30 resize-none font-normal leading-relaxed"
-        />
-      </div>
-
-      {/* Optional Source Text */}
-      {showText && (
-        <div>
-          <label htmlFor="carousel-source" className="text-[11px] font-bold tracking-wider text-muted uppercase block mb-1.5">
-            Source Text
-          </label>
-          <textarea
-            id="carousel-source"
-            name="text"
-            rows={4}
-            placeholder="Paste your source article, notes, or transcript here..."
-            aria-label="Source text"
-            className="w-full rounded-xl border border-line bg-[#13141f] p-3 text-xs text-white outline-none transition-all placeholder:text-muted/60 focus:border-lime focus:ring-1 focus:ring-lime/30 resize-none font-normal leading-relaxed"
-          />
-        </div>
-      )}
-
-      {/* Controls row */}
-      <div className="flex flex-col gap-2.5">
-        <button
-          type="button"
-          onClick={() => setShowText((v) => !v)}
-          aria-expanded={showText}
-          className="flex cursor-pointer items-center justify-between rounded-xl border border-line bg-[#13141f] px-3.5 py-2 text-xs font-semibold text-muted transition-colors hover:border-line hover:text-white"
-        >
-          <span className="flex items-center gap-1.5">
-            {showText ? <Minus className="size-3.5" aria-hidden /> : <Plus className="size-3.5" aria-hidden />}
-            Add source text
-          </span>
-          <span className="text-[10px] text-muted font-mono">optional</span>
-        </button>
-
-        <label className="flex items-center justify-between rounded-xl border border-line bg-[#13141f] px-3.5 py-2 text-xs font-semibold text-muted">
-          <span className="flex items-center gap-2">
-            <GalleryHorizontalEnd className="size-3.5 text-lime" aria-hidden />
-            From video:
-          </span>
-          <select
-            name="source_job_id"
-            defaultValue=""
-            aria-label="Source video"
-            className="max-w-44 cursor-pointer rounded-lg border border-line bg-[#191a26] px-2 py-1 text-xs font-bold text-white outline-none focus:border-lime truncate"
-          >
-            <option value="" className="bg-[#191a26] text-white">
-              None (topic only)
-            </option>
-            {videos.map((v) => (
-              <option key={v.id} value={v.id} className="bg-[#191a26] text-white">
-                {String(v.input?.name ?? v.id)}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-    </div>
+    <>
+      <Field label="Topic" htmlFor="topic">
+        <input id="topic" name="topic" placeholder="e.g. 5 funding myths every founder believes" className={inputClass} />
+      </Field>
+      <Field label="Your text" hint="Optional" htmlFor="text">
+        <textarea id="text" name="text" rows={3} placeholder="Paste notes or a post to turn into slides" className={`${inputClass} resize-none`} />
+      </Field>
+      <Field label="From a video" hint="Optional" htmlFor="source_job_id">
+        <select id="source_job_id" name="source_job_id" defaultValue="" className={inputClass}>
+          <option value="">None</option>
+          {videos.map((v) => <option key={v.id} value={v.id}>{String(v.input?.name ?? v.id)}</option>)}
+        </select>
+      </Field>
+    </>
   );
 }

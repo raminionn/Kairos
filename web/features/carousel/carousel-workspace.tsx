@@ -7,9 +7,7 @@ import { CarouselDrawer, CarouselTile } from "./components/carousel-views";
 const carouselModule: ModuleConfig = {
   kind: "carousel",
   title: "Carousels",
-  headline: "TRANSFORM IDEAS INTO VIRAL CAROUSELS",
-  description:
-    "Generate high-converting multi-slide social carousels from raw topics or extracted video scripts.",
+  description: "Start from a topic, your own text or a finished video. Kairos turns it into slides.",
   summary: (job) => (job.input?.source_job_id ? "from a video" : job.input?.text ? "from text" : ""),
   gridClass: "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4",
   tileAspect: "aspect-[4/5]",

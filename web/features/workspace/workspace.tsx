@@ -16,7 +16,6 @@ export type Filter = "all" | "passed" | "failed";
 export interface ModuleConfig {
   kind: JobKind;
   title: string;
-  headline?: string;
   description?: string;
   /** Settings shown after the job name, e.g. "Product · eucalyptus leaves". */
   summary(job: Job): string;
@@ -40,6 +39,8 @@ function OpenJobReader({ onChange }: { onChange(id?: string): void }) {
   useEffect(() => onChange(id), [id, onChange]);
   return null;
 }
+
+const NEW_LABEL: Record<JobKind, string> = { video: "New video project", product: "New product shoot", carousel: "New carousel" };
 
 export function Workspace({ module }: { module: ModuleConfig }) {
   const router = useRouter();
@@ -81,11 +82,11 @@ export function Workspace({ module }: { module: ModuleConfig }) {
           className="flex max-h-[38dvh] w-full shrink-0 flex-col border-b border-line bg-[#0d0e14] lg:max-h-none lg:w-80 lg:border-r lg:border-b-0">
           <div className="p-4">
             <button type="button" onClick={() => open(null)} aria-pressed={activeId === null}
-              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-lime px-4 py-2.5 text-sm font-bold text-black shadow-xs transition-all hover:bg-lime/90">
+              className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-line bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10 aria-pressed:border-lime/50">
               <Plus className="size-4" aria-hidden />New project
             </button>
           </div>
-          <p className="px-5 pb-2 text-[11px] font-bold tracking-wider text-muted uppercase">Your projects</p>
+          <p className="px-5 pb-2 text-xs text-muted">Projects</p>
           <div className="flex-1 space-y-2 overflow-y-auto px-3 pb-4">
             {loaded && jobs.length === 0 && <p className="px-2 py-4 text-xs text-muted">No projects yet.</p>}
             {jobs.map((job) => {
@@ -110,7 +111,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
           </div>
         </aside>
 
-        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-4 py-6 md:px-8">
+        <main className="canvas flex min-w-0 flex-1 flex-col overflow-y-auto px-4 py-8 md:px-10">
           <div className="mx-auto w-full max-w-5xl">
             {offline && (
               <p role="status" className="mb-6 flex items-center gap-2 rounded-xl border border-fail/30 bg-fail/10 px-4 py-3 text-sm font-medium text-fail">
@@ -121,9 +122,9 @@ export function Workspace({ module }: { module: ModuleConfig }) {
             {activeId === null ? (
               /* New project */
               <div className="mx-auto max-w-xl">
-                <h1 className="text-2xl font-black tracking-tight text-white uppercase md:text-3xl">{module.headline ?? module.title}</h1>
+                <h1 className="text-2xl font-semibold tracking-tight text-white">{NEW_LABEL[module.kind]}</h1>
                 {module.description && <p className="mt-1 mb-6 text-sm text-muted">{module.description}</p>}
-                <div className="rounded-2xl border border-line bg-[#0d0e14]">
+                <div className="rounded-2xl border border-line bg-[#0d0e14]/95 shadow-2xl shadow-black/40">
                   <PromptBar onSubmit={submit} kind={module.kind} title={module.title} onSuccess={(id) => id && open(id)}>
                     {module.promptFields}
                   </PromptBar>
@@ -140,7 +141,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                 <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-5">
                   <div className="min-w-0">
                     <p className="text-xs text-muted">{module.title}</p>
-                    <h1 className="truncate text-2xl font-black tracking-tight text-white">{String(activeJob.input?.name ?? activeJob.id)}</h1>
+                    <h1 className="truncate text-2xl font-semibold tracking-tight text-white">{String(activeJob.input?.name ?? activeJob.id)}</h1>
                   </div>
                   <StatusChip job={activeJob} short />
                 </div>
