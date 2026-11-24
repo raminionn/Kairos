@@ -37,27 +37,27 @@ export function BatchRow({
   return (
     <section
       id={`job-${job.id}`}
-      className={`scroll-mt-4 rounded-2xl p-3.5 transition-all duration-300 md:p-4.5 ${
+      className={`scroll-mt-6 rounded-2xl p-4 transition-all duration-300 md:p-5 ${
         highlight
           ? "bg-[#f1ecff]/80 ring-1 ring-violet2/30 shadow-xs"
-          : "hover:bg-white/40"
+          : "bg-white/40 border border-line/60 shadow-xs"
       }`}
     >
-      <header className="mb-3.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm text-muted">
-        <b className="font-semibold tracking-tight text-ink">{String(job.input?.name ?? job.id)}</b>
+      <header className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted">
+        <b className="font-semibold tracking-tight text-ink text-base">{String(job.input?.name ?? job.id)}</b>
         {summary && <span className="text-xs text-muted">· {summary}</span>}
         <StatusChip job={job} />
-        <span className="ml-auto text-xs text-muted">{timeAgo(job.created_at)}</span>
+        <span className="ml-auto text-xs text-muted font-mono">{timeAgo(job.created_at)}</span>
       </header>
       {job.status !== "failed" && (
-        <div className={`grid gap-3 md:gap-4 ${gridClass}`}>
+        <div className={`grid gap-4 md:gap-5 ${gridClass}`}>
           {outputs.map((o) => (
             <button
               key={o.id}
               type="button"
               onClick={() => onSelect(o)}
               aria-pressed={o.id === selectedId}
-              className={`block cursor-pointer rounded-xl text-left transition-all duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none ${
+              className={`block cursor-pointer rounded-2xl text-left transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none ${
                 o.id === selectedId
                   ? "ring-2 ring-violet2 ring-offset-2 ring-offset-page shadow-md shadow-violet2/20"
                   : ""
@@ -67,12 +67,12 @@ export function BatchRow({
             </button>
           ))}
           {!waiting && outputs.length === 0 && (
-            <p className="col-span-full py-6 text-center text-sm text-muted">No results to show.</p>
+            <p className="col-span-full py-8 text-center text-sm text-muted">No results to show.</p>
           )}
           {Array.from({ length: shimmers }, (_, i) => (
             <div
               key={i}
-              className={`shimmer grid place-items-center rounded-xl border border-line text-center text-xs font-medium text-muted ${tileAspect}`}
+              className={`shimmer grid place-items-center rounded-2xl border border-line text-center text-xs font-medium text-muted ${tileAspect}`}
             >
               {busy ? (job.stage ?? "queued") + "…" : "loading…"}
             </div>

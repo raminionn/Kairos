@@ -6,22 +6,23 @@ import { useState } from "react";
 export function VideoFields() {
   const [name, setName] = useState<string | null>(null);
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-xl p-1 transition-colors hover:bg-card/40 focus-within:ring-2 focus-within:ring-violet2">
-      <span className="grid size-13 shrink-0 place-items-center rounded-xl border border-dashed border-[#cfcfc8] bg-card text-muted transition-colors hover:border-violet2/50">
-        <Film className="size-5" strokeWidth={1.75} aria-hidden />
-      </span>
-      <span className="min-w-0">
-        <span className="block truncate text-[15px] font-medium text-ink">{name ?? "Choose a long video"}</span>
-        <span className="text-xs text-muted">mp4, mov, mkv or webm. Kairos finds, ranks and captions the best moments.</span>
-      </span>
-      <input
-        type="file"
-        name="file"
-        accept=".mp4,.mov,.mkv,.webm"
-        className="sr-only"
-        aria-label="Video file"
-        onChange={(e) => setName(e.target.files?.[0]?.name ?? null)}
-      />
-    </label>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between text-xs font-semibold text-muted">
+        <span>Upload raw footage to detect, rank and caption viral short clips</span>
+        <span>mp4, mov, mkv, webm</span>
+      </div>
+      <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-line bg-card/70 px-3 py-2 text-xs font-semibold text-ink transition-colors hover:bg-card focus-within:ring-2 focus-within:ring-violet2">
+        <Film className="size-4.5 text-violet2" strokeWidth={2} aria-hidden />
+        <span className="truncate text-sm font-medium">{name ?? "Choose a long video to clip..."}</span>
+        <input
+          type="file"
+          name="file"
+          accept=".mp4,.mov,.mkv,.webm"
+          className="sr-only"
+          aria-label="Video file"
+          onChange={(e) => setName(e.target.files?.[0]?.name ?? null)}
+        />
+      </label>
+    </div>
   );
 }

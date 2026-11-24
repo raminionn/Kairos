@@ -9,11 +9,11 @@ const CATEGORIES: { value: Category; label: string; dot: string }[] = [
   { value: "product", label: "Product", dot: "bg-orange" },
   { value: "packaging", label: "Packaging", dot: "bg-yellow" },
   { value: "fashion", label: "Fashion", dot: "bg-pink" },
-  { value: "app", label: "App", dot: "bg-violet2" },
+  { value: "app", label: "App", dot: "bg-peri" },
 ];
 
 const pill =
-  "cursor-pointer rounded-full border border-line bg-white px-3 py-1.5 text-xs font-medium text-muted transition-all duration-150 hover:border-line hover:text-ink has-checked:border-violet2 has-checked:bg-[#f1ecff] has-checked:text-violet2 has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-violet2 has-focus-visible:outline-none";
+  "cursor-pointer rounded-xl border border-line bg-card/60 px-3 py-1.5 text-xs font-semibold text-muted transition-all duration-150 hover:border-line hover:text-ink has-checked:border-violet2 has-checked:bg-[#f1ecff] has-checked:text-violet2 has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-violet2 has-focus-visible:outline-none";
 
 export function ProductFields() {
   const [file, setFile] = useState<File | null>(null);
@@ -29,16 +29,26 @@ export function ProductFields() {
 
   return (
     <div className="space-y-2.5">
-      <div className="flex items-center gap-3">
+      {/* Top Prompt Line */}
+      <input
+        name="props"
+        placeholder="Describe the scene, props and mood, e.g. eucalyptus leaves, soft morning light..."
+        aria-label="Props"
+        className="w-full bg-transparent px-1 py-1 text-base text-ink outline-none placeholder:text-muted/70 font-normal"
+      />
+
+      {/* Bottom Parameter Controls Toolbar */}
+      <div className="flex flex-wrap items-center gap-2">
         <label
-          className="relative grid size-13 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-xl border border-dashed border-[#cfcfc8] bg-card text-muted transition-colors hover:border-violet2/50 focus-within:ring-2 focus-within:ring-violet2"
+          className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-line bg-card/80 px-2.5 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-card focus-within:ring-2 focus-within:ring-violet2 max-w-xs"
           title="Choose a photo"
         >
           {file && preview ? (
-            <img src={preview} alt="" className="size-full object-cover" />
+            <img src={preview} alt="" className="size-4.5 rounded-md object-cover" />
           ) : (
-            <ImagePlus className="size-5" strokeWidth={1.75} aria-hidden />
+            <ImagePlus className="size-4 text-muted" aria-hidden />
           )}
+          <span className="truncate">{file ? file.name : "Add reference photo"}</span>
           <input
             type="file"
             name="file"
@@ -48,19 +58,7 @@ export function ProductFields() {
             onChange={(e) => choose(e.target.files?.[0] ?? null)}
           />
         </label>
-        <div className="min-w-0 flex-1">
-          <input
-            name="props"
-            placeholder="Props and mood, e.g. eucalyptus leaves, soft morning light"
-            aria-label="Props"
-            className="w-full bg-transparent px-1 py-1 text-[15px] text-ink outline-none placeholder:text-muted"
-          />
-          <p className="px-1 text-xs text-muted truncate">
-            {file ? file.name : "Add a photo. The product itself is never changed."}
-          </p>
-        </div>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
+
         <fieldset className="contents">
           <legend className="sr-only">Category</legend>
           {CATEGORIES.map((c) => (
@@ -71,9 +69,10 @@ export function ProductFields() {
             </label>
           ))}
         </fieldset>
-        <label className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1 text-xs font-medium text-muted hover:border-line">
-          Variants
-          <select name="n_variants" defaultValue="3" className="cursor-pointer bg-transparent text-ink outline-none">
+
+        <label className="flex items-center gap-1.5 rounded-xl border border-line bg-card/60 px-3 py-1.5 text-xs font-semibold text-muted hover:border-line">
+          <span>Variants</span>
+          <select name="n_variants" defaultValue="3" className="cursor-pointer bg-transparent text-ink font-semibold outline-none">
             {[1, 2, 3, 4].map((n) => (
               <option key={n} value={n}>
                 {n}

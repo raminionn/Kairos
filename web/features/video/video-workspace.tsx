@@ -8,7 +8,7 @@ const videoModule: ModuleConfig = {
   kind: "video",
   title: "Video clips",
   summary: () => "",
-  gridClass: "grid-cols-2 sm:grid-cols-4 xl:grid-cols-6",
+  gridClass: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5",
   tileAspect: "aspect-[9/16]",
   renderTile: (o) => o.kind === "clip" && <ClipTile output={o} />,
   renderDrawer: (o) => o.kind === "clip" && <ClipDrawer output={o} />,

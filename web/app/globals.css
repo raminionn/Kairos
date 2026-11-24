@@ -1,19 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-page: #fbfbf7;
-  --color-ink: #0c0c0c;
-  --color-muted: #5b5b5b;
-  --color-line: #e8e8e2;
-  --color-card: #f4f4ef;
-  --color-violet: #4b0fc8;
-  --color-violet2: #5b12f5;
-  --color-pink: #f05bb5;
-  --color-yellow: #fbd431;
-  --color-orange: #f27a2e;
-  --color-peri: #6f7ee0;
-  --color-pass: #16a34a;
-  --color-fail: #dc2626;
+  --color-page: #0d0e12;
+  --color-ink: #f3f4f6;
+  --color-muted: #8a8d9a;
+  --color-line: #232530;
+  --color-card: #16171f;
+  --color-lime: #d9f928;
+  --color-violet: #7c3aed;
+  --color-violet2: #d9f928;
+  --color-pink: #ec4899;
+  --color-yellow: #d9f928;
+  --color-orange: #f97316;
+  --color-peri: #38bdf8;
+  --color-pass: #22c55e;
+  --color-fail: #ef4444;
   --font-sans: var(--font-archivo), system-ui, sans-serif;
 }
 
@@ -23,6 +24,7 @@
 
 html {
   font-stretch: 108%;
+  color-scheme: dark;
 }
 
 body {
@@ -32,8 +34,8 @@ body {
 
 /* Placeholder tile while a result is being made. */
 .shimmer {
-  background: linear-gradient(110deg, #ecebe6 30%, #f6f5f1 50%, #ecebe6 70%) 0 0 / 200% 100%;
-  animation: shimmer 1.4s linear infinite;
+  background: linear-gradient(110deg, #161720 25%, #242735 50%, #161720 75%) 0 0 / 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
 }
 @keyframes shimmer {
   to { background-position: -200% 0; }
