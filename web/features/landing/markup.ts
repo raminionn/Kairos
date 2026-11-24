@@ -95,7 +95,7 @@ export const landingMarkup = `
 <header><div class="wrap">
   <a class="logo" href="/">kairos<i></i></a>
   <nav class="pills"><a href="#features">Features</a><a href="#modules">Modules</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
-  <div class="right"><a href="/projects">Projects</a><a class="btn-black" href="/video">Create</a></div>
+  <div class="right"><a class="btn-black" href="/video">Create</a></div>
 </div></header>
 
 <!-- ================= HERO ================= -->

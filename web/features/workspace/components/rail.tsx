@@ -33,6 +33,8 @@ export function Rail({ active, all = [] }: { active: JobKind | "jobs"; all?: Job
                 key={key}
                 href={href}
                 aria-current={on ? "page" : undefined}
+                aria-label={label}
+                title={label}
                 className={`relative flex items-center gap-2 rounded-xl px-3 py-1.5 font-medium transition-all duration-150 focus-visible:ring-2 focus-visible:ring-lime focus-visible:outline-none whitespace-nowrap ${
                   on
                     ? "bg-[#1c1d27] text-white border border-[#2e3142] shadow-xs"
@@ -40,7 +42,7 @@ export function Rail({ active, all = [] }: { active: JobKind | "jobs"; all?: Job
                 }`}
               >
                 <Icon className={`size-4 shrink-0 ${on ? "text-lime" : ""}`} strokeWidth={1.75} aria-hidden />
-                <span>{label}</span>
+                <span className="hidden sm:inline">{label}</span>
                 {running(key) && (
                   <span
                     className="size-2 animate-pulse rounded-full bg-pink ring-2 ring-[#0c0d12]"
