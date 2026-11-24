@@ -19,7 +19,7 @@ export function CarouselTile({ output }: { output: CarouselOutput }) {
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
       )}
-      <span className="absolute right-2.5 bottom-2.5 rounded-full bg-ink px-2.5 py-0.5 text-[11px] font-medium text-white shadow-xs">
+      <span className="absolute right-2.5 bottom-2.5 rounded-full border border-line bg-white/95 px-2.5 py-0.5 text-[11px] font-medium text-ink shadow-xs backdrop-blur-xs">
         {slides.length} slides
       </span>
     </div>
@@ -33,7 +33,7 @@ export function CarouselDrawer({ output }: { output: CarouselOutput }) {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-xl border border-line bg-white shadow-md">
+      <div className="overflow-hidden rounded-xl border border-line bg-white shadow-sm">
         {slides[at] && (
           <img
             src={fileUrl(slides[at])}
@@ -69,7 +69,7 @@ export function CarouselDrawer({ output }: { output: CarouselOutput }) {
         <a
           href={fileUrl(output.url)}
           download
-          className="flex items-center justify-center gap-1.5 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-black"
+          className="flex items-center justify-center gap-1.5 rounded-xl bg-violet2 px-4 py-2.5 text-sm font-medium text-white shadow-xs transition-colors hover:bg-violet"
         >
           <Download className="size-4" aria-hidden />
           Download PDF

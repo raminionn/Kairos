@@ -12,7 +12,7 @@ export default function ProjectsPage() {
           <Link
             href="/video"
             aria-label="Kairos home"
-            className="grid size-9.5 place-items-center rounded-xl bg-ink text-sm font-bold tracking-tight text-white shadow-xs transition-transform duration-200 hover:scale-105"
+            className="grid size-9.5 place-items-center rounded-xl bg-violet2 text-sm font-bold tracking-tight text-white shadow-xs transition-transform duration-200 hover:scale-105"
           >
             k
           </Link>
@@ -20,7 +20,7 @@ export default function ProjectsPage() {
         </div>
         <Link
           href="/video"
-          className="rounded-xl bg-ink px-5 py-2.5 text-sm font-medium text-white shadow-xs transition-all duration-200 hover:-translate-y-px hover:shadow-md"
+          className="rounded-xl bg-violet2 px-5 py-2.5 text-sm font-medium text-white shadow-xs transition-all duration-200 hover:bg-violet hover:-translate-y-px hover:shadow-md"
         >
           Create
         </Link>

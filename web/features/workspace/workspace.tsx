@@ -80,8 +80,8 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                     aria-pressed={on}
                     className={`cursor-pointer rounded-lg px-3 py-1 capitalize transition-all duration-150 ${
                       on
-                        ? "bg-ink text-white shadow-xs"
-                        : "text-muted hover:text-ink hover:bg-white"
+                        ? "bg-white text-violet2 shadow-xs border border-line/80 font-semibold"
+                        : "text-muted hover:text-ink hover:bg-white/60"
                     }`}
                   >
                     {f}
@@ -139,7 +139,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
               selected
                 ? "fixed inset-x-0 bottom-0 z-30 max-h-[85dvh] rounded-t-3xl border-t border-line bg-white p-5 shadow-2xl"
                 : "hidden"
-            } overflow-y-auto md:static md:block md:max-h-none md:w-84 md:shrink-0 md:rounded-none md:border-l md:border-line md:bg-white/90 md:p-6 md:shadow-none md:backdrop-blur-md`}
+            } overflow-y-auto md:static md:block md:max-h-none md:w-84 md:shrink-0 md:rounded-none md:border-l md:border-line md:bg-white md:p-6 md:shadow-none`}
           >
             {selected ? (
               <>

@@ -13,7 +13,7 @@ const CATEGORIES: { value: Category; label: string; dot: string }[] = [
 ];
 
 const pill =
-  "cursor-pointer rounded-full border border-line bg-white px-3 py-1.5 text-xs font-medium text-muted transition-all duration-150 hover:border-line hover:text-ink has-checked:border-ink has-checked:bg-ink has-checked:text-white has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-violet2 has-focus-visible:outline-none";
+  "cursor-pointer rounded-full border border-line bg-white px-3 py-1.5 text-xs font-medium text-muted transition-all duration-150 hover:border-line hover:text-ink has-checked:border-violet2 has-checked:bg-[#f1ecff] has-checked:text-violet2 has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-violet2 has-focus-visible:outline-none";
 
 export function ProductFields() {
   const [file, setFile] = useState<File | null>(null);

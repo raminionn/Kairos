@@ -34,7 +34,7 @@ export function ProductTile({ output }: { output: ProductOutput }) {
   const { url, meta } = output;
   if (!url) {
     return (
-      <div className="relative grid aspect-[4/5] place-items-center rounded-xl border border-line bg-[#e9e9e4] p-4 text-center text-xs text-muted shadow-xs">
+      <div className="relative grid aspect-[4/5] place-items-center rounded-xl border border-line bg-[#ecece6] p-4 text-center text-xs text-muted shadow-xs">
         <span>
           <ImageOff className="mx-auto mb-2.5 size-7 text-muted" strokeWidth={1.5} aria-hidden />
           <b className="block text-sm font-semibold text-ink">Generation failed</b>
@@ -68,7 +68,7 @@ function Meter({ row }: { row: CheckRow }) {
         <b className={`font-mono text-xs font-semibold ${row.pass ? "text-ink" : "text-fail"}`}>{row.value}</b>
       </div>
       <div
-        className="relative h-2 rounded-full bg-[#eee]"
+        className="relative h-2 rounded-full bg-[#e8e8e2]"
         role="meter"
         aria-label={row.label}
         aria-valuenow={row.value}
@@ -82,7 +82,7 @@ function Meter({ row }: { row: CheckRow }) {
           style={{ width: pct(row.value) }}
         />
         <i
-          className="absolute -top-1 h-4 w-0.5 rounded-full bg-ink"
+          className="absolute -top-1 h-4 w-0.5 rounded-full bg-slate-800"
           style={{ left: pct(row.tick) }}
           title={`Pass limit: ${row.tick}`}
         />
@@ -141,7 +141,7 @@ export function ProductDrawer({ output }: { output: ProductOutput }) {
           <a
             href={fileUrl(url)}
             download
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-ink px-3 py-2.5 text-xs font-medium text-white transition-colors hover:bg-black"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-violet2 px-3 py-2.5 text-xs font-medium text-white shadow-xs transition-colors hover:bg-violet"
           >
             <Download className="size-3.5" aria-hidden />
             Download

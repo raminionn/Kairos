@@ -21,7 +21,7 @@ export function Rail({ active, all }: { active: JobKind; all: Job[] }) {
       <Link
         href="/"
         aria-label="Kairos home"
-        className="mr-2 grid size-9.5 place-items-center rounded-xl bg-ink text-sm font-bold tracking-tight text-white shadow-xs transition-transform duration-200 hover:scale-105 md:mr-0 md:mb-5"
+        className="mr-2 grid size-9.5 place-items-center rounded-xl bg-violet2 text-sm font-bold tracking-tight text-white shadow-xs transition-transform duration-200 hover:scale-105 md:mr-0 md:mb-5"
       >
         k
       </Link>
@@ -36,7 +36,7 @@ export function Rail({ active, all }: { active: JobKind; all: Job[] }) {
               aria-current={on ? "page" : undefined}
               className={`relative grid size-10 place-items-center rounded-xl transition-all duration-200 focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:outline-none ${
                 on
-                  ? "bg-[#f1ecff] text-violet2 ring-1 ring-violet2/20"
+                  ? "bg-[#f1ecff] text-violet2 ring-1 ring-violet2/20 shadow-xs"
                   : "text-muted hover:bg-card hover:text-ink"
               }`}
             >

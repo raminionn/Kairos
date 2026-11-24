@@ -28,10 +28,10 @@ export function ClipTile({ output }: { output: ClipOutput }) {
         alt={meta.title}
         className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
-      <span className="absolute top-2.5 left-2.5 grid size-7 place-items-center rounded-full bg-yellow text-xs font-bold text-slate-950 shadow-md">
+      <span className="absolute top-2.5 left-2.5 grid size-7 place-items-center rounded-full bg-yellow text-xs font-bold text-slate-900 shadow-xs">
         #{meta.rank}
       </span>
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5 pt-8 text-white">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 via-slate-950/35 to-transparent p-2.5 pt-8 text-white">
         <p className="line-clamp-2 text-xs font-medium leading-tight">{meta.title}</p>
         <p className="mt-1.5 flex justify-between text-[11px] opacity-90 font-mono">
           <span>{mmss(meta.end - meta.start)}</span>
@@ -63,7 +63,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
         preload="none"
         poster={fileUrl(meta.thumb_url)}
         src={fileUrl(url)}
-        className="mx-auto aspect-[9/16] max-h-[46dvh] w-full rounded-xl border border-line bg-ink object-contain shadow-md"
+        className="mx-auto aspect-[9/16] max-h-[46dvh] w-full rounded-xl border border-line bg-slate-900 object-contain shadow-md"
       >
         Your browser cannot play this video.
       </video>
@@ -118,7 +118,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
               <b className="font-mono font-medium text-ink">{meta.scores[key]}</b>
             </div>
             <div
-              className="h-1.5 rounded-full bg-[#eee]"
+              className="h-1.5 rounded-full bg-[#e8e8e2]"
               role="meter"
               aria-label={label}
               aria-valuenow={meta.scores[key]}
@@ -156,7 +156,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
         <a
           href={fileUrl(url)}
           download
-          className="flex items-center justify-center gap-1.5 rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-black"
+          className="flex items-center justify-center gap-1.5 rounded-xl bg-violet2 px-4 py-2.5 text-sm font-medium text-white shadow-xs transition-colors hover:bg-violet"
         >
           <Download className="size-4" aria-hidden />
           Download clip
