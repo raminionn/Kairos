@@ -6,10 +6,11 @@ import type { JobKind } from "@/lib/api-types";
 
 interface PromptBarProps {
   children: React.ReactNode;
-  onSubmit: (form: FormData) => Promise<{ error?: string }>;
+  onSubmit: (form: FormData) => Promise<{ error?: string; jobId?: string }>;
   title?: string;
   kind?: JobKind;
-  onSuccess?: () => void;
+  /** Called with the new project's id, so the page can open it. */
+  onSuccess?: (jobId?: string) => void;
 }
 
 const MODULE_META: Record<JobKind, { studio: string; tag: string; badge: string }> = {
@@ -46,7 +47,7 @@ export function PromptBar({ children, onSubmit, kind = "product", onSuccess }: P
       setError(res.error);
     } else {
       setVersion((v) => v + 1);
-      onSuccess?.();
+      onSuccess?.(res.jobId);
     }
   }
 

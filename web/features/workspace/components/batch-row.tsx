@@ -13,6 +13,8 @@ interface Props {
   expected: number;
   selectedId?: string;
   highlight: boolean;
+  /** Name, status and time above the tiles. Off when the page already shows them. */
+  header?: boolean;
   renderTile(o: Output, selected: boolean): React.ReactNode;
   onSelect(o: Output): void;
 }
@@ -28,6 +30,7 @@ export function BatchRow({
   expected,
   selectedId,
   highlight,
+  header = true,
   renderTile,
   onSelect,
 }: Props) {
@@ -43,12 +46,12 @@ export function BatchRow({
           : "bg-[#13141c] border border-line shadow-xs"
       }`}
     >
-      <header className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted">
+      {header && (<header className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted">
         <b className="font-bold tracking-tight text-white text-base">{String(job.input?.name ?? job.id)}</b>
         {summary && <span className="text-xs text-muted">· {summary}</span>}
         <StatusChip job={job} />
         <span className="ml-auto text-xs text-muted font-mono">{timeAgo(job.created_at)}</span>
-      </header>
+      </header>)}
       {job.status !== "failed" && (
         <div className={`grid gap-4 md:gap-5 ${gridClass}`}>
           {outputs.map((o) => (

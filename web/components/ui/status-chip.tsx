@@ -7,10 +7,11 @@ const STYLE: Record<Job["status"], string> = {
   failed: "bg-fail/15 text-red-400 border border-fail/30",
 };
 
-export function StatusChip({ job }: { job: Job }) {
+/** `short`: no error text (for lists and headers; the page shows the error once in full). */
+export function StatusChip({ job, short = false }: { job: Job; short?: boolean }) {
   const text =
     job.status === "running" ? `${job.stage ?? "running"} · ${job.progress}%`
-    : job.status === "failed" ? `failed · ${job.error ?? "unknown error"}`
+    : job.status === "failed" ? (short ? "failed" : `failed · ${job.error ?? "unknown error"}`)
     : job.status;
   return (
     <span

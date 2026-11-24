@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Clapperboard, GalleryHorizontalEnd, LayoutList, Package, type LucideIcon } from "lucide-react";
+import { Clapperboard, GalleryHorizontalEnd, Package, type LucideIcon } from "lucide-react";
 import type { Job, JobKind } from "@/lib/api-types";
 
-const ITEMS: { key: JobKind | "jobs"; label: string; href: string; Icon: LucideIcon }[] = [
-  { key: "jobs", label: "Projects", href: "/projects", Icon: LayoutList },
+/** Features only: each feature page holds its own projects. */
+const ITEMS: { key: JobKind; label: string; href: string; Icon: LucideIcon }[] = [
   { key: "video", label: "Video clips", href: "/video", Icon: Clapperboard },
   { key: "product", label: "Product shots", href: "/product", Icon: Package },
   { key: "carousel", label: "Carousels", href: "/carousel", Icon: GalleryHorizontalEnd },
@@ -41,7 +41,7 @@ export function Rail({ active, all = [] }: { active: JobKind | "jobs"; all?: Job
               >
                 <Icon className={`size-4 shrink-0 ${on ? "text-lime" : ""}`} strokeWidth={1.75} aria-hidden />
                 <span>{label}</span>
-                {key !== "jobs" && running(key) && (
+                {running(key) && (
                   <span
                     className="size-2 animate-pulse rounded-full bg-pink ring-2 ring-[#0c0d12]"
                     aria-label="running"
@@ -53,14 +53,6 @@ export function Rail({ active, all = [] }: { active: JobKind | "jobs"; all?: Job
         </nav>
       </div>
 
-      <div className="hidden items-center gap-3 sm:flex">
-        <Link
-          href="/video"
-          className="rounded-xl bg-lime px-4 py-1.5 text-xs font-bold text-black shadow-xs transition-all hover:bg-lime/90 hover:-translate-y-px"
-        >
-          Create
-        </Link>
-      </div>
     </header>
   );
 }

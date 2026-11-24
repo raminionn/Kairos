@@ -67,15 +67,16 @@ export function useJobFeed(kind?: JobKind) {
   }, [kind]);
 
   const submit = useCallback(
-    async (form: FormData): Promise<{ error?: string }> => {
+    async (form: FormData): Promise<{ error?: string; jobId?: string }> => {
       if (!kind) return { error: "Pick a module first." };
+      let job;
       try {
-        await createJob(kind, form);
+        job = await createJob(kind, form);
       } catch (e) {
         return { error: e instanceof Error ? e.message : "Something went wrong." };
       }
       kick.current();
-      return {};
+      return { jobId: job.id };
     },
     [kind],
   );
