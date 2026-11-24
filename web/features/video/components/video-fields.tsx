@@ -1,10 +1,17 @@
 "use client";
 
 import { Clapperboard, Film, X } from "lucide-react";
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 
 export function VideoFields() {
   const [file, setFile] = useState<File | null>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const id = useId();
+
+  function clear() {
+    if (input.current) input.current.value = "";
+    setFile(null);
+  }
 
   return (
     <div className="space-y-4">
@@ -26,7 +33,7 @@ export function VideoFields() {
             </div>
             <button
               type="button"
-              onClick={() => setFile(null)}
+              onClick={clear}
               className="cursor-pointer rounded-lg p-1.5 text-muted hover:bg-[#1f212f] hover:text-white transition-colors"
               aria-label="Remove video"
             >
@@ -35,24 +42,20 @@ export function VideoFields() {
           </div>
         ) : (
           <label
+            htmlFor={id}
             className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-[#13141f]/70 p-6 text-center cursor-pointer transition-all duration-200 hover:border-lime/60 hover:bg-[#161724] focus-within:ring-2 focus-within:ring-lime focus-within:outline-none"
             title="Upload raw footage"
           >
             <div className="mb-2 grid size-10 place-items-center rounded-full bg-lime/10 text-lime transition-transform duration-200 group-hover:scale-110">
               <Clapperboard className="size-5" />
             </div>
-            <span className="text-xs font-bold text-white">Add a reference video to extract motion</span>
-            <span className="mt-0.5 text-[10px] text-muted">Video duration: 4 to 30 seconds · MP4, MOV, WebM</span>
-            <input
-              type="file"
-              name="file"
-              accept=".mp4,.mov,.mkv,.webm"
-              className="sr-only"
-              aria-label="Video file"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
+            <span className="text-xs font-bold text-white">Add a long video</span>
+            <span className="mt-0.5 text-[10px] text-muted">MP4, MOV, MKV or WebM · podcasts, lectures, interviews, vlogs</span>
           </label>
         )}
+        {/* Always mounted, so the chosen file is still in the form after the card replaces the drop zone. */}
+        <input ref={input} id={id} type="file" name="file" accept=".mp4,.mov,.mkv,.webm" className="sr-only"
+          aria-label="Video file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       </div>
 
       <div className="rounded-xl border border-line bg-[#13141f] p-3 text-xs text-muted leading-relaxed">

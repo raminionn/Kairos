@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- local blob preview */
 
 import { Camera, ImagePlus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { Category } from "@/lib/api-types";
 
 const CATEGORIES: { value: Category; label: string; dot: string }[] = [
@@ -19,7 +19,11 @@ export function ProductFields() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
+  const input = useRef<HTMLInputElement>(null);
+  const id = useId();
+
   function choose(next: File | null) {
+    if (!next && input.current) input.current.value = "";
     setFile(next);
     setPreview(next ? URL.createObjectURL(next) : null);
   }
@@ -54,6 +58,7 @@ export function ProductFields() {
           </div>
         ) : (
           <label
+            htmlFor={id}
             className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-[#13141f]/70 p-5 text-center cursor-pointer transition-all duration-200 hover:border-lime/60 hover:bg-[#161724] focus-within:ring-2 focus-within:ring-lime focus-within:outline-none"
             title="Upload product photo"
           >
@@ -62,16 +67,11 @@ export function ProductFields() {
             </div>
             <span className="text-xs font-bold text-white">Add a reference photo</span>
             <span className="mt-0.5 text-[10px] text-muted">Supports JPG, PNG, WebP up to 20MB</span>
-            <input
-              type="file"
-              name="file"
-              accept=".jpg,.jpeg,.png,.webp"
-              className="sr-only"
-              aria-label="Product photo"
-              onChange={(e) => choose(e.target.files?.[0] ?? null)}
-            />
           </label>
         )}
+        {/* Always mounted, so the chosen file is still in the form after the preview replaces the drop zone. */}
+        <input ref={input} id={id} type="file" name="file" accept=".jpg,.jpeg,.png,.webp" className="sr-only"
+          aria-label="Product photo" onChange={(e) => choose(e.target.files?.[0] ?? null)} />
       </div>
 
       {/* Prompt / Props Input */}
