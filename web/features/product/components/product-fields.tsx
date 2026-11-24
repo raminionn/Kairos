@@ -13,7 +13,7 @@ const CATEGORIES: { value: Category; label: string; dot: string }[] = [
 ];
 
 const pill =
-  "cursor-pointer flex-1 text-center rounded-xl border border-line bg-card/60 py-2 text-xs font-semibold text-muted transition-all duration-150 hover:border-line hover:text-ink has-checked:border-violet2 has-checked:bg-[#f1ecff] has-checked:text-violet2 has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-violet2 has-focus-visible:outline-none";
+  "cursor-pointer flex-1 text-center rounded-xl border border-line bg-[#13141f] py-2 text-xs font-semibold text-muted transition-all duration-150 hover:border-line hover:text-white has-checked:border-lime has-checked:bg-lime/10 has-checked:text-lime has-checked:shadow-xs has-focus-visible:ring-2 has-focus-visible:ring-lime has-focus-visible:outline-none";
 
 export function ProductFields() {
   const [file, setFile] = useState<File | null>(null);
@@ -29,16 +29,16 @@ export function ProductFields() {
 
   return (
     <div className="space-y-4">
-      {/* Higgsfield-Style Reference Media Dropzone Card */}
+      {/* Reference Media Dropzone Card */}
       <div>
         <label className="text-[11px] font-bold tracking-wider text-muted uppercase block mb-1.5">
           Reference Photo
         </label>
         {file && preview ? (
-          <div className="relative flex items-center gap-3 rounded-2xl border border-line bg-card/70 p-3 shadow-xs">
+          <div className="relative flex items-center gap-3 rounded-2xl border border-line bg-[#13141f] p-3 shadow-xs">
             <img src={preview} alt="" className="size-14 rounded-xl object-cover shrink-0 border border-line/60" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold text-ink">{file.name}</p>
+              <p className="truncate text-xs font-bold text-white">{file.name}</p>
               <p className="text-[10px] text-muted font-mono mt-0.5">
                 {(file.size / 1024).toFixed(1)} KB
               </p>
@@ -46,7 +46,7 @@ export function ProductFields() {
             <button
               type="button"
               onClick={() => choose(null)}
-              className="cursor-pointer rounded-lg p-1.5 text-muted hover:bg-white hover:text-ink transition-colors"
+              className="cursor-pointer rounded-lg p-1.5 text-muted hover:bg-[#1f212f] hover:text-white transition-colors"
               aria-label="Remove image"
             >
               <X className="size-4" />
@@ -54,13 +54,13 @@ export function ProductFields() {
           </div>
         ) : (
           <label
-            className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-card/40 p-5 text-center cursor-pointer transition-all duration-200 hover:border-violet2 hover:bg-card/80 focus-within:ring-2 focus-within:ring-violet2 focus-within:outline-none"
+            className="group flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-line bg-[#13141f]/70 p-5 text-center cursor-pointer transition-all duration-200 hover:border-lime/60 hover:bg-[#161724] focus-within:ring-2 focus-within:ring-lime focus-within:outline-none"
             title="Upload product photo"
           >
-            <div className="mb-2 grid size-10 place-items-center rounded-full bg-violet2/10 text-violet2 transition-transform duration-200 group-hover:scale-110">
+            <div className="mb-2 grid size-10 place-items-center rounded-full bg-lime/10 text-lime transition-transform duration-200 group-hover:scale-110">
               <Camera className="size-5" />
             </div>
-            <span className="text-xs font-bold text-ink">Add a reference photo</span>
+            <span className="text-xs font-bold text-white">Add a reference photo</span>
             <span className="mt-0.5 text-[10px] text-muted">Supports JPG, PNG, WebP up to 20MB</span>
             <input
               type="file"
@@ -85,7 +85,7 @@ export function ProductFields() {
           rows={3}
           placeholder="Describe the scene, props and mood, e.g. eucalyptus leaves, soft morning light, marble surface..."
           aria-label="Props"
-          className="w-full rounded-xl border border-line bg-card/60 p-3 text-xs text-ink outline-none transition-all placeholder:text-muted focus:border-violet2 focus:bg-white focus:ring-2 focus:ring-violet2/20 resize-none font-normal leading-relaxed"
+          className="w-full rounded-xl border border-line bg-[#13141f] p-3 text-xs text-white outline-none transition-all placeholder:text-muted/60 focus:border-lime focus:ring-1 focus:ring-lime/30 resize-none font-normal leading-relaxed"
         />
       </div>
 
@@ -107,19 +107,19 @@ export function ProductFields() {
       </div>
 
       {/* Variants Count Selector */}
-      <div className="flex items-center justify-between rounded-xl border border-line bg-card/60 px-3.5 py-2.5">
+      <div className="flex items-center justify-between rounded-xl border border-line bg-[#13141f] px-3.5 py-2.5">
         <div className="flex items-center gap-2">
           <ImagePlus className="size-4 text-muted" aria-hidden />
-          <span className="text-xs font-semibold text-ink">Variants</span>
+          <span className="text-xs font-semibold text-white">Variants</span>
         </div>
         <select
           name="n_variants"
           defaultValue="3"
           aria-label="Variants"
-          className="cursor-pointer rounded-lg border border-line/60 bg-white px-2 py-1 text-xs font-bold text-ink outline-none focus:border-violet2"
+          className="cursor-pointer rounded-lg border border-line bg-[#191a26] px-2 py-1 text-xs font-bold text-white outline-none focus:border-lime"
         >
           {[1, 2, 3, 4].map((n) => (
-            <option key={n} value={n}>
+            <option key={n} value={n} className="bg-[#191a26] text-white">
               {n} output{n > 1 ? "s" : ""}
             </option>
           ))}

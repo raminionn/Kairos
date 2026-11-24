@@ -21,20 +21,20 @@ const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).
 export function ClipTile({ output }: { output: ClipOutput }) {
   const { meta } = output;
   return (
-    <div className="group relative aspect-[9/16] overflow-hidden rounded-2xl border border-line/80 bg-card shadow-xs transition-all duration-300 hover:border-violet2/40 hover:shadow-lg hover:-translate-y-0.5">
+    <div className="group relative aspect-[9/16] overflow-hidden rounded-2xl border border-line bg-[#12131a] shadow-xs transition-all duration-300 hover:border-lime/40 hover:shadow-lg hover:-translate-y-0.5">
       <img
         src={fileUrl(meta.thumb_url)}
         alt={meta.title}
         className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
-      <span className="absolute top-2.5 left-2.5 grid size-7 place-items-center rounded-full bg-yellow text-xs font-black text-slate-950 shadow-md">
+      <span className="absolute top-2.5 left-2.5 grid size-7 place-items-center rounded-full bg-lime text-xs font-black text-black shadow-md">
         #{meta.rank}
       </span>
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-3 pt-10 text-white">
-        <p className="line-clamp-2 text-xs font-semibold leading-tight">{meta.title}</p>
-        <p className="mt-1.5 flex justify-between text-[11px] opacity-90 font-mono">
-          <span className="rounded-md bg-white/20 px-1.5 py-0.5 backdrop-blur-xs">{mmss(meta.end - meta.start)}</span>
-          <b className="font-bold text-yellow">{meta.total.toFixed(2)}</b>
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 pt-10 text-white">
+        <p className="line-clamp-2 text-xs font-bold leading-tight">{meta.title}</p>
+        <p className="mt-1.5 flex justify-between text-[11px] font-mono">
+          <span className="rounded-md bg-white/20 px-1.5 py-0.5 backdrop-blur-xs text-white">{mmss(meta.end - meta.start)}</span>
+          <b className="font-bold text-lime">{meta.total.toFixed(2)}</b>
         </p>
       </div>
     </div>
@@ -58,75 +58,65 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
   return (
     <div className="space-y-4">
       <video
-        controls
-        preload="none"
-        poster={fileUrl(meta.thumb_url)}
         src={fileUrl(url)}
-        className="mx-auto aspect-[9/16] max-h-[46dvh] w-full rounded-2xl border border-line bg-black object-contain shadow-md"
-      >
-        Your browser cannot play this video.
-      </video>
+        controls
+        poster={fileUrl(meta.thumb_url)}
+        className="aspect-[9/16] w-full rounded-2xl border border-line bg-black object-cover shadow-sm"
+      />
 
-      <div className="rounded-2xl border border-line bg-card/60 p-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-base font-bold text-ink">
-            #{meta.rank} · {meta.title}
-          </h2>
-          <b className="font-mono text-lg font-bold text-ink">{meta.total.toFixed(2)}</b>
+      <div className="rounded-2xl border border-line bg-[#13141d] p-4">
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="text-base font-bold text-white tracking-tight">{meta.title}</h2>
+          <span className="shrink-0 rounded-full bg-lime/10 px-2.5 py-0.5 text-xs font-black text-lime border border-lime/30">
+            #{meta.rank}
+          </span>
         </div>
-        <p className="mt-0.5 text-xs text-muted">
-          {mmss(meta.start)}–{mmss(meta.end)} in the source video
+        <p className="mt-2 text-xs text-muted leading-relaxed italic border-l-2 border-line pl-3 font-serif">
+          &ldquo;{meta.hook_text}&rdquo;
         </p>
       </div>
 
-      <div className="rounded-2xl border border-line bg-card/60 p-4">
-        <h3 className="mb-1.5 text-[11px] font-bold tracking-wider text-muted uppercase">Hook</h3>
-        <p className="text-sm italic text-ink">“{meta.hook_text}”</p>
-      </div>
-
-      <div className="rounded-2xl border border-line bg-card/60 p-4">
-        <h3 className="mb-2 text-[11px] font-bold tracking-wider text-muted uppercase">Suggested caption</h3>
-        <div className="flex items-start gap-2 rounded-xl border border-line bg-white p-3 text-sm text-ink">
-          <p className="flex-1 leading-relaxed">{meta.suggested_caption}</p>
+      <div className="rounded-2xl border border-line bg-[#13141d] p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-[11px] font-bold tracking-wider text-muted uppercase">Suggested caption</span>
           <button
             type="button"
             onClick={copy}
-            className="flex cursor-pointer items-center gap-1 rounded-lg border border-line bg-card px-2.5 py-1 text-xs font-semibold text-ink transition-colors hover:bg-page"
+            className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-line bg-[#191a26] px-2.5 py-1 text-xs font-bold text-white transition-colors hover:bg-[#222434]"
           >
             {copied ? (
               <>
                 <Check className="size-3.5 text-pass" aria-hidden />
-                Copied
+                Copied!
               </>
             ) : (
               <>
-                <Copy className="size-3.5" aria-hidden />
+                <Copy className="size-3.5 text-muted" aria-hidden />
                 Copy
               </>
             )}
           </button>
         </div>
+        <p className="text-xs text-muted leading-relaxed select-all whitespace-pre-wrap">{meta.suggested_caption}</p>
       </div>
 
-      <div className="rounded-2xl border border-line bg-card/60 p-4">
-        <h3 className="mb-3 text-[11px] font-bold tracking-wider text-muted uppercase">Scores (1–10)</h3>
+      <div className="rounded-2xl border border-line bg-[#13141d] p-4 space-y-2.5">
+        <div className="flex items-center justify-between border-b border-line pb-2">
+          <span className="text-[11px] font-bold tracking-wider text-muted uppercase">Virality scores</span>
+          <span className="font-mono text-xs font-black text-lime">{meta.total.toFixed(2)} / 10</span>
+        </div>
         {SCORES.map(({ key, label }) => (
-          <div key={key} className="mb-3">
-            <div className="mb-1 flex justify-between text-xs">
-              <span className="text-muted font-medium">{label}</span>
-              <b className="font-mono font-bold text-ink">{meta.scores[key]}</b>
+          <div key={key} className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted">{label}</span>
+              <span className="font-mono font-semibold text-white">{meta.scores[key].toFixed(1)}</span>
             </div>
-            <div
-              className="h-1.5 rounded-full bg-[#e8e8e2]"
-              role="meter"
-              aria-label={label}
-              aria-valuenow={meta.scores[key]}
-              aria-valuemin={1}
-              aria-valuemax={10}
-            >
-              <span
-                className={`block h-full rounded-full transition-all duration-300 ${
-                  key === "retention_risk" ? "bg-pink" : "bg-violet2"
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  key === "retention_risk"
+                    ? meta.scores[key] > 5 ? "bg-fail" : "bg-pass"
+                    : "bg-lime"
                 }`}
                 style={{ width: `${meta.scores[key] * 10}%` }}
               />
@@ -135,7 +125,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
         ))}
       </div>
 
-      <div className="rounded-2xl border border-line bg-card/60 p-4">
+      <div className="rounded-2xl border border-line bg-[#13141d] p-4">
         <h3 className="mb-2 text-[11px] font-bold tracking-wider text-muted uppercase">Why this clip</h3>
         <ul className="list-disc space-y-1.5 pl-4 text-xs font-medium text-muted">
           {meta.reasons.map((r) => (
@@ -144,7 +134,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
         </ul>
       </div>
 
-      <div className="rounded-2xl border border-line bg-card/60 p-4">
+      <div className="rounded-2xl border border-line bg-[#13141d] p-4">
         <h3 className="mb-1 text-[11px] font-bold tracking-wider text-muted uppercase">Signals</h3>
         <p className="text-xs text-muted">
           {meta.signals.words_per_sec} words/s · energy {meta.signals.audio_energy} · {meta.signals.cut_count} cuts
@@ -155,7 +145,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
         <a
           href={fileUrl(url)}
           download
-          className="flex items-center justify-center gap-2 rounded-xl bg-violet2 px-5 py-3 text-sm font-bold text-white shadow-xs transition-colors hover:bg-violet"
+          className="flex items-center justify-center gap-2 rounded-xl bg-lime px-5 py-3 text-sm font-extrabold text-black shadow-xs transition-colors hover:bg-lime/90"
         >
           <Download className="size-4" aria-hidden />
           Download clip

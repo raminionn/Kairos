@@ -18,12 +18,12 @@ const reason = (r: string) => REASON[r] ?? r;
 
 function Badge({ meta }: { meta: ProductMeta }) {
   return meta.passed ? (
-    <span className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-pass px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-xs">
+    <span className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-pass px-2.5 py-0.5 text-[11px] font-bold text-black shadow-xs">
       <Check className="size-3" strokeWidth={3} aria-hidden />
       passed
     </span>
   ) : (
-    <span className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-fail px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-xs">
+    <span className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-fail px-2.5 py-0.5 text-[11px] font-bold text-white shadow-xs">
       <X className="size-3" strokeWidth={3} aria-hidden />
       {meta.fail_reasons[0] === "ocr_cer" ? "label" : "failed"}
     </span>
@@ -34,17 +34,17 @@ export function ProductTile({ output }: { output: ProductOutput }) {
   const { url, meta } = output;
   if (!url) {
     return (
-      <div className="relative grid aspect-[4/5] place-items-center rounded-2xl border border-line bg-[#ecece6] p-4 text-center text-xs text-muted shadow-xs">
+      <div className="relative grid aspect-[4/5] place-items-center rounded-2xl border border-line bg-[#161720] p-4 text-center text-xs text-muted shadow-xs">
         <span>
           <ImageOff className="mx-auto mb-2.5 size-7 text-muted" strokeWidth={1.5} aria-hidden />
-          <b className="block text-sm font-semibold text-ink">Generation failed</b>
+          <b className="block text-sm font-semibold text-white">Generation failed</b>
           <span className="mt-1 block text-muted">{meta.fail_reasons.map(reason).join(", ")}</span>
         </span>
       </div>
     );
   }
   return (
-    <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line/80 bg-card shadow-xs transition-all duration-300 hover:border-violet2/40 hover:shadow-lg hover:-translate-y-0.5">
+    <div className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line bg-[#12131a] shadow-xs transition-all duration-300 hover:border-lime/40 hover:shadow-lg hover:-translate-y-0.5">
       <img
         src={fileUrl(url)}
         alt={`Variant, ${meta.passed ? "passed" : "failed"} checks`}
@@ -58,45 +58,41 @@ export function ProductTile({ output }: { output: ProductOutput }) {
 function Meter({ row }: { row: CheckRow }) {
   const scale = row.lowerIsBetter ? row.tick * 2 : 1;
   const pct = (v: number) => `${Math.min(v / scale, 1) * 100}%`;
+  const val = row.value === null ? "—" : row.lowerIsBetter ? row.value.toFixed(3) : `${Math.round(row.value * 100)}%`;
   return (
-    <div className="mb-3.5">
-      <div className="mb-1.5 flex justify-between text-sm">
-        <span className="text-muted font-medium">
-          {row.label}
-          {row.lowerIsBetter && <span className="text-xs text-muted/70"> (lower is better)</span>}
+    <div className="space-y-1 py-1.5">
+      <div className="flex justify-between text-xs">
+        <span className="text-muted font-medium">{row.label}</span>
+        <span className={`font-mono text-xs font-semibold ${row.pass ? "text-pass" : "text-fail"}`}>
+          {val} {row.pass ? "✓" : "✗"}
         </span>
-        <b className={`font-mono text-xs font-bold ${row.pass ? "text-ink" : "text-fail"}`}>{row.value}</b>
       </div>
-      <div
-        className="relative h-2 rounded-full bg-[#e8e8e2]"
-        role="meter"
-        aria-label={row.label}
-        aria-valuenow={row.value}
-        aria-valuemin={0}
-        aria-valuemax={scale}
-      >
+      <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/10">
+        {row.value !== null && (
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${row.pass ? "bg-pass" : "bg-fail"}`}
+            style={{ width: pct(row.value) }}
+          />
+        )}
         <span
-          className={`absolute inset-y-0 left-0 rounded-full transition-all duration-300 ${
-            row.pass ? "bg-pass" : "bg-fail"
-          }`}
-          style={{ width: pct(row.value) }}
-        />
-        <i
-          className="absolute -top-1 h-4 w-0.5 rounded-full bg-ink"
+          className="absolute inset-y-0 w-0.5 bg-white shadow-xs"
           style={{ left: pct(row.tick) }}
-          title={`Pass limit: ${row.tick}`}
+          title={`Threshold: ${row.tick}`}
+          aria-label={`threshold: ${row.tick}`}
         />
       </div>
     </div>
   );
 }
 
-const Fact = ({ k, v, className = "" }: { k: string; v: string; className?: string }) => (
-  <div className="flex justify-between border-b border-[#f0f0ea] py-2.5 text-sm">
-    <span className="text-muted font-medium">{k}</span>
-    <b className={`font-semibold ${className || "text-ink"}`}>{v}</b>
-  </div>
-);
+function Fact({ k, v, className = "" }: { k: string; v: string; className?: string }) {
+  return (
+    <div className="flex justify-between py-1.5 text-xs border-b border-line/60 last:border-b-0">
+      <span className="text-muted font-medium">{k}</span>
+      <span className={`font-semibold text-white ${className}`}>{v}</span>
+    </div>
+  );
+}
 
 export function ProductDrawer({ output }: { output: ProductOutput }) {
   const { url, meta } = output;
@@ -104,22 +100,22 @@ export function ProductDrawer({ output }: { output: ProductOutput }) {
   return (
     <div className="space-y-4">
       <ProductTile output={output} />
-      <div className="rounded-2xl border border-line bg-card/60 p-4">
+      <div className="rounded-2xl border border-line bg-[#13141d] p-4">
         <Fact k="Status" v={meta.passed ? "Passed" : "Failed"} className={meta.passed ? "text-pass" : "text-fail"} />
         <Fact k="Attempts" v={String(meta.attempts)} />
         <Fact k="Repaired" v={meta.repaired ? "Yes · paste + relight" : "No"} />
       </div>
       {rows.length > 0 && (
-        <div className="rounded-2xl border border-line bg-card/60 p-4">
+        <div className="rounded-2xl border border-line bg-[#13141d] p-4">
           <h3 className="mb-3 text-[11px] font-bold tracking-wider text-muted uppercase">Fidelity checks</h3>
           {rows.map((r) => (
             <Meter key={r.name} row={r} />
           ))}
-          <p className="mt-2 text-[11px] text-muted">Black tick = pass limit</p>
+          <p className="mt-2 text-[11px] text-muted">White tick = pass limit</p>
         </div>
       )}
       {meta.fail_reasons.length > 0 && (
-        <div className="rounded-2xl border border-fail/20 bg-[#fee2e2] p-3.5">
+        <div className="rounded-2xl border border-fail/30 bg-fail/10 p-3.5">
           <ul className="list-disc space-y-1 pl-4 text-xs font-semibold text-fail">
             {meta.fail_reasons.map((r) => (
               <li key={r}>{reason(r)}</li>
@@ -132,7 +128,7 @@ export function ProductDrawer({ output }: { output: ProductOutput }) {
           type="button"
           disabled
           title="Coming when the API supports it"
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-line bg-card/60 px-3 py-2.5 text-xs font-semibold text-muted/60 cursor-not-allowed"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-line bg-[#13141d] px-3 py-2.5 text-xs font-semibold text-muted/60 cursor-not-allowed"
         >
           <RefreshCw className="size-3.5" aria-hidden />
           Regenerate
@@ -141,13 +137,13 @@ export function ProductDrawer({ output }: { output: ProductOutput }) {
           <a
             href={fileUrl(url)}
             download
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-violet2 px-3 py-2.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-violet"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-lime px-3 py-2.5 text-xs font-extrabold text-black shadow-xs transition-colors hover:bg-lime/90"
           >
             <Download className="size-3.5" aria-hidden />
             Download
           </a>
         ) : (
-          <span className="flex-1 rounded-xl border border-line bg-card px-3 py-2.5 text-center text-xs text-muted">
+          <span className="flex-1 rounded-xl border border-line bg-[#13141d] px-3 py-2.5 text-center text-xs text-muted">
             No file
           </span>
         )}

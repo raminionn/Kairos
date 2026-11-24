@@ -39,12 +39,12 @@ export function BatchRow({
       id={`job-${job.id}`}
       className={`scroll-mt-6 rounded-2xl p-4 transition-all duration-300 md:p-5 ${
         highlight
-          ? "bg-[#f1ecff]/80 ring-1 ring-violet2/30 shadow-xs"
-          : "bg-white/40 border border-line/60 shadow-xs"
+          ? "bg-[#181a24] border border-lime/40 ring-1 ring-lime/20 shadow-lg"
+          : "bg-[#13141c] border border-line shadow-xs"
       }`}
     >
       <header className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted">
-        <b className="font-semibold tracking-tight text-ink text-base">{String(job.input?.name ?? job.id)}</b>
+        <b className="font-bold tracking-tight text-white text-base">{String(job.input?.name ?? job.id)}</b>
         {summary && <span className="text-xs text-muted">· {summary}</span>}
         <StatusChip job={job} />
         <span className="ml-auto text-xs text-muted font-mono">{timeAgo(job.created_at)}</span>
@@ -57,9 +57,9 @@ export function BatchRow({
               type="button"
               onClick={() => onSelect(o)}
               aria-pressed={o.id === selectedId}
-              className={`block cursor-pointer rounded-2xl text-left transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none ${
+              className={`block cursor-pointer rounded-2xl text-left transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-lime focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none ${
                 o.id === selectedId
-                  ? "ring-2 ring-violet2 ring-offset-2 ring-offset-page shadow-md shadow-violet2/20"
+                  ? "ring-2 ring-lime ring-offset-2 ring-offset-page shadow-md shadow-lime/20"
                   : ""
               }`}
             >

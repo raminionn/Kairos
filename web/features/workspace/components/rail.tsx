@@ -9,19 +9,19 @@ const ITEMS: { key: JobKind | "jobs"; label: string; href: string; Icon: LucideI
   { key: "carousel", label: "Carousels", href: "/carousel", Icon: GalleryHorizontalEnd },
 ];
 
-/** Top studio navigation bar matching the Higgsfield layout. */
+/** Top studio navigation bar matching Higgsfield's dark aesthetic. */
 export function Rail({ active, all = [] }: { active: JobKind | "jobs"; all?: Job[] }) {
   const running = (k: string) => all.some((j) => j.kind === k && (j.status === "queued" || j.status === "running"));
   return (
     <header
       aria-label="Modules"
-      className="sticky top-0 z-40 flex h-14 w-full shrink-0 items-center justify-between border-b border-line bg-white/95 px-4 backdrop-blur-md md:h-16 md:px-8"
+      className="sticky top-0 z-40 flex h-14 w-full shrink-0 items-center justify-between border-b border-line bg-[#0c0d12]/95 px-4 backdrop-blur-md md:h-16 md:px-8"
     >
       <div className="flex items-center gap-6 md:gap-8">
         <Link
           href="/"
           aria-label="Kairos home"
-          className="grid size-9 place-items-center rounded-xl bg-violet2 text-sm font-black tracking-tight text-white shadow-xs transition-transform duration-200 hover:scale-105"
+          className="grid size-9 place-items-center rounded-xl bg-lime text-sm font-black tracking-tight text-black shadow-xs transition-transform duration-200 hover:scale-105"
         >
           k
         </Link>
@@ -33,17 +33,17 @@ export function Rail({ active, all = [] }: { active: JobKind | "jobs"; all?: Job
                 key={key}
                 href={href}
                 aria-current={on ? "page" : undefined}
-                className={`relative flex items-center gap-2 rounded-xl px-3 py-1.5 font-medium transition-all duration-150 focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:outline-none whitespace-nowrap ${
+                className={`relative flex items-center gap-2 rounded-xl px-3 py-1.5 font-medium transition-all duration-150 focus-visible:ring-2 focus-visible:ring-lime focus-visible:outline-none whitespace-nowrap ${
                   on
-                    ? "bg-[#f1ecff] text-violet2 shadow-xs"
-                    : "text-muted hover:bg-card hover:text-ink"
+                    ? "bg-[#1c1d27] text-white border border-[#2e3142] shadow-xs"
+                    : "text-muted hover:bg-[#151620] hover:text-white"
                 }`}
               >
-                <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
+                <Icon className={`size-4 shrink-0 ${on ? "text-lime" : ""}`} strokeWidth={1.75} aria-hidden />
                 <span>{label}</span>
                 {key !== "jobs" && running(key) && (
                   <span
-                    className="size-2 animate-pulse rounded-full bg-pink ring-2 ring-white"
+                    className="size-2 animate-pulse rounded-full bg-pink ring-2 ring-[#0c0d12]"
                     aria-label="running"
                   />
                 )}
@@ -56,7 +56,7 @@ export function Rail({ active, all = [] }: { active: JobKind | "jobs"; all?: Job
       <div className="hidden items-center gap-3 sm:flex">
         <Link
           href="/video"
-          className="rounded-xl bg-violet2 px-4 py-1.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-violet"
+          className="rounded-xl bg-lime px-4 py-1.5 text-xs font-bold text-black shadow-xs transition-all hover:bg-lime/90 hover:-translate-y-px"
         >
           Create
         </Link>

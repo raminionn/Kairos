@@ -93,7 +93,6 @@ export function Workspace({ module }: { module: ModuleConfig }) {
   }
 
   function handleJobSubmitted() {
-    // Switch to projects view to see the new project running immediately
     setUserSidebarTab("projects");
     if (jobs[0]) {
       setSelectedJobId(jobs[0].id);
@@ -116,18 +115,18 @@ export function Workspace({ module }: { module: ModuleConfig }) {
         {/* Left Studio Sidebar: Project Navigator & Creation Workbench */}
         <aside
           aria-label="Studio controls"
-          className="flex w-full shrink-0 flex-col border-b border-line bg-card/30 lg:w-88 xl:w-[390px] lg:border-b-0 lg:border-r"
+          className="flex w-full shrink-0 flex-col border-b border-line bg-[#0d0e14] lg:w-88 xl:w-[390px] lg:border-b-0 lg:border-r"
         >
           {/* Sidebar Mode Tabs */}
-          <div className="flex items-center justify-between border-b border-line bg-white/70 px-4 py-3">
-            <div className="flex items-center gap-1.5 rounded-xl border border-line bg-card/70 p-1 text-xs font-semibold">
+          <div className="flex items-center justify-between border-b border-line bg-[#0d0e14] px-4 py-3">
+            <div className="flex items-center gap-1.5 rounded-xl border border-line bg-[#14151e] p-1 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setUserSidebarTab("create")}
                 className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
                   sidebarTab === "create"
-                    ? "bg-white text-violet2 shadow-xs font-bold"
-                    : "text-muted hover:text-ink"
+                    ? "bg-[#222432] text-white shadow-xs font-bold border border-[#323648]"
+                    : "text-muted hover:text-white"
                 }`}
               >
                 <Plus className="size-3.5" />
@@ -138,17 +137,17 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                 onClick={() => setUserSidebarTab("projects")}
                 className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
                   sidebarTab === "projects"
-                    ? "bg-white text-violet2 shadow-xs font-bold"
-                    : "text-muted hover:text-ink"
+                    ? "bg-[#222432] text-white shadow-xs font-bold border border-[#323648]"
+                    : "text-muted hover:text-white"
                 }`}
               >
                 <FolderGit2 className="size-3.5" />
                 <span>Projects</span>
-                <span className="rounded-full bg-line/80 px-1.5 py-0.2 text-[10px] text-muted">
+                <span className="rounded-full bg-white/10 px-1.5 py-0.2 text-[10px] text-muted">
                   {jobs.length}
                 </span>
                 {runningCount > 0 && (
-                  <span className="size-2 animate-pulse rounded-full bg-pink ring-2 ring-white" />
+                  <span className="size-2 animate-pulse rounded-full bg-pink ring-2 ring-[#0d0e14]" />
                 )}
               </button>
             </div>
@@ -157,7 +156,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
               <button
                 type="button"
                 onClick={handleCreateNewProject}
-                className="flex cursor-pointer items-center gap-1 rounded-xl bg-violet2 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-violet"
+                className="flex cursor-pointer items-center gap-1 rounded-xl bg-lime px-3 py-1.5 text-xs font-bold text-black shadow-xs transition-all hover:bg-lime/90"
               >
                 <Plus className="size-3.5" />
                 <span>New</span>
@@ -179,14 +178,14 @@ export function Workspace({ module }: { module: ModuleConfig }) {
             ) : (
               <div className="p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between px-1 text-xs text-muted">
-                  <span className="font-bold uppercase tracking-wider text-[11px]">
+                  <span className="font-bold uppercase tracking-wider text-[11px] text-muted">
                     {module.title} Projects ({jobs.length})
                   </span>
                   {activeJobId !== "all" && (
                     <button
                       type="button"
                       onClick={() => setSelectedJobId("all")}
-                      className="cursor-pointer text-violet2 font-semibold hover:underline"
+                      className="cursor-pointer text-lime font-semibold hover:underline"
                     >
                       Show all
                     </button>
@@ -194,12 +193,12 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                 </div>
 
                 {loaded && jobs.length === 0 && (
-                  <div className="rounded-2xl border border-line bg-white/60 p-6 text-center text-muted">
+                  <div className="rounded-2xl border border-line bg-[#13141d] p-6 text-center text-muted">
                     <p className="text-xs font-medium">No projects in this studio yet.</p>
                     <button
                       type="button"
                       onClick={() => setUserSidebarTab("create")}
-                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-violet2 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-violet"
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-lime px-4 py-2 text-xs font-bold text-black shadow-xs hover:bg-lime/90"
                     >
                       <Plus className="size-3.5" />
                       Create first project
@@ -218,12 +217,12 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                       onClick={() => handleSelectProject(job.id)}
                       className={`w-full cursor-pointer rounded-2xl border p-3.5 text-left transition-all duration-150 ${
                         isActive
-                          ? "border-violet2 bg-[#f1ecff]/80 shadow-xs ring-1 ring-violet2/40"
-                          : "border-line bg-white/70 hover:border-line hover:bg-white"
+                          ? "border-lime/70 bg-[#181a26] shadow-md ring-1 ring-lime/30"
+                          : "border-line bg-[#13141d] hover:border-[#2e3142] hover:bg-[#171824]"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className="truncate text-xs font-bold text-ink">
+                        <span className="truncate text-xs font-bold text-white">
                           {String(job.input?.name ?? job.id)}
                         </span>
                         <StatusChip job={job} />
@@ -238,9 +237,9 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                       {/* Live progress indicator if running */}
                       {isBusy && (
                         <div className="mt-2.5">
-                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-violet2/15">
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                             <div
-                              className="h-full rounded-full bg-violet2 transition-all duration-500 animate-pulse"
+                              className="h-full rounded-full bg-lime transition-all duration-500 animate-pulse"
                               style={{ width: `${Math.max(job.progress, 15)}%` }}
                             />
                           </div>
@@ -268,13 +267,13 @@ export function Workspace({ module }: { module: ModuleConfig }) {
         <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-4 py-6 md:px-8">
           <div className="mx-auto w-full max-w-6xl">
             {/* Stage Hero & Subnav Header */}
-            <div className="mb-6 flex flex-col gap-4 border-b border-line/80 pb-6">
+            <div className="mb-6 flex flex-col gap-4 border-b border-line pb-6">
               {/* Breadcrumb & Project Navigator */}
               <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2 text-muted">
-                  <span className="font-semibold text-ink">{module.title}</span>
+                  <span className="font-semibold text-white">{module.title}</span>
                   <span>/</span>
-                  <span className="font-bold text-violet2 truncate max-w-xs">
+                  <span className="font-bold text-lime truncate max-w-xs">
                     {activeJob ? String(activeJob.input?.name ?? activeJob.id) : "All Projects"}
                   </span>
                   {activeJob && <StatusChip job={activeJob} />}
@@ -285,7 +284,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                     <button
                       type="button"
                       onClick={() => setSelectedJobId("all")}
-                      className="cursor-pointer rounded-lg border border-line bg-card/60 px-2.5 py-1 text-xs font-semibold text-muted hover:text-ink hover:bg-card"
+                      className="cursor-pointer rounded-lg border border-line bg-[#14151e] px-2.5 py-1 text-xs font-semibold text-muted hover:text-white hover:bg-[#1a1b26]"
                     >
                       View all projects ({jobs.length})
                     </button>
@@ -293,7 +292,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                   <button
                     type="button"
                     onClick={handleCreateNewProject}
-                    className="flex cursor-pointer items-center gap-1 rounded-lg bg-violet2 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-violet"
+                    className="flex cursor-pointer items-center gap-1 rounded-lg bg-lime px-3 py-1 text-xs font-extrabold text-black shadow-xs hover:bg-lime/90"
                   >
                     <Plus className="size-3.5" />
                     Create
@@ -303,7 +302,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
 
               {/* Title & Capability Tagline */}
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-ink md:text-3xl uppercase">
+                <h1 className="text-2xl font-black tracking-tight text-white md:text-3xl uppercase">
                   {activeJob ? String(activeJob.input?.name ?? activeJob.id) : (module.headline ?? module.title)}
                 </h1>
                 <p className="mt-1 text-xs text-muted md:text-sm">
@@ -319,7 +318,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                   <div
                     role="group"
                     aria-label="Filter results"
-                    className="flex items-center gap-1 rounded-xl border border-line bg-card/70 p-1 text-xs font-medium"
+                    className="flex items-center gap-1 rounded-xl border border-line bg-[#13141c] p-1 text-xs font-medium"
                   >
                     {(["all", "passed", "failed"] as Filter[]).map((f) => {
                       const on = filter === f;
@@ -331,8 +330,8 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                           aria-pressed={on}
                           className={`cursor-pointer rounded-lg px-3 py-1.5 capitalize transition-all duration-150 ${
                             on
-                              ? "bg-white text-violet2 font-bold shadow-xs border border-line/60"
-                              : "text-muted hover:text-ink hover:bg-white/50"
+                              ? "bg-lime text-black font-extrabold shadow-xs"
+                              : "text-muted hover:text-white hover:bg-[#1a1b26]"
                           }`}
                         >
                           {f}
@@ -347,7 +346,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
             {offline && (
               <p
                 role="status"
-                className="mb-6 flex items-center gap-2 rounded-xl border border-fail/30 bg-[#fee2e2] px-4 py-3 text-sm font-medium text-fail shadow-xs"
+                className="mb-6 flex items-center gap-2 rounded-xl border border-fail/30 bg-fail/10 px-4 py-3 text-sm font-medium text-fail shadow-xs"
               >
                 <WifiOff className="size-4 shrink-0" aria-hidden />
                 Can&apos;t reach the server. Retrying…
@@ -356,17 +355,17 @@ export function Workspace({ module }: { module: ModuleConfig }) {
 
             {loaded && jobs.length === 0 && (
               <div className="mt-16 flex flex-col items-center justify-center gap-3 text-center text-muted">
-                <div className="grid size-14 place-items-center rounded-2xl border border-line bg-card shadow-xs text-muted">
+                <div className="grid size-14 place-items-center rounded-2xl border border-line bg-[#13141d] shadow-xs text-muted">
                   <Inbox className="size-7" strokeWidth={1.5} aria-hidden />
                 </div>
-                <h3 className="font-semibold text-ink">No projects yet</h3>
+                <h3 className="font-semibold text-white">No projects yet</h3>
                 <p className="max-w-sm text-sm">
                   Click &quot;Create new project&quot; in the sidebar to generate your first output.
                 </p>
                 <button
                   type="button"
                   onClick={handleCreateNewProject}
-                  className="mt-2 inline-flex items-center gap-1.5 rounded-xl bg-violet2 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-violet"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-xl bg-lime px-4 py-2 text-xs font-bold text-black shadow-xs hover:bg-lime/90"
                 >
                   <Plus className="size-3.5" />
                   Create new project
@@ -400,14 +399,14 @@ export function Workspace({ module }: { module: ModuleConfig }) {
         {selected && (
           <aside
             aria-label="Details"
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] rounded-t-3xl border-t border-line bg-white/95 p-6 shadow-2xl backdrop-blur-xl overflow-y-auto lg:static lg:block lg:max-h-none lg:w-96 lg:shrink-0 lg:rounded-none lg:border-l lg:border-line lg:bg-white/95 lg:shadow-xl"
+            className="fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] rounded-t-3xl border-t border-line bg-[#0d0e14]/95 p-6 shadow-2xl backdrop-blur-xl overflow-y-auto lg:static lg:block lg:max-h-none lg:w-96 lg:shrink-0 lg:rounded-none lg:border-l lg:border-line lg:bg-[#0d0e14] lg:shadow-xl"
           >
             <div className="mb-4 flex items-center justify-between border-b border-line pb-3">
               <span className="text-xs font-bold tracking-wider text-muted uppercase">Inspector</span>
               <button
                 type="button"
                 onClick={() => setSelected(null)}
-                className="cursor-pointer rounded-lg p-1.5 text-muted transition-colors hover:bg-card hover:text-ink"
+                className="cursor-pointer rounded-lg p-1.5 text-muted transition-colors hover:bg-[#1a1b26] hover:text-white"
                 aria-label="Close details"
               >
                 <X className="size-4" />

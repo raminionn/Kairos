@@ -30,7 +30,7 @@ const MODULE_META: Record<JobKind, { studio: string; tag: string; badge: string 
   },
 };
 
-/** Studio creation workbench panel matching Higgsfield's sidebar creation flow. */
+/** Studio creation workbench panel with high-contrast dark aesthetic. */
 export function PromptBar({ children, onSubmit, kind = "product", onSuccess }: PromptBarProps) {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -60,12 +60,12 @@ export function PromptBar({ children, onSubmit, kind = "product", onSuccess }: P
     >
       <div className="flex flex-col gap-4">
         {/* Feature Engine Preview Card */}
-        <div className="rounded-2xl border border-line/80 bg-gradient-to-br from-card to-card/40 p-3.5 shadow-xs">
+        <div className="rounded-2xl border border-line bg-[#13141e] p-3.5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold tracking-wide text-violet2">
+            <span className="text-[11px] font-extrabold tracking-wide text-lime">
               {meta.studio}
             </span>
-            <span className="rounded-full bg-violet2/10 px-2 py-0.5 text-[10px] font-bold text-violet2">
+            <span className="rounded-full bg-lime/10 px-2 py-0.5 text-[10px] font-bold text-lime border border-lime/30">
               {meta.badge}
             </span>
           </div>
@@ -79,15 +79,15 @@ export function PromptBar({ children, onSubmit, kind = "product", onSuccess }: P
       </div>
 
       {/* Action footer with full-width Generate button */}
-      <div className="mt-6 pt-4 border-t border-line/60">
+      <div className="mt-6 pt-4 border-t border-line">
         <button
           type="submit"
           disabled={sending}
-          className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-violet2 px-6 text-sm font-bold tracking-wide text-white shadow-md shadow-violet2/20 transition-all duration-200 hover:bg-violet hover:-translate-y-px hover:shadow-lg focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-lime px-6 text-sm font-extrabold tracking-wide text-black shadow-lg shadow-lime/15 transition-all duration-200 hover:bg-lime/90 hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {sending ? (
             <>
-              <LoaderCircle className="size-4 animate-spin text-white" aria-hidden />
+              <LoaderCircle className="size-4 animate-spin text-black" aria-hidden />
               Starting…
             </>
           ) : (

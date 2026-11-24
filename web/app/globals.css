@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  --color-page: #0d0e12;
-  --color-ink: #f3f4f6;
-  --color-muted: #8a8d9a;
-  --color-line: #232530;
-  --color-card: #16171f;
+  --color-page: #090a0f;
+  --color-ink: #f9fafb;
+  --color-muted: #9497a7;
+  --color-line: #1e202b;
+  --color-card: #12131a;
   --color-lime: #d9f928;
-  --color-violet: #7c3aed;
+  --color-violet: #8b5cf6;
   --color-violet2: #d9f928;
   --color-pink: #ec4899;
   --color-yellow: #d9f928;
   --color-orange: #f97316;
   --color-peri: #38bdf8;
-  --color-pass: #22c55e;
+  --color-pass: #10b981;
   --color-fail: #ef4444;
   --font-sans: var(--font-archivo), system-ui, sans-serif;
 }
@@ -34,7 +34,7 @@ body {
 
 /* Placeholder tile while a result is being made. */
 .shimmer {
-  background: linear-gradient(110deg, #161720 25%, #242735 50%, #161720 75%) 0 0 / 200% 100%;
+  background: linear-gradient(110deg, #13141d 25%, #222432 50%, #13141d 75%) 0 0 / 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
 @keyframes shimmer {
