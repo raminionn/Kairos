@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Carousel maker</title>
+<style>
+:root{--ink:#161616;--mut:#5f5f5f;--line:#d9d9d9;--bg:#f6f5f2}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.45 system-ui,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:780px;margin:0 auto;padding:28px 18px 90px}
+h1{font-size:26px;margin:0 0 4px}.sub{color:var(--mut);margin:0 0 22px}
+fieldset{background:#fff;border:1px solid var(--line);border-radius:12px;margin:0 0 18px;padding:14px 18px 18px}
+legend{font-weight:650;padding:0 6px}
+label{display:block;font-weight:550;margin:12px 0 4px}.hint{font-weight:400;color:var(--mut);font-size:13px}
+input[type=text],input[type=number],select,textarea{width:100%;padding:9px 10px;border:1px solid #b5b5b5;border-radius:8px;font:inherit;background:#fff}
+textarea{min-height:62px;resize:vertical}
+input[type=color]{width:56px;height:38px;padding:2px;border:1px solid #b5b5b5;border-radius:8px;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.item{border:1px dashed #c4c4c4;border-radius:10px;padding:4px 12px 12px;margin:10px 0}
+button{font:inherit;border-radius:8px;border:1px solid #8e8e8e;background:#fff;padding:8px 14px;cursor:pointer}
+button.go{background:var(--ink);color:#fff;border-color:var(--ink);padding:13px 26px;font-weight:600}
+button:disabled{opacity:.55;cursor:wait}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#res{margin-top:22px}.iss{margin:5px 0;padding:7px 11px;border-radius:6px;font-size:14px}
+.error{background:#fde8e6;color:#8a1f17}.warn{background:#fff3d0;color:#5e4500}.info{background:#e8f0fb;color:#1c4a7a}
+.thumbs{display:flex;gap:10px;overflow-x:auto;padding:12px 0}.thumbs img{height:240px;border:1px solid var(--line);border-radius:6px}
+a.dl{display:inline-block;background:#1f6f4a;color:#fff;padding:11px 20px;border-radius:8px;text-decoration:none;font-weight:600}
+.logo{width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid var(--line);vertical-align:middle;margin-left:10px}
+</style></head>
+<body><main>
+<h1>Carousel maker</h1>
+<p class="sub">Fill in your product and what the carousel should say. Every slide is built from your entries: nothing is made up.</p>
+
+<fieldset><legend>1. Your product</legend>
+  <div class="bar"><label style="margin:0">Saved products</label>
+    <select id="prof" style="width:auto;min-width:200px"><option value="">New product…</option></select></div>
+  <div class="row"><div><label>Product name</label><input type="text" id="name" maxlength="40"></div>
+    <div><label>Handle <span class="hint">(optional)</span></label><input type="text" id="handle" placeholder="@yourproduct"></div></div>
+  <div class="row"><div><label>Website <span class="hint">(optional)</span></label><input type="text" id="site" placeholder="yourproduct.com"></div>
+    <div><label>Brand colour</label><input type="color" id="primary" value="#1f6f4a"></div></div>
+  <label>Logo <span class="hint">PNG, JPG or WebP, square works best</span></label>
+  <input type="file" id="logo" accept="image/*"><img id="logoPrev" class="logo" alt="" hidden>
+  <div style="margin-top:12px"><button type="button" id="saveProf">Save this product for next time</button> <span id="saveMsg" class="hint"></span></div>
+</fieldset>
+
+<fieldset><legend>2. The carousel</legend>
+  <label>Topic <span class="hint">becomes the cover title</span></label>
+  <input type="text" id="topic" maxlength="80" placeholder="e.g. Cold brew, made fresh">
+  <div class="row"><div><label>Goal</label><select id="goal">
+    <option value="launch">Launch a product</option><option value="tips">Share tips</option>
+    <option value="offer">Promote an offer</option><option value="educate">Explain something</option></select></div>
+    <div><label>Cover title override <span class="hint">(optional; wrap ==words== to highlight)</span></label><input type="text" id="hook" maxlength="90"></div></div>
+  <label>The problem <span class="hint">(optional, one or two sentences)</span></label><textarea id="problem" maxlength="220"></textarea>
+</fieldset>
+
+<fieldset><legend>3. Key points <span class="hint">(1 to 5, one slide each)</span></legend>
+  <div id="points"></div><button type="button" id="addPt">+ Add a point</button>
+</fieldset>
+
+<fieldset><legend>4. How it works <span class="hint">(optional)</span></legend>
+  <label>Steps <span class="hint">one per line, up to 5</span></label><textarea id="steps"></textarea>
+  <label>Product screenshot <span class="hint">(optional, shown in a phone frame)</span></label><input type="file" id="shot" accept="image/*">
+</fieldset>
+
+<fieldset><legend>5. Numbers you can stand behind <span class="hint">(optional, 2 to 6)</span></legend>
+  <div id="stats"></div><div class="bar"><button type="button" id="addSt">+ Add a number</button>
+  <label style="margin:0">Unit</label><input type="text" id="unit" maxlength="3" placeholder="%" style="width:70px"></div>
+</fieldset>
+
+<fieldset><legend>6. Offer and closing <span class="hint">(optional)</span></legend>
+  <label>Offer</label><textarea id="offer" maxlength="220" placeholder="e.g. Your first box ships free."></textarea>
+  <div class="row"><div><label>Closing line</label><input type="text" id="ctaH" maxlength="80" placeholder="Default depends on your goal"></div>
+    <div><label>Button text</label><input type="text" id="ctaB" maxlength="40" placeholder="Default depends on your goal"></div></div>
+</fieldset>
+
+<div class="bar"><button class="go" id="go">Create carousel</button><span id="status" class="hint"></span></div>
+<div id="res"></div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+let logoData = null, shotData = null;
+const readFile = f => new Promise(r => { if (!f) return r(null); const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(f); });
+
+function addPoint(p = {}) {
+  const d = document.createElement('div'); d.className = 'item pt';
+  d.innerHTML = '<label>Heading</label><input type="text" class="h" maxlength="80"><label>Detail <span class="hint">(optional)</span></label>' +
+    '<textarea class="d" maxlength="220"></textarea><label>Checklist items <span class="hint">(optional, one per line)</span></label><textarea class="i"></textarea>' +
+    '<button type="button" class="rm">Remove</button>';
+  d.querySelector('.h').value = p.heading || ''; d.querySelector('.d').value = p.detail || ''; d.querySelector('.i').value = (p.items || []).join('\n');
+  d.querySelector('.rm').onclick = () => d.remove(); $('#points').appendChild(d);
+}
+function addStat() {
+  const d = document.createElement('div'); d.className = 'row item st';
+  d.innerHTML = '<div><label>Number</label><input type="number" step="any" class="v"></div><div><label>Label</label><input type="text" class="l" maxlength="30"></div>' +
+    '<div style="grid-column:1/3"><button type="button" class="rm">Remove</button></div>';
+  d.querySelector('.rm').onclick = () => d.remove(); $('#stats').appendChild(d);
+}
+$('#addPt').onclick = () => addPoint(); $('#addSt').onclick = addStat; addPoint(); addPoint(); addPoint();
+
+$('#logo').onchange = async e => { logoData = await readFile(e.target.files[0]); showLogo(); };
+$('#shot').onchange = async e => { shotData = await readFile(e.target.files[0]); };
+function showLogo() { const i = $('#logoPrev'); if (logoData) { i.src = logoData; i.hidden = false; } else i.hidden = true; }
+
+async function loadProfiles(sel) {
+  const rows = await (await fetch('/profiles')).json();
+  $('#prof').innerHTML = '<option value="">New product…</option>' + rows.map(r => `<option value="${r.slug}">${r.name.replace(/</g, '&lt;')}</option>`).join('');
+  if (sel) $('#prof').value = sel;
+}
+$('#prof').onchange = async e => {
+  if (!e.target.value) { logoData = null; showLogo(); return; }
+  const p = await (await fetch('/profiles/' + e.target.value)).json();
+  $('#name').value = p.name; $('#handle').value = p.handle || ''; $('#site').value = p.site || ''; $('#primary').value = p.primary || '#1f6f4a';
+  logoData = p.logo; showLogo(); $('#logo').value = '';
+};
+$('#saveProf').onclick = async () => {
+  const r = await fetch('/profiles', { method: 'POST', body: JSON.stringify({ name: $('#name').value, handle: $('#handle').value, site: $('#site').value, primary: $('#primary').value, logo: logoData }) });
+  const j = await r.json(); $('#saveMsg').textContent = j.error ? j.error : 'Saved.'; if (!j.error) loadProfiles(j.saved);
+};
+
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+$('#go').onclick = async () => {
+  const lines = el => el.value.split('\n').map(x => x.trim()).filter(Boolean);
+  const brief = {
+    brand: { name: $('#name').value, handle: $('#handle').value, site: $('#site').value, primary: $('#primary').value, logo: logoData },
+    topic: $('#topic').value, goal: $('#goal').value, hook: $('#hook').value, problem: $('#problem').value,
+    points: [...document.querySelectorAll('.pt')].map(r => ({ heading: r.querySelector('.h').value, detail: r.querySelector('.d').value, items: lines(r.querySelector('.i')) })),
+    steps: lines($('#steps')), screenshot: shotData,
+    stats: [...document.querySelectorAll('.st')].map(r => ({ value: r.querySelector('.v').value, label: r.querySelector('.l').value })).filter(s => s.value !== '' || s.label),
+    stats_unit: $('#unit').value, offer: $('#offer').value, cta: { heading: $('#ctaH').value, button: $('#ctaB').value }
+  };
+  $('#go').disabled = true; $('#status').textContent = 'Building… this takes about 10 to 20 seconds.'; $('#res').innerHTML = '';
+  try {
+    const r = await fetch('/build', { method: 'POST', body: JSON.stringify(brief) }); const j = await r.json();
+    if (j.error) { $('#res').innerHTML = `<div class="iss error">${esc(j.error)}</div>`; return; }
+    let h = (j.issues || []).map(i => `<div class="iss ${i.sev}">${i.slide ? 'Slide ' + i.slide + ': ' : ''}${esc(i.msg)}</div>`).join('');
+    if (j.ok) h = `<p><a class="dl" href="${j.pdf}" download="carousel.pdf">Download PDF</a> <span class="hint">upload this to LinkedIn as a document</span></p><div class="thumbs">${j.slides.map(s => `<img src="${s}" alt="">`).join('')}</div>` + h;
+    else h = '<p><b>Not exported:</b> fix the items below and try again.</p>' + h;
+    $('#res').innerHTML = h;
+  } catch (e) { $('#res').innerHTML = '<div class="iss error">Could not reach the local server. Is it still running?</div>'; }
+  finally { $('#go').disabled = false; $('#status').textContent = ''; }
+};
+loadProfiles();
+</script></body></html>

@@ -1,0 +1,9 @@
+{
+  "name": "Flowdesk",
+  "handle": "@flowdesk",
+  "site": "flowdesk.example",
+  "series": "Team workflow tips",
+  "primary": "#3b4cca",
+  "cta": {"button": "Start a free trial", "goto": "flowdesk.example"},
+  "product": {"description": "Project tracking for small teams", "audience": "team leads", "tone": "plain and practical", "facts": []}
+}

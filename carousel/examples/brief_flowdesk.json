@@ -1,0 +1,15 @@
+{
+  "brand": {"name": "Flowdesk", "handle": "flowdesk", "site": "https://flowdesk.example/",
+            "primary": "#3b4cca", "logo": "examples/logo_flowdesk.png"},
+  "topic": "Plan your week in 10 minutes",
+  "goal": "tips",
+  "problem": "Monday starts with a blank page and a full inbox.",
+  "points": [
+    {"heading": "List what must ship", "detail": "Write down only the work with a deadline this week."},
+    {"heading": "Block time for deep work", "detail": "Put focus time on the calendar before meetings fill it."},
+    {"heading": "Leave room for surprises", "detail": "Keep part of every day unplanned.", "items": ["Urgent requests", "Small fixes"]},
+    {"heading": "Review on Friday", "detail": "Move what slipped, and note why."}
+  ],
+  "stats": [{"value": 4, "label": "Tasks a day"}, {"value": 2, "label": "Focus blocks"}, {"value": 1, "label": "Weekly review"}],
+  "stats_unit": ""
+}
