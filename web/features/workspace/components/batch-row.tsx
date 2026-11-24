@@ -18,32 +18,65 @@ interface Props {
 }
 
 /** One job: header line, then its result tiles (or shimmers while it runs). */
-export function BatchRow({ job, outputs, loaded, summary, gridClass, tileAspect, expected, selectedId, highlight, renderTile, onSelect }: Props) {
+export function BatchRow({
+  job,
+  outputs,
+  loaded,
+  summary,
+  gridClass,
+  tileAspect,
+  expected,
+  selectedId,
+  highlight,
+  renderTile,
+  onSelect,
+}: Props) {
   const busy = job.status === "queued" || job.status === "running";
   const waiting = busy || (job.status === "done" && !loaded);
   const shimmers = waiting ? Math.max(expected - outputs.length, 0) : 0;
   return (
-    <section id={`job-${job.id}`} className={`scroll-mt-4 rounded-2xl p-3 transition-colors ${highlight ? "bg-[#f1ecff]" : ""}`}>
-      <header className="mb-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
-        <b className="font-medium text-ink">{String(job.input?.name ?? job.id)}</b>
-        {summary && <span>· {summary}</span>}
+    <section
+      id={`job-${job.id}`}
+      className={`scroll-mt-4 rounded-2xl p-3.5 transition-all duration-300 md:p-4.5 ${
+        highlight
+          ? "bg-violet-950/20 ring-1 ring-violet-500/35 shadow-[0_0_24px_rgba(139,92,246,0.1)]"
+          : "hover:bg-white/[0.01]"
+      }`}
+    >
+      <header className="mb-3.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm text-muted">
+        <b className="font-semibold tracking-tight text-ink">{String(job.input?.name ?? job.id)}</b>
+        {summary && <span className="text-xs text-muted/80">· {summary}</span>}
         <StatusChip job={job} />
-        <span className="ml-auto text-xs">{timeAgo(job.created_at)}</span>
+        <span className="ml-auto text-xs text-muted/70">{timeAgo(job.created_at)}</span>
       </header>
       {job.status !== "failed" && (
-        <div className={`grid gap-2.5 ${gridClass}`}>
+        <div className={`grid gap-3 md:gap-4 ${gridClass}`}>
           {outputs.map((o) => (
-            <button key={o.id} type="button" onClick={() => onSelect(o)} aria-pressed={o.id === selectedId}
-              className={`block rounded-xl text-left transition hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-violet2 ${o.id === selectedId ? "outline-2 outline-offset-2 outline-violet2" : ""}`}>
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => onSelect(o)}
+              aria-pressed={o.id === selectedId}
+              className={`block cursor-pointer rounded-xl text-left transition-all duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none ${
+                o.id === selectedId
+                  ? "ring-2 ring-violet2 ring-offset-2 ring-offset-page shadow-lg shadow-violet-500/25"
+                  : ""
+              }`}
+            >
               {renderTile(o, o.id === selectedId)}
             </button>
           ))}
-          {!waiting && outputs.length === 0 && <p className="col-span-full text-sm text-muted">No results to show.</p>}
+          {!waiting && outputs.length === 0 && (
+            <p className="col-span-full py-6 text-center text-sm text-muted">No results to show.</p>
+          )}
           {Array.from({ length: shimmers }, (_, i) => (
-              <div key={i} className={`shimmer grid place-items-center rounded-xl text-center text-xs text-muted ${tileAspect}`}>
-                {busy ? (job.stage ?? "queued") + "…" : "loading…"}
-              </div>
-            ))}
+            <div
+              key={i}
+              className={`shimmer grid place-items-center rounded-xl border border-line/60 text-center text-xs font-medium text-muted/70 shadow-inner ${tileAspect}`}
+            >
+              {busy ? (job.stage ?? "queued") + "…" : "loading…"}
+            </div>
+          ))}
         </div>
       )}
     </section>
