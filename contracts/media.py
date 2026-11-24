@@ -24,7 +24,7 @@ class MediaInfo(BaseModel):
     width: int = Field(gt=0)
     height: int = Field(gt=0)
     fps: float = Field(gt=0)
-    rotation: int = 0
+    rotation: int = 0  # clockwise degrees needed to display the frame upright
     has_audio: bool
     video_codec: str
     audio_codec: Optional[str] = None

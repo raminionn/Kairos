@@ -1,6 +1,8 @@
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from contracts.genres import UNKNOWN_GENRE, check_genre
 
 Route = Literal["transcript", "vision", "both"]
 
@@ -58,10 +60,15 @@ class Understanding(BaseModel):
     route: Route
     speech_ratio: float = Field(ge=0, le=1)
     asr_confidence: float = Field(ge=0, le=1)
-    genre: str = "unknown"
+    genre: str = UNKNOWN_GENRE
     genre_confidence: float = Field(default=0.0, ge=0, le=1)
     words: List[Word] = Field(default_factory=list)
     segments: List[Segment] = Field(default_factory=list)
+
+    @field_validator("genre")
+    @classmethod
+    def _known_genre(cls, value: str) -> str:
+        return check_genre(value)
 
     @model_validator(mode="after")
     def _route_rules(self) -> "Understanding":
