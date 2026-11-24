@@ -12,3 +12,10 @@ node_modules/
 .next/
 models/
 data/
+.claude/
+claude/
+CLAUDE.md
+
+Kairos_FYP_Proposal.pdf
+scratch/
+cache/
