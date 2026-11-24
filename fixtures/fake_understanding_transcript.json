@@ -1,0 +1,28 @@
+{
+  "video_id": "fake_001",
+  "duration": 42.0,
+  "route": "transcript",
+  "speech_ratio": 0.86,
+  "asr_confidence": 0.91,
+  "genre": "unknown",
+  "genre_confidence": 0.0,
+  "words": [
+    {"w": "FAKE", "start": 0.4, "end": 0.7},
+    {"w": "example,", "start": 0.7, "end": 1.2},
+    {"w": "so", "start": 1.5, "end": 1.7},
+    {"w": "welcome", "start": 1.7, "end": 2.1},
+    {"w": "back", "start": 2.1, "end": 2.4},
+    {"w": "to", "start": 2.4, "end": 2.5},
+    {"w": "the", "start": 2.5, "end": 2.6},
+    {"w": "show.", "start": 2.6, "end": 3.0},
+    {"w": "Today", "start": 20.1, "end": 20.5},
+    {"w": "we", "start": 20.5, "end": 20.6},
+    {"w": "talk", "start": 20.6, "end": 20.9},
+    {"w": "about", "start": 20.9, "end": 21.2},
+    {"w": "editing.", "start": 21.2, "end": 21.8}
+  ],
+  "segments": [
+    {"start": 0.4, "end": 3.0, "text": "FAKE example, so welcome back to the show.", "visual": null},
+    {"start": 20.1, "end": 21.8, "text": "Today we talk about editing.", "visual": null}
+  ]
+}
