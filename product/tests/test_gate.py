@@ -3,7 +3,7 @@ import pytest
 from PIL import Image
 
 from contracts.product import Checks
-from product.gate import cer, crop, decide, delta_e, load_image, silhouette_iou
+from product.gate import cer, crop, decide, delta_e, label_text, load_image, silhouette_iou
 
 
 def disk_mask(size, r, centre):
@@ -125,3 +125,15 @@ def test_gpu_models_load_once_and_swap_via_cpu(monkeypatch):
     assert g._gpu_model("a", loader("a")) is a
     assert loads == {"a": 1, "b": 1}
     assert a.where[0] == "cpu"  # parked on CPU while b ran
+
+
+def test_label_text_ignores_stray_ocr_noise():
+    # A label-free jar gave OCR "7"; treating it as label text failed every image.
+    assert label_text("7") == ""
+    assert label_text(" - . ") == ""
+    assert label_text("a1") == ""
+
+
+def test_label_text_keeps_real_labels():
+    assert label_text("ORGANIC HONEY 500g") == "ORGANIC HONEY 500g"
+    assert label_text("  ABC ") == "ABC"

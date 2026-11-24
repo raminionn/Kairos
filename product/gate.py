@@ -177,6 +177,16 @@ def read_text(img: np.ndarray) -> str:
     return " ".join(t for t, s in zip(res.txts, res.scores) if s >= 0.5)
 
 
+def label_text(raw: str) -> str:
+    """OCR text worth checking as a label: at least 3 letters or digits, else "" (no label).
+
+    A label-free source can give stray OCR noise like "7"; comparing every output to that
+    would fail the label check on every image.
+    """
+    text = raw.strip()
+    return text if sum(c.isalnum() for c in text) >= 3 else ""
+
+
 def dino_similarity(a: np.ndarray, b: np.ndarray) -> float:
     """Cosine similarity of DINOv2-base CLS embeddings."""
     import torch

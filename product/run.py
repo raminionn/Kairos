@@ -88,7 +88,7 @@ def run(input_path: Path, output_path: Path, config: dict) -> None:
             if source_mask.sum() < 0.01 * source_mask.size:
                 raise ProductError("no item found in the upload")
             cut = gate.crop(source, source_mask)
-            reference_text = gate.read_text(cut)
+            reference_text = gate.label_text(gate.read_text(cut))
             refs.append(_save(cut, tmp / "cutout.png"))
         if template.get("reference_image"):
             refs.append(TEMPLATES / template["reference_image"])
