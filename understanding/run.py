@@ -2,56 +2,67 @@
 
     python -m understanding.run data/videos/x.mp4 [--id my_id] [--out some/folder]
 
-Runs ingest, ASR and the router, then writes data/work/<video_id>/understanding.json.
-Not built yet: the vision path (no visual descriptions) and the genre classifier (genre "unknown").
+Runs ingest, ASR, the router, the vision path (vision/both routes) and the genre classifier,
+then writes data/work/<video_id>/understanding.json. While the vision path or the genre
+classifier is still a stub, a STUB line is printed for it.
 """
 
 import argparse
 from pathlib import Path
 from typing import List, Optional
 
-from contracts import UNKNOWN_GENRE, MediaInfo, Segment, Understanding, Word, save_json
+from contracts import MediaInfo, Segment, Understanding, Word, save_json
 from understanding.asr import ASRResult, transcribe
 from understanding.config import REPO_ROOT, WORK_DIR
+from understanding.genre import GenreResult, classify_genre
 from understanding.ingest import ingest
 from understanding.router import RouteDecision, choose_route, words_per_minute
-
-# Placeholders until the genre classifier exists.
-STUB_GENRE = UNKNOWN_GENRE
-STUB_GENRE_CONFIDENCE = 0.0
+from understanding.vision import VisionResult, describe_video, merge_segments
 
 
-def segments_for_route(route: str, asr: ASRResult) -> List[Segment]:
-    """Vision descriptions are not built yet, so the vision route has no segments
-    and the both route only carries transcript text for now."""
-    return [] if route == "vision" else asr.segments
+def segments_for_route(route: str, asr: ASRResult, vision: Optional[VisionResult]) -> List[Segment]:
+    visual = vision.segments if vision is not None else []
+    if route == "vision":
+        return visual
+    if route == "both":
+        return merge_segments(asr.segments, visual)
+    return asr.segments
 
 
 def words_for_route(route: str, asr: ASRResult) -> List[Word]:
     return [] if route == "vision" else asr.words
 
 
-def build_understanding(media: MediaInfo, asr: ASRResult, decision: RouteDecision) -> Understanding:
+def build_understanding(
+    media: MediaInfo,
+    asr: ASRResult,
+    decision: RouteDecision,
+    segments: List[Segment],
+    genre: GenreResult,
+) -> Understanding:
     data = {
         "video_id": media.video_id,
         "duration": media.duration,
         "route": decision.route,
         "speech_ratio": asr.speech_ratio,
         "asr_confidence": asr.asr_confidence,
-        "genre": STUB_GENRE,
-        "genre_confidence": STUB_GENRE_CONFIDENCE,
+        "genre": genre.genre,
+        "genre_confidence": genre.confidence,
         "words": [w.model_dump() for w in words_for_route(decision.route, asr)],
-        "segments": [s.model_dump() for s in segments_for_route(decision.route, asr)],
+        "segments": [s.model_dump() for s in segments],
     }
     return Understanding.model_validate(data)
 
 
-def stub_notes(understanding: Understanding) -> List[str]:
-    notes = ["genre is 'unknown' (genre classifier not built yet)"]
-    if understanding.route == "vision":
-        notes.append("route is vision but the vision path is not built yet: segments are empty")
-    elif understanding.route == "both":
-        notes.append("route is both but the vision path is not built yet: segments have text only")
+def stub_notes(route: str, vision: Optional[VisionResult], genre: GenreResult) -> List[str]:
+    notes = []
+    if vision is not None and vision.is_stub:
+        if route == "vision":
+            notes.append("vision path not built yet: segments are empty")
+        else:
+            notes.append("vision path not built yet: segments have text only")
+    if genre.is_stub:
+        notes.append("genre classifier not built yet: genre is 'unknown'")
     return notes
 
 
@@ -60,7 +71,10 @@ def run(video: Path, video_id: Optional[str] = None, out_dir: Optional[Path] = N
     asr = transcribe(media)
     wpm = words_per_minute(len(asr.words), media.duration)
     decision = choose_route(asr.speech_ratio, asr.asr_confidence, wpm)
-    understanding = build_understanding(media, asr, decision)
+    vision = describe_video(media) if decision.route in ("vision", "both") else None
+    segments = segments_for_route(decision.route, asr, vision)
+    genre = classify_genre(segments, media.duration)
+    understanding = build_understanding(media, asr, decision, segments, genre)
 
     out_path = Path(out_dir or WORK_DIR / media.video_id) / "understanding.json"
     save_json(understanding, out_path)
@@ -69,7 +83,8 @@ def run(video: Path, video_id: Optional[str] = None, out_dir: Optional[Path] = N
     print(f"route     {decision.route} ({decision.reason})")
     print(f"metrics   speech_ratio {asr.speech_ratio:.3f}, asr_confidence {asr.asr_confidence:.3f}, {wpm:.0f} wpm")
     print(f"content   {len(understanding.words)} words, {len(understanding.segments)} segments")
-    for note in stub_notes(understanding):
+    print(f"genre     {genre.genre} ({genre.confidence:.2f})")
+    for note in stub_notes(decision.route, vision, genre):
         print(f"STUB      {note}")
     print(f"wrote     {display_path(out_path)}")
     return out_path

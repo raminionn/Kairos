@@ -34,6 +34,30 @@ ROUTER = RouterThresholds()
 
 
 @dataclass(frozen=True)
+class VisionSettings:
+    """Placeholders for the vision path (not built yet)."""
+
+    frame_interval_s: float = 5.0  # one frame every N seconds
+    max_frames: int = 120  # caps the number of VLM calls per video
+    model: Optional[str] = None  # OpenRouter model id, not chosen yet
+
+
+@dataclass(frozen=True)
+class GenreSettings:
+    """Placeholders for the genre classifier (not built yet)."""
+
+    model: Optional[str] = None  # OpenRouter model id, not chosen yet
+    max_prompt_chars: int = 4000  # how much transcript/visual text goes into the prompt
+
+
+VISION = VisionSettings()
+GENRE = GenreSettings()
+
+# The real vision and genre calls will read the key from this .env variable. Nothing reads it yet.
+OPENROUTER_KEY_ENV = "OPENROUTER_API_KEY"
+
+
+@dataclass(frozen=True)
 class ASRSettings:
     model_size: str = "small"
     device: str = "cpu"
