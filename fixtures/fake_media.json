@@ -1,0 +1,16 @@
+{
+  "video_id": "fake_001",
+  "source_path": "data/videos/fake_001.mp4",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "duration": 42.0,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30.0,
+  "rotation": 0,
+  "has_audio": true,
+  "video_codec": "h264",
+  "audio_codec": "aac",
+  "audio_path": "data/work/fake_001/audio.wav",
+  "audio_sample_rate": 16000,
+  "audio_channels": 1
+}

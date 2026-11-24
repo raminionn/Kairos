@@ -1,0 +1,15 @@
+{
+  "video_id": "fake_002",
+  "duration": 30.0,
+  "route": "vision",
+  "speech_ratio": 0.05,
+  "asr_confidence": 0.38,
+  "genre": "unknown",
+  "genre_confidence": 0.0,
+  "words": [],
+  "segments": [
+    {"start": 0.0, "end": 10.0, "text": null, "visual": "FAKE example: hands chop onions on a wooden board, top-down view."},
+    {"start": 10.0, "end": 22.5, "text": null, "visual": "FAKE example: onions fry in a pan, steam rising."},
+    {"start": 22.5, "end": 30.0, "text": null, "visual": "FAKE example: finished curry served in a white bowl."}
+  ]
+}
