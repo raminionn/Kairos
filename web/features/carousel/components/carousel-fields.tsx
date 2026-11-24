@@ -1,5 +1,6 @@
 "use client";
 
+import { Minus, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Job } from "@/lib/api-types";
 import { listJobs } from "@/features/jobs/api";
@@ -26,7 +27,7 @@ export function CarouselFields() {
       )}
       <div className="flex flex-wrap gap-1.5 text-sm">
         <button type="button" onClick={() => setShowText((v) => !v)} aria-expanded={showText}
-          className="rounded-full border border-line px-3 py-1.5">{showText ? "− Text" : "+ Text"}</button>
+          className="flex items-center gap-1 rounded-full border border-line px-3 py-1.5">{showText ? <Minus className="size-3.5" aria-hidden /> : <Plus className="size-3.5" aria-hidden />}Text</button>
         <label className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1">
           <span className="size-2.5 rounded-[3px] bg-yellow" aria-hidden />From video
           <select name="source_job_id" defaultValue="" className="max-w-40 bg-transparent outline-none">

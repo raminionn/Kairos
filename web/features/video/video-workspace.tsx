@@ -6,7 +6,7 @@ import { VideoFields } from "./components/video-fields";
 
 const videoModule: ModuleConfig = {
   kind: "video",
-  title: "Video to clips",
+  title: "Video clips",
   summary: () => "",
   gridClass: "grid-cols-2 sm:grid-cols-4 xl:grid-cols-6",
   tileAspect: "aspect-[9/16]",

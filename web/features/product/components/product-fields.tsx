@@ -1,5 +1,6 @@
 "use client";
 
+import { ImagePlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/api-types";
 
@@ -29,7 +30,7 @@ export function ProductFields() {
       <div className="flex items-center gap-3">
         <label className="relative grid size-14 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-xl border border-dashed border-[#cfcfc8] bg-card text-xl text-muted has-focus-visible:outline-2 has-focus-visible:outline-violet2" title="Choose a photo">
           {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
-          {file && preview ? <img src={preview} alt="" className="size-full object-cover" /> : "+"}
+          {file && preview ? <img src={preview} alt="" className="size-full object-cover" /> : <ImagePlus className="size-5" strokeWidth={1.75} aria-hidden />}
           <input type="file" name="file" accept=".jpg,.jpeg,.png,.webp" className="sr-only" aria-label="Product photo"
             onChange={(e) => choose(e.target.files?.[0] ?? null)} />
         </label>

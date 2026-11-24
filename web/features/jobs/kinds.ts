@@ -1,4 +1,7 @@
+import { Clapperboard, GalleryHorizontalEnd, Package, type LucideIcon } from "lucide-react";
 import type { JobKind } from "@/lib/api-types";
+
+export const KIND_ICON: Record<JobKind, LucideIcon> = { video: Clapperboard, product: Package, carousel: GalleryHorizontalEnd };
 
 export const KIND_LABEL: Record<JobKind, string> = { video: "Video", product: "Product", carousel: "Carousel" };
 

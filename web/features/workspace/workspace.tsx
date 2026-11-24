@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { Inbox, WifiOff, X } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import type { Job, JobKind, Output } from "@/lib/api-types";
 import { useJobFeed } from "@/features/jobs/use-job-feed";
@@ -73,9 +74,9 @@ export function Workspace({ module }: { module: ModuleConfig }) {
 
         <div className="relative flex min-h-0 flex-1">
           <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-2 pt-3 md:px-4">
-            {offline && <p role="status" className="mx-3 mb-3 rounded-xl bg-[#fee2e2] px-4 py-2 text-sm text-fail">Can&apos;t reach the server. Retrying…</p>}
+            {offline && <p role="status" className="mx-3 mb-3 flex items-center gap-2 rounded-xl bg-[#fee2e2] px-4 py-2 text-sm text-fail"><WifiOff className="size-4" aria-hidden />Can&apos;t reach the server. Retrying…</p>}
             {loaded && jobs.length === 0 && (
-              <p className="mx-3 mt-10 text-center text-muted">Nothing here yet. Add your input below and press Generate.</p>
+              <div className="mx-3 mt-16 flex flex-col items-center gap-3 text-center text-muted"><Inbox className="size-8" strokeWidth={1.5} aria-hidden />Your creations show up here. Add an input below and press Generate.</div>
             )}
             {jobs.map((job) => (
               <BatchRow key={job.id} job={job} outputs={(outputs[job.id] ?? []).filter(visible).sort(module.sort)} loaded={job.id in outputs}
@@ -94,7 +95,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
             {selected ? (
               <>
                 <div className="mb-3 flex justify-end">
-                  <button type="button" onClick={() => setSelected(null)} className="rounded-lg px-2 py-1 text-sm text-muted hover:bg-card" aria-label="Close details">✕</button>
+                  <button type="button" onClick={() => setSelected(null)} className="rounded-lg px-2 py-1 text-sm text-muted hover:bg-card" aria-label="Close details"><X className="size-4" /></button>
                 </div>
                 {module.renderDrawer(selected)}
               </>

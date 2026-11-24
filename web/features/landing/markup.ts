@@ -95,7 +95,7 @@ export const landingMarkup = `
 <header><div class="wrap">
   <a class="logo" href="/">kairos<i></i></a>
   <nav class="pills"><a href="#features">Features</a><a href="#modules">Modules</a><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
-  <div class="right"><a href="/jobs">Jobs</a><a class="btn-black" href="/video">New Job</a></div>
+  <div class="right"><a href="/projects">Projects</a><a class="btn-black" href="/video">Create</a></div>
 </div></header>
 
 <!-- ================= HERO ================= -->
@@ -209,13 +209,13 @@ export const landingMarkup = `
   <div class="cards3">
     <a class="mcard" href="/video" data-speed="1.1"><p>Cut Long Videos Into<br>Ranked Shorts</p><div class="face" style="background:var(--orange)"><small>Video to Clips</small>
       <svg viewBox="0 0 150 130"><g transform="translate(58,8) rotate(14) scale(.34)"><use href="#phone"/></g></svg>
-      <span class="num">01</span><span class="arrow">➝</span></div></a>
+      <span class="num">01</span><span class="arrow"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></div></a>
     <a class="mcard" href="/product" data-speed="1.5" style="margin-top:-40px"><p>Studio Product Shots<br>From One Photo</p><div class="face" style="background:var(--pink)"><small>Product Photos</small>
       <svg viewBox="0 0 150 130"><g transform="translate(52,14) rotate(10) scale(.5)"><use href="#jar"/></g></svg>
-      <span class="num">02</span><span class="arrow">➝</span></div></a>
+      <span class="num">02</span><span class="arrow"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></div></a>
     <a class="mcard" href="/carousel" data-speed="1.2" style="margin-top:20px"><p>Turn Ideas Into<br>LinkedIn Carousels</p><div class="face" style="background:var(--violet2)"><small>Carousel Builder</small>
       <svg viewBox="0 0 150 130"><g transform="translate(30,6) scale(.5)"><use href="#slides"/></g></svg>
-      <span class="num">03</span><span class="arrow">➝</span></div></a>
+      <span class="num">03</span><span class="arrow"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></div></a>
   </div>
 </div></section>
 

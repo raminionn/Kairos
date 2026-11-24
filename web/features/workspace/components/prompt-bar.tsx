@@ -1,5 +1,6 @@
 "use client";
 
+import { LoaderCircle, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 /** Docked form at the bottom of the feed. Fields are plain named inputs inside `children`. */
@@ -23,8 +24,8 @@ export function PromptBar({ children, onSubmit }: { children: React.ReactNode; o
       <div className="flex flex-wrap items-end gap-2" key={version}>
         <div className="w-full min-w-0 sm:w-auto sm:flex-1">{children}</div>
         <button type="submit" disabled={sending}
-          className="ml-auto rounded-xl bg-violet2 px-5 py-2.5 text-sm text-white transition hover:-translate-y-px disabled:opacity-60">
-          {sending ? "Starting…" : "Generate ✦"}
+          className="ml-auto flex items-center gap-2 rounded-xl bg-violet2 px-5 py-2.5 text-sm text-white transition hover:-translate-y-px disabled:opacity-60">
+          {sending ? <><LoaderCircle className="size-4 animate-spin" aria-hidden />Starting…</> : <>Generate<Sparkles className="size-4" aria-hidden /></>}
         </button>
       </div>
       {error && <p role="alert" className="mt-2 text-sm text-fail">{error}</p>}

@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- media come from the API, not from /public */
 
+import { Check, Copy, Download } from "lucide-react";
 import { useState } from "react";
 import type { ClipMeta, Output } from "@/lib/api-types";
 import { fileUrl } from "@/features/jobs/api";
@@ -63,7 +64,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
       <h3 className="mt-4 mb-1 text-[11px] tracking-widest text-muted uppercase">Suggested caption</h3>
       <div className="flex items-start gap-2 rounded-lg bg-card p-2 text-sm">
         <p className="flex-1">{meta.suggested_caption}</p>
-        <button type="button" onClick={copy} className="rounded-md bg-white px-2 py-1 text-xs">{copied ? "Copied" : "Copy"}</button>
+        <button type="button" onClick={copy} className="flex items-center gap-1 rounded-md bg-white px-2 py-1 text-xs">{copied ? <><Check className="size-3.5" aria-hidden />Copied</> : <><Copy className="size-3.5" aria-hidden />Copy</>}</button>
       </div>
 
       <h3 className="mt-5 mb-2 text-[11px] tracking-widest text-muted uppercase">Scores (1–10)</h3>
@@ -84,7 +85,7 @@ export function ClipDrawer({ output }: { output: ClipOutput }) {
         {meta.signals.words_per_sec} words/s · energy {meta.signals.audio_energy} · {meta.signals.cut_count} cuts
       </p>
 
-      {url && <a href={fileUrl(url)} download className="mt-5 block rounded-lg bg-ink px-3 py-2 text-center text-sm text-white">Download clip</a>}
+      {url && <a href={fileUrl(url)} download className="mt-5 flex items-center justify-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm text-white"><Download className="size-4" aria-hidden />Download clip</a>}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- media come from the API, not from /public */
 
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useState } from "react";
 import type { Output } from "@/lib/api-types";
 import { fileUrl } from "@/features/jobs/api";
@@ -28,11 +29,11 @@ export function CarouselDrawer({ output }: { output: CarouselOutput }) {
         {slides[at] && <img src={fileUrl(slides[at])} alt={`Slide ${at + 1} of ${slides.length}`} className="aspect-[4/5] w-full object-cover" />}
       </div>
       <div className="mt-3 flex items-center justify-between">
-        <button type="button" onClick={() => setI(at - 1)} disabled={at === 0} className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40" aria-label="Previous slide">←</button>
+        <button type="button" onClick={() => setI(at - 1)} disabled={at === 0} className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40" aria-label="Previous slide"><ChevronLeft className="size-4" /></button>
         <span className="text-sm text-muted" aria-live="polite">{at + 1} / {slides.length}</span>
-        <button type="button" onClick={() => setI(at + 1)} disabled={at >= slides.length - 1} className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40" aria-label="Next slide">→</button>
+        <button type="button" onClick={() => setI(at + 1)} disabled={at >= slides.length - 1} className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40" aria-label="Next slide"><ChevronRight className="size-4" /></button>
       </div>
-      {output.url && <a href={fileUrl(output.url)} download className="mt-5 block rounded-lg bg-ink px-3 py-2 text-center text-sm text-white">Download PDF</a>}
+      {output.url && <a href={fileUrl(output.url)} download className="mt-5 flex items-center justify-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm text-white"><Download className="size-4" aria-hidden />Download PDF</a>}
       <p className="mt-3 text-xs text-muted">Carousel templates are not final yet.</p>
     </div>
   );

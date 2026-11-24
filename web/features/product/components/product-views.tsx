@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element -- media come from the API, not from /public */
+import { Check, Download, ImageOff, RefreshCw, X } from "lucide-react";
 import type { Output, ProductMeta } from "@/lib/api-types";
 import { fileUrl } from "@/features/jobs/api";
 import { visibleChecks, type CheckRow } from "@/lib/thresholds";
@@ -13,8 +14,8 @@ const reason = (r: string) => REASON[r] ?? r;
 
 function Badge({ meta }: { meta: ProductMeta }) {
   return meta.passed
-    ? <span className="absolute top-2 right-2 rounded-full bg-pass px-2 py-0.5 text-[11px] font-medium text-white">✓ passed</span>
-    : <span className="absolute top-2 right-2 rounded-full bg-fail px-2 py-0.5 text-[11px] font-medium text-white">✗ {meta.fail_reasons[0] === "ocr_cer" ? "label" : "failed"}</span>;
+    ? <span className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-pass py-0.5 pr-2 pl-1.5 text-[11px] font-medium text-white shadow-sm"><Check className="size-3" strokeWidth={3} aria-hidden />passed</span>
+    : <span className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-fail py-0.5 pr-2 pl-1.5 text-[11px] font-medium text-white shadow-sm"><X className="size-3" strokeWidth={3} aria-hidden />{meta.fail_reasons[0] === "ocr_cer" ? "label" : "failed"}</span>;
 }
 
 export function ProductTile({ output }: { output: ProductOutput }) {
@@ -22,7 +23,7 @@ export function ProductTile({ output }: { output: ProductOutput }) {
   if (!url) {
     return (
       <div className="relative grid aspect-[4/5] place-items-center rounded-xl bg-[#e9e9e4] p-3 text-center text-xs text-muted">
-        <span><b className="block text-sm font-medium text-ink">Generation failed</b>{meta.fail_reasons.map(reason).join(", ")}</span>
+        <span><ImageOff className="mx-auto mb-2 size-6" strokeWidth={1.5} aria-hidden /><b className="block text-sm font-medium text-ink">Generation failed</b>{meta.fail_reasons.map(reason).join(", ")}</span>
       </div>
     );
   }
@@ -77,9 +78,9 @@ export function ProductDrawer({ output }: { output: ProductOutput }) {
         <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-fail">{meta.fail_reasons.map((r) => <li key={r}>{reason(r)}</li>)}</ul>
       )}
       <div className="mt-5 flex gap-2">
-        <button type="button" disabled title="Coming when the API supports it" className="flex-1 rounded-lg border border-line px-3 py-2 text-sm text-muted">Regenerate</button>
+        <button type="button" disabled title="Coming when the API supports it" className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2 text-sm text-muted"><RefreshCw className="size-4" aria-hidden />Regenerate</button>
         {url
-          ? <a href={fileUrl(url)} download className="flex-1 rounded-lg bg-ink px-3 py-2 text-center text-sm text-white">Download</a>
+          ? <a href={fileUrl(url)} download className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-sm text-white"><Download className="size-4" aria-hidden />Download</a>
           : <span className="flex-1 rounded-lg bg-card px-3 py-2 text-center text-sm text-muted">No file</span>}
       </div>
     </div>
