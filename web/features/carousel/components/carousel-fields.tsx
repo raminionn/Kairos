@@ -19,20 +19,47 @@ export function CarouselFields() {
 
   return (
     <div className="space-y-2">
-      <input name="topic" placeholder="Topic, e.g. 5 funding myths" aria-label="Topic"
-        className="w-full rounded-lg px-1 py-1 text-[15px] outline-none placeholder:text-muted" />
+      <input
+        name="topic"
+        placeholder="Topic, e.g. 5 funding myths"
+        aria-label="Topic"
+        className="w-full bg-transparent px-1 py-1 text-[15px] text-ink outline-none placeholder:text-muted/60"
+      />
       {showText && (
-        <textarea name="text" rows={3} placeholder="Or paste your own text" aria-label="Source text"
-          className="w-full rounded-lg border border-line p-2 text-sm outline-none" />
+        <textarea
+          name="text"
+          rows={3}
+          placeholder="Or paste your own text"
+          aria-label="Source text"
+          className="w-full rounded-xl border border-line bg-card/60 p-2.5 text-sm text-ink outline-none placeholder:text-muted/60 focus:border-violet-500/50"
+        />
       )}
-      <div className="flex flex-wrap gap-1.5 text-sm">
-        <button type="button" onClick={() => setShowText((v) => !v)} aria-expanded={showText}
-          className="flex items-center gap-1 rounded-full border border-line px-3 py-1.5">{showText ? <Minus className="size-3.5" aria-hidden /> : <Plus className="size-3.5" aria-hidden />}Text</button>
-        <label className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1">
-          <span className="size-2.5 rounded-[3px] bg-yellow" aria-hidden />From video
-          <select name="source_job_id" defaultValue="" className="max-w-40 bg-transparent outline-none">
-            <option value="">none</option>
-            {videos.map((v) => <option key={v.id} value={v.id}>{String(v.input?.name ?? v.id)}</option>)}
+      <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+        <button
+          type="button"
+          onClick={() => setShowText((v) => !v)}
+          aria-expanded={showText}
+          className="flex cursor-pointer items-center gap-1 rounded-full border border-line bg-card/60 px-3 py-1.5 text-muted transition-colors hover:border-white/20 hover:text-ink"
+        >
+          {showText ? <Minus className="size-3.5" aria-hidden /> : <Plus className="size-3.5" aria-hidden />}
+          Text
+        </button>
+        <label className="flex items-center gap-1.5 rounded-full border border-line bg-card/60 px-3 py-1 text-muted hover:border-white/20">
+          <span className="size-2 rounded-full bg-yellow" aria-hidden />
+          From video
+          <select
+            name="source_job_id"
+            defaultValue=""
+            className="max-w-40 cursor-pointer bg-transparent text-ink outline-none truncate"
+          >
+            <option value="" className="bg-card text-ink">
+              none
+            </option>
+            {videos.map((v) => (
+              <option key={v.id} value={v.id} className="bg-card text-ink">
+                {String(v.input?.name ?? v.id)}
+              </option>
+            ))}
           </select>
         </label>
       </div>
