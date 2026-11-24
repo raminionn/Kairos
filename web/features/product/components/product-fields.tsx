@@ -13,7 +13,7 @@ export function ProductFields() {
   return (
     <>
       <Field label="Product photo" hint="Never changed">
-        <Dropzone name="file" accept=".jpg,.jpeg,.png,.webp" label="Choose a photo" hint="JPG, PNG or WebP, up to 20 MB" image />
+        <Dropzone name="file" accept=".jpg,.jpeg,.png,.webp" label="Choose a photo" hint="Show the whole product, not a close-up · JPG, PNG or WebP" image />
       </Field>
 
       <fieldset>
