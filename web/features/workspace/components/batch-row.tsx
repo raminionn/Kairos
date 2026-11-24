@@ -39,15 +39,15 @@ export function BatchRow({
       id={`job-${job.id}`}
       className={`scroll-mt-4 rounded-2xl p-3.5 transition-all duration-300 md:p-4.5 ${
         highlight
-          ? "bg-violet-950/20 ring-1 ring-violet-500/35 shadow-[0_0_24px_rgba(139,92,246,0.1)]"
-          : "hover:bg-white/[0.01]"
+          ? "bg-[#f1ecff]/80 ring-1 ring-violet2/30 shadow-xs"
+          : "hover:bg-white/40"
       }`}
     >
       <header className="mb-3.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm text-muted">
         <b className="font-semibold tracking-tight text-ink">{String(job.input?.name ?? job.id)}</b>
-        {summary && <span className="text-xs text-muted/80">· {summary}</span>}
+        {summary && <span className="text-xs text-muted">· {summary}</span>}
         <StatusChip job={job} />
-        <span className="ml-auto text-xs text-muted/70">{timeAgo(job.created_at)}</span>
+        <span className="ml-auto text-xs text-muted">{timeAgo(job.created_at)}</span>
       </header>
       {job.status !== "failed" && (
         <div className={`grid gap-3 md:gap-4 ${gridClass}`}>
@@ -59,7 +59,7 @@ export function BatchRow({
               aria-pressed={o.id === selectedId}
               className={`block cursor-pointer rounded-xl text-left transition-all duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-violet2 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none ${
                 o.id === selectedId
-                  ? "ring-2 ring-violet2 ring-offset-2 ring-offset-page shadow-lg shadow-violet-500/25"
+                  ? "ring-2 ring-violet2 ring-offset-2 ring-offset-page shadow-md shadow-violet2/20"
                   : ""
               }`}
             >
@@ -72,7 +72,7 @@ export function BatchRow({
           {Array.from({ length: shimmers }, (_, i) => (
             <div
               key={i}
-              className={`shimmer grid place-items-center rounded-xl border border-line/60 text-center text-xs font-medium text-muted/70 shadow-inner ${tileAspect}`}
+              className={`shimmer grid place-items-center rounded-xl border border-line text-center text-xs font-medium text-muted ${tileAspect}`}
             >
               {busy ? (job.stage ?? "queued") + "…" : "loading…"}
             </div>

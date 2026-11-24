@@ -62,13 +62,13 @@ export function Workspace({ module }: { module: ModuleConfig }) {
       <Rail active={module.kind} all={all} />
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-[#0c0d14]/80 px-4 backdrop-blur-md md:px-6">
+        <div className="flex h-14 shrink-0 items-center justify-between border-b border-line bg-white/90 px-4 backdrop-blur-md md:px-6">
           <h1 className="text-sm font-semibold tracking-tight text-ink md:text-base">{module.title}</h1>
           {module.filter && (
             <div
               role="group"
               aria-label="Filter results"
-              className="flex items-center rounded-xl border border-line bg-card/60 p-0.5 text-xs font-medium backdrop-blur-xs"
+              className="flex items-center rounded-xl border border-line bg-card/60 p-0.5 text-xs font-medium"
             >
               {(["all", "passed", "failed"] as Filter[]).map((f) => {
                 const on = filter === f;
@@ -80,8 +80,8 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                     aria-pressed={on}
                     className={`cursor-pointer rounded-lg px-3 py-1 capitalize transition-all duration-150 ${
                       on
-                        ? "bg-white/10 text-white shadow-xs border border-white/10"
-                        : "text-muted hover:text-ink hover:bg-white/5"
+                        ? "bg-ink text-white shadow-xs"
+                        : "text-muted hover:text-ink hover:bg-white"
                     }`}
                   >
                     {f}
@@ -97,7 +97,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
             {offline && (
               <p
                 role="status"
-                className="mx-3 mb-3 flex items-center gap-2 rounded-xl border border-fail/30 bg-fail/10 px-4 py-2.5 text-sm font-medium text-fail shadow-sm backdrop-blur-xs"
+                className="mx-3 mb-3 flex items-center gap-2 rounded-xl border border-fail/30 bg-[#fee2e2] px-4 py-2.5 text-sm font-medium text-fail shadow-xs"
               >
                 <WifiOff className="size-4 shrink-0" aria-hidden />
                 Can&apos;t reach the server. Retrying…
@@ -105,7 +105,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
             )}
             {loaded && jobs.length === 0 && (
               <div className="mx-3 mt-20 flex flex-col items-center justify-center gap-3 text-center text-muted">
-                <div className="grid size-12 place-items-center rounded-2xl border border-line bg-card/80 text-muted">
+                <div className="grid size-12 place-items-center rounded-2xl border border-line bg-card text-muted">
                   <Inbox className="size-6" strokeWidth={1.5} aria-hidden />
                 </div>
                 <p className="max-w-xs text-sm">Your creations show up here. Add an input below and press Generate.</p>
@@ -137,9 +137,9 @@ export function Workspace({ module }: { module: ModuleConfig }) {
             aria-label="Details"
             className={`${
               selected
-                ? "fixed inset-x-0 bottom-0 z-30 max-h-[85dvh] rounded-t-3xl border-t border-line bg-[#10121a]/95 p-5 shadow-2xl backdrop-blur-2xl"
+                ? "fixed inset-x-0 bottom-0 z-30 max-h-[85dvh] rounded-t-3xl border-t border-line bg-white p-5 shadow-2xl"
                 : "hidden"
-            } overflow-y-auto md:static md:block md:max-h-none md:w-84 md:shrink-0 md:rounded-none md:border-l md:border-line md:bg-[#0c0d14]/70 md:p-6 md:shadow-none md:backdrop-blur-md`}
+            } overflow-y-auto md:static md:block md:max-h-none md:w-84 md:shrink-0 md:rounded-none md:border-l md:border-line md:bg-white/90 md:p-6 md:shadow-none md:backdrop-blur-md`}
           >
             {selected ? (
               <>

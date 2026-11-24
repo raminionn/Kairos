@@ -23,7 +23,7 @@ export function CarouselFields() {
         name="topic"
         placeholder="Topic, e.g. 5 funding myths"
         aria-label="Topic"
-        className="w-full bg-transparent px-1 py-1 text-[15px] text-ink outline-none placeholder:text-muted/60"
+        className="w-full bg-transparent px-1 py-1 text-[15px] text-ink outline-none placeholder:text-muted"
       />
       {showText && (
         <textarea
@@ -31,7 +31,7 @@ export function CarouselFields() {
           rows={3}
           placeholder="Or paste your own text"
           aria-label="Source text"
-          className="w-full rounded-xl border border-line bg-card/60 p-2.5 text-sm text-ink outline-none placeholder:text-muted/60 focus:border-violet-500/50"
+          className="w-full rounded-xl border border-line bg-white p-2.5 text-sm text-ink outline-none placeholder:text-muted focus:border-violet2"
         />
       )}
       <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
@@ -39,12 +39,12 @@ export function CarouselFields() {
           type="button"
           onClick={() => setShowText((v) => !v)}
           aria-expanded={showText}
-          className="flex cursor-pointer items-center gap-1 rounded-full border border-line bg-card/60 px-3 py-1.5 text-muted transition-colors hover:border-white/20 hover:text-ink"
+          className="flex cursor-pointer items-center gap-1 rounded-full border border-line bg-white px-3 py-1.5 text-muted transition-colors hover:border-line hover:text-ink"
         >
           {showText ? <Minus className="size-3.5" aria-hidden /> : <Plus className="size-3.5" aria-hidden />}
           Text
         </button>
-        <label className="flex items-center gap-1.5 rounded-full border border-line bg-card/60 px-3 py-1 text-muted hover:border-white/20">
+        <label className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1 text-muted hover:border-line">
           <span className="size-2 rounded-full bg-yellow" aria-hidden />
           From video
           <select
@@ -52,11 +52,11 @@ export function CarouselFields() {
             defaultValue=""
             className="max-w-40 cursor-pointer bg-transparent text-ink outline-none truncate"
           >
-            <option value="" className="bg-card text-ink">
+            <option value="" className="bg-white text-ink">
               none
             </option>
             {videos.map((v) => (
-              <option key={v.id} value={v.id} className="bg-card text-ink">
+              <option key={v.id} value={v.id} className="bg-white text-ink">
                 {String(v.input?.name ?? v.id)}
               </option>
             ))}

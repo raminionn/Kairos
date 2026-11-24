@@ -1,10 +1,10 @@
 import type { Job } from "@/lib/api-types";
 
 const STYLE: Record<Job["status"], string> = {
-  queued: "bg-white/5 text-muted border border-white/10",
-  running: "bg-amber-500/10 text-amber-300 border border-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
-  done: "bg-emerald-500/10 text-emerald-300 border border-emerald-500/25",
-  failed: "bg-fail/15 text-red-400 border border-fail/30",
+  queued: "bg-card text-muted border border-line",
+  running: "bg-[#fff4d6] text-[#a16207] border border-[#fde68a]",
+  done: "bg-[#dcfce7] text-[#15803d] border border-[#bbf7d0]",
+  failed: "bg-[#fee2e2] text-fail border border-[#fecaca]",
 };
 
 export function StatusChip({ job }: { job: Job }) {
@@ -15,7 +15,7 @@ export function StatusChip({ job }: { job: Job }) {
   return (
     <span
       title={text}
-      className={`inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide backdrop-blur-xs ${STYLE[job.status]}`}
+      className={`inline-flex max-w-full min-w-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide ${STYLE[job.status]}`}
     >
       {job.status === "running" && <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-current" />}
       <span className="truncate">{text}</span>
