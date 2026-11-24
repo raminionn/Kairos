@@ -21,13 +21,13 @@ load_dotenv(REPO_ROOT / ".env")
 class RouterThresholds:
     """Placeholder values, to be tuned from the labelled test videos (see eval/route_report.py)."""
 
-    # vision if there is almost no speech or almost no words
+    # vision if there is almost no speech or very few words per minute
     vision_max_speech_ratio: float = 0.2
-    vision_max_words: int = 30
-    # transcript only if speech is plentiful, clearly recognised and long enough
+    vision_max_wpm: float = 40.0
+    # transcript only if speech is plentiful, clearly recognised and dense enough
     transcript_min_speech_ratio: float = 0.5
     transcript_min_confidence: float = 0.6
-    transcript_min_words: int = 150
+    transcript_min_wpm: float = 120.0
 
 
 ROUTER = RouterThresholds()
