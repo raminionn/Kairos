@@ -59,6 +59,18 @@ export interface ClipMeta {
   thumb_url: string;
 }
 
+/** contracts/understanding.py, trimmed for the UI (local runner; the real API needs this kind too). */
+export interface UnderstandingMeta {
+  duration: number;
+  route: string;
+  speech_ratio: number;
+  asr_confidence: number;
+  genre: string;
+  genre_confidence: number;
+  word_count: number;
+  segments: { start: number; end: number; text: string | null; visual: string | null }[];
+}
+
 /** Assumed until the carousel spec defines it. */
 export interface CarouselMeta {
   slides: string[];
@@ -68,4 +80,5 @@ export type Output = { id: string; job_id: string; url: string } & (
   | { kind: "clip"; meta: ClipMeta }
   | { kind: "product_image"; meta: ProductMeta }
   | { kind: "carousel_pdf"; meta: CarouselMeta }
+  | { kind: "understanding"; meta: UnderstandingMeta }
 );

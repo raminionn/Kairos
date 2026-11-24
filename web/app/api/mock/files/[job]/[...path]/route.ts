@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { NextRequest } from "next/server";
 import { resolveMockFile } from "@/mock/media";
+import { readLocalFile } from "@/local/runner";
 
 let cover: string | undefined;
 async function coverDataUri() {
@@ -11,7 +12,10 @@ async function coverDataUri() {
 
 /** Photos redirect to public/mock; slides are SVG; videos and PDFs do not exist in the mock. */
 export async function GET(req: NextRequest, ctx: RouteContext<"/api/mock/files/[job]/[...path]">) {
-  const path = (await ctx.params).path.join("/");
+  const { job, path: parts } = await ctx.params;
+  const path = parts.join("/");
+  const real = readLocalFile(job, path);
+  if (real) return new Response(new Uint8Array(real.body), { headers: { "content-type": real.type, "cache-control": "no-store" } });
   const file = resolveMockFile(path, path === "slides/1.png" ? await coverDataUri() : undefined);
   if (!file) return Response.json({ detail: "The mock API has no such file." }, { status: 404 });
   if ("redirect" in file) return Response.redirect(new URL(file.redirect, req.url), 307);

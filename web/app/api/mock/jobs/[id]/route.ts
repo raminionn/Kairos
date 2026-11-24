@@ -2,6 +2,7 @@ import { connection, type NextRequest } from "next/server";
 import type { JobKind } from "@/lib/api-types";
 import { createJob, getJob } from "@/mock/store";
 import { validateCreate } from "@/mock/validate";
+import { LOCAL, startLocalJob } from "@/local/runner";
 
 const KINDS: JobKind[] = ["video", "product", "carousel"];
 
@@ -20,5 +21,9 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/mock/jobs/[
   if (!form) return Response.json({ detail: "Send the job as multipart form data." }, { status: 400 });
   const result = validateCreate(kind, form);
   if (!result.ok) return Response.json({ detail: result.error }, { status: 422 });
+  if (LOCAL) {
+    const started = await startLocalJob(kind, form, result.input);
+    return "problem" in started ? Response.json({ detail: started.problem }, { status: started.code }) : Response.json(started, { status: 201 });
+  }
   return Response.json(createJob(kind, result.input), { status: 201 });
 }

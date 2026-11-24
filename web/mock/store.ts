@@ -16,6 +16,14 @@ export const STAGES: Record<JobKind, string[]> = {
 const g = globalThis as typeof globalThis & { __kairosMock?: { jobs: Job[]; seq: number } };
 const db = (g.__kairosMock ??= { jobs: [], seq: 0 });
 
+/** Real runs (web/local/runner.ts) report their own status and outputs instead of the timed fake. */
+type LocalHooks = {
+  state(job: Job): Pick<Job, "status" | "error" | "stage" | "progress"> | undefined;
+  outputs(job: Job): Output[];
+};
+const hooks = globalThis as typeof globalThis & { __kairosLocalHooks?: LocalHooks };
+export const setLocalHooks = (h: LocalHooks) => { hooks.__kairosLocalHooks = h; };
+
 export function createJob(kind: JobKind, input: Record<string, unknown>, now = Date.now()): Job {
   const created = new Date(now).toISOString();
   const job: Job = {
@@ -28,6 +36,8 @@ export function createJob(kind: JobKind, input: Record<string, unknown>, now = D
 }
 
 export function jobAt(job: Job, now: number): Job {
+  const local = job.input?.local ? hooks.__kairosLocalHooks?.state(job) : undefined;
+  if (local) return { ...job, ...local, updated_at: new Date(now).toISOString() };
   const t = now - Date.parse(job.created_at);
   const at = (ms: number) => new Date(Date.parse(job.created_at) + ms).toISOString();
   if (t < QUEUE_MS) return { ...job, status: "queued", stage: null, progress: 0, error: null, updated_at: job.created_at };
@@ -53,6 +63,7 @@ export function getJob(id: string, now: number): Job | undefined {
 
 export function outputsFor(job: Job): Output[] {
   if (job.status !== "done") return [];
+  if (job.input?.local) return hooks.__kairosLocalHooks?.outputs(job) ?? [];
   const file = (path: string) => (path ? `/files/${job.id}/${path}` : "");
 
   if (job.kind === "product") {
