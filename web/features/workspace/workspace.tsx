@@ -1,10 +1,12 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { Inbox, WifiOff, X } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { FolderGit2, Inbox, Plus, WifiOff, X } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import type { Job, JobKind, Output } from "@/lib/api-types";
 import { useJobFeed } from "@/features/jobs/use-job-feed";
+import { StatusChip } from "@/components/ui/status-chip";
+import { timeAgo } from "@/features/jobs/kinds";
 import { BatchRow } from "./components/batch-row";
 import { PromptBar } from "./components/prompt-bar";
 import { Rail } from "./components/rail";
@@ -40,21 +42,65 @@ function OpenJobReader({ onChange }: { onChange(id?: string): void }) {
 }
 
 export function Workspace({ module }: { module: ModuleConfig }) {
+  const router = useRouter();
   const [openJobId, setOpenJobId] = useState<string>();
   const { jobs, all, outputs, offline, loaded, submit } = useJobFeed(module.kind);
   const [selected, setSelected] = useState<Output | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
 
+  // Track user-selected project or fallback to openJobId / "all"
+  const [selectedJobId, setSelectedJobId] = useState<string | "all" | null>(null);
+  // Track user sidebar tab or default to "projects" if openJobId is present
+  const [userSidebarTab, setUserSidebarTab] = useState<"create" | "projects" | null>(null);
+
+  const activeJobId = selectedJobId ?? openJobId ?? "all";
+  const sidebarTab = userSidebarTab ?? (openJobId ? "projects" : "create");
+
   // Bring the linked job into view once it has loaded.
   const linkedLoaded = loaded && jobs.some((j) => j.id === openJobId);
   useEffect(() => {
-    if (linkedLoaded) document.getElementById(`job-${openJobId}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (linkedLoaded) {
+      document.getElementById(`job-${openJobId}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [linkedLoaded, openJobId]);
 
   const visible = useMemo(
     () => (o: Output) => (module.filter && filter !== "all" ? module.filter(o, filter) : true),
     [module, filter],
   );
+
+  // Active job object if a specific job is selected
+  const activeJob = useMemo(
+    () => (activeJobId !== "all" ? jobs.find((j) => j.id === activeJobId) : undefined),
+    [jobs, activeJobId],
+  );
+
+  // Jobs to render in the stage: either just the active job, or all jobs
+  const displayJobs = useMemo(() => {
+    if (activeJob) return [activeJob];
+    return jobs;
+  }, [activeJob, jobs]);
+
+  function handleSelectProject(jobId: string) {
+    setSelectedJobId(jobId);
+    setUserSidebarTab("projects");
+    router.replace(`/${module.kind}/${jobId}`, { scroll: false });
+  }
+
+  function handleCreateNewProject() {
+    setUserSidebarTab("create");
+    setSelectedJobId("all");
+  }
+
+  function handleJobSubmitted() {
+    // Switch to projects view to see the new project running immediately
+    setUserSidebarTab("projects");
+    if (jobs[0]) {
+      setSelectedJobId(jobs[0].id);
+    }
+  }
+
+  const runningCount = jobs.filter((j) => j.status === "queued" || j.status === "running").length;
 
   return (
     <div className="flex h-dvh flex-col bg-page text-ink overflow-x-hidden">
@@ -65,69 +111,237 @@ export function Workspace({ module }: { module: ModuleConfig }) {
       {/* Top Studio Bar */}
       <Rail active={module.kind} all={all} />
 
-      {/* Studio Workbench Two-Column Layout (Matching Higgsfield Studio) */}
+      {/* Studio Workbench Two-Column Layout */}
       <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
-        {/* Left Studio Creation Panel */}
+        {/* Left Studio Sidebar: Project Navigator & Creation Workbench */}
         <aside
-          aria-label="Creation controls"
-          className="w-full shrink-0 border-b border-line bg-card/30 overflow-y-auto lg:w-96 xl:w-[410px] lg:border-b-0 lg:border-r"
+          aria-label="Studio controls"
+          className="flex w-full shrink-0 flex-col border-b border-line bg-card/30 lg:w-88 xl:w-[390px] lg:border-b-0 lg:border-r"
         >
-          <PromptBar onSubmit={submit} kind={module.kind} title={module.title}>
-            {module.promptFields}
-          </PromptBar>
+          {/* Sidebar Mode Tabs */}
+          <div className="flex items-center justify-between border-b border-line bg-white/70 px-4 py-3">
+            <div className="flex items-center gap-1.5 rounded-xl border border-line bg-card/70 p-1 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setUserSidebarTab("create")}
+                className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+                  sidebarTab === "create"
+                    ? "bg-white text-violet2 shadow-xs font-bold"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                <Plus className="size-3.5" />
+                <span>Create</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserSidebarTab("projects")}
+                className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+                  sidebarTab === "projects"
+                    ? "bg-white text-violet2 shadow-xs font-bold"
+                    : "text-muted hover:text-ink"
+                }`}
+              >
+                <FolderGit2 className="size-3.5" />
+                <span>Projects</span>
+                <span className="rounded-full bg-line/80 px-1.5 py-0.2 text-[10px] text-muted">
+                  {jobs.length}
+                </span>
+                {runningCount > 0 && (
+                  <span className="size-2 animate-pulse rounded-full bg-pink ring-2 ring-white" />
+                )}
+              </button>
+            </div>
+
+            {sidebarTab === "projects" && (
+              <button
+                type="button"
+                onClick={handleCreateNewProject}
+                className="flex cursor-pointer items-center gap-1 rounded-xl bg-violet2 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-violet"
+              >
+                <Plus className="size-3.5" />
+                <span>New</span>
+              </button>
+            )}
+          </div>
+
+          {/* Sidebar Content Area */}
+          <div className="flex-1 overflow-y-auto">
+            {sidebarTab === "create" ? (
+              <PromptBar
+                onSubmit={submit}
+                kind={module.kind}
+                title={module.title}
+                onSuccess={handleJobSubmitted}
+              >
+                {module.promptFields}
+              </PromptBar>
+            ) : (
+              <div className="p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between px-1 text-xs text-muted">
+                  <span className="font-bold uppercase tracking-wider text-[11px]">
+                    {module.title} Projects ({jobs.length})
+                  </span>
+                  {activeJobId !== "all" && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedJobId("all")}
+                      className="cursor-pointer text-violet2 font-semibold hover:underline"
+                    >
+                      Show all
+                    </button>
+                  )}
+                </div>
+
+                {loaded && jobs.length === 0 && (
+                  <div className="rounded-2xl border border-line bg-white/60 p-6 text-center text-muted">
+                    <p className="text-xs font-medium">No projects in this studio yet.</p>
+                    <button
+                      type="button"
+                      onClick={() => setUserSidebarTab("create")}
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-violet2 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-violet"
+                    >
+                      <Plus className="size-3.5" />
+                      Create first project
+                    </button>
+                  </div>
+                )}
+
+                {jobs.map((job) => {
+                  const isActive = activeJobId === job.id;
+                  const isBusy = job.status === "queued" || job.status === "running";
+                  const outputCount = outputs[job.id]?.length ?? 0;
+                  return (
+                    <button
+                      key={job.id}
+                      type="button"
+                      onClick={() => handleSelectProject(job.id)}
+                      className={`w-full cursor-pointer rounded-2xl border p-3.5 text-left transition-all duration-150 ${
+                        isActive
+                          ? "border-violet2 bg-[#f1ecff]/80 shadow-xs ring-1 ring-violet2/40"
+                          : "border-line bg-white/70 hover:border-line hover:bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="truncate text-xs font-bold text-ink">
+                          {String(job.input?.name ?? job.id)}
+                        </span>
+                        <StatusChip job={job} />
+                      </div>
+
+                      {module.summary(job) && (
+                        <p className="mt-1 truncate text-[11px] text-muted">
+                          {module.summary(job)}
+                        </p>
+                      )}
+
+                      {/* Live progress indicator if running */}
+                      {isBusy && (
+                        <div className="mt-2.5">
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-violet2/15">
+                            <div
+                              className="h-full rounded-full bg-violet2 transition-all duration-500 animate-pulse"
+                              style={{ width: `${Math.max(job.progress, 15)}%` }}
+                            />
+                          </div>
+                          <span className="mt-1 block text-[10px] font-mono text-muted">
+                            {job.stage ?? "Processing"} · {job.progress}%
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="mt-2.5 flex items-center justify-between text-[10px] text-muted font-mono">
+                        <span>
+                          {job.status === "done" ? `${outputCount} outputs` : job.status}
+                        </span>
+                        <span>{timeAgo(job.created_at)}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </aside>
 
-        {/* Right Studio Stage & Media Feed */}
+        {/* Right Studio Stage & Results Feed */}
         <main className="flex min-w-0 flex-1 flex-col overflow-y-auto px-4 py-6 md:px-8">
           <div className="mx-auto w-full max-w-6xl">
-            {/* Stage Hero & Subnav matching Higgsfield */}
-            <div className="mb-6 flex flex-col gap-4 border-b border-line/80 pb-6 text-center">
-              <div className="flex items-center justify-center gap-6 text-xs font-semibold text-muted">
-                <span className="text-violet2 font-bold border-b-2 border-violet2 pb-1">Motion Library</span>
-                <span className="hover:text-ink cursor-pointer">History</span>
-                <span className="hover:text-ink cursor-pointer">Styles</span>
+            {/* Stage Hero & Subnav Header */}
+            <div className="mb-6 flex flex-col gap-4 border-b border-line/80 pb-6">
+              {/* Breadcrumb & Project Navigator */}
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 text-muted">
+                  <span className="font-semibold text-ink">{module.title}</span>
+                  <span>/</span>
+                  <span className="font-bold text-violet2 truncate max-w-xs">
+                    {activeJob ? String(activeJob.input?.name ?? activeJob.id) : "All Projects"}
+                  </span>
+                  {activeJob && <StatusChip job={activeJob} />}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {activeJobId !== "all" && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedJobId("all")}
+                      className="cursor-pointer rounded-lg border border-line bg-card/60 px-2.5 py-1 text-xs font-semibold text-muted hover:text-ink hover:bg-card"
+                    >
+                      View all projects ({jobs.length})
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleCreateNewProject}
+                    className="flex cursor-pointer items-center gap-1 rounded-lg bg-violet2 px-3 py-1 text-xs font-bold text-white shadow-xs hover:bg-violet"
+                  >
+                    <Plus className="size-3.5" />
+                    Create
+                  </button>
+                </div>
               </div>
 
+              {/* Title & Capability Tagline */}
               <div>
                 <h1 className="text-2xl font-black tracking-tight text-ink md:text-3xl uppercase">
-                  {module.headline ?? module.title}
+                  {activeJob ? String(activeJob.input?.name ?? activeJob.id) : (module.headline ?? module.title)}
                 </h1>
-                <p className="mx-auto mt-1.5 max-w-2xl text-xs text-muted md:text-sm">
-                  {module.description ?? "Generate, evaluate and inspect creative outputs with AI precision."}
+                <p className="mt-1 text-xs text-muted md:text-sm">
+                  {activeJob
+                    ? module.summary(activeJob) || "Inspecting project outputs and automated quality verification."
+                    : (module.description ?? "Generate, evaluate and inspect creative outputs with AI precision.")}
                 </p>
               </div>
 
-              {/* Filter Tabs matching Higgsfield */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                <div
-                  role="group"
-                  aria-label="Filter results"
-                  className="flex items-center gap-1 rounded-xl border border-line bg-card/70 p-1 text-xs font-medium"
-                >
-                  {(["all", "passed", "failed"] as Filter[]).map((f) => {
-                    const on = filter === f;
-                    return (
-                      <button
-                        key={f}
-                        type="button"
-                        onClick={() => setFilter(f)}
-                        aria-pressed={on}
-                        className={`cursor-pointer rounded-lg px-3 py-1.5 capitalize transition-all duration-150 ${
-                          on
-                            ? "bg-white text-violet2 font-bold shadow-xs border border-line/60"
-                            : "text-muted hover:text-ink hover:bg-white/50"
-                        }`}
-                      >
-                        {f}
-                      </button>
-                    );
-                  })}
+              {/* Filter Tabs & Controls */}
+              {module.filter && (
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <div
+                    role="group"
+                    aria-label="Filter results"
+                    className="flex items-center gap-1 rounded-xl border border-line bg-card/70 p-1 text-xs font-medium"
+                  >
+                    {(["all", "passed", "failed"] as Filter[]).map((f) => {
+                      const on = filter === f;
+                      return (
+                        <button
+                          key={f}
+                          type="button"
+                          onClick={() => setFilter(f)}
+                          aria-pressed={on}
+                          className={`cursor-pointer rounded-lg px-3 py-1.5 capitalize transition-all duration-150 ${
+                            on
+                              ? "bg-white text-violet2 font-bold shadow-xs border border-line/60"
+                              : "text-muted hover:text-ink hover:bg-white/50"
+                          }`}
+                        >
+                          {f}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-
-                <div className="text-xs font-semibold text-muted">
-                  <span>Trending</span>
-                </div>
-              </div>
+              )}
             </div>
 
             {offline && (
@@ -145,14 +359,24 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                 <div className="grid size-14 place-items-center rounded-2xl border border-line bg-card shadow-xs text-muted">
                   <Inbox className="size-7" strokeWidth={1.5} aria-hidden />
                 </div>
-                <h3 className="font-semibold text-ink">No creations yet</h3>
-                <p className="max-w-sm text-sm">Add inputs in the creation panel on the left and click Generate to start.</p>
+                <h3 className="font-semibold text-ink">No projects yet</h3>
+                <p className="max-w-sm text-sm">
+                  Click &quot;Create new project&quot; in the sidebar to generate your first output.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleCreateNewProject}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-xl bg-violet2 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-violet"
+                >
+                  <Plus className="size-3.5" />
+                  Create new project
+                </button>
               </div>
             )}
 
             {/* Batch Rows & Media Tiles */}
             <div className="space-y-6 pb-12">
-              {jobs.map((job) => (
+              {displayJobs.map((job) => (
                 <BatchRow
                   key={job.id}
                   job={job}
@@ -163,7 +387,7 @@ export function Workspace({ module }: { module: ModuleConfig }) {
                   tileAspect={module.tileAspect}
                   expected={module.expectedCount(job)}
                   selectedId={selected?.id}
-                  highlight={job.id === openJobId}
+                  highlight={job.id === openJobId || job.id === activeJobId}
                   renderTile={module.renderTile}
                   onSelect={setSelected}
                 />

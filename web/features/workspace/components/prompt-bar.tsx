@@ -9,6 +9,7 @@ interface PromptBarProps {
   onSubmit: (form: FormData) => Promise<{ error?: string }>;
   title?: string;
   kind?: JobKind;
+  onSuccess?: () => void;
 }
 
 const MODULE_META: Record<JobKind, { studio: string; tag: string; badge: string }> = {
@@ -30,7 +31,7 @@ const MODULE_META: Record<JobKind, { studio: string; tag: string; badge: string 
 };
 
 /** Studio creation workbench panel matching Higgsfield's sidebar creation flow. */
-export function PromptBar({ children, onSubmit, kind = "product" }: PromptBarProps) {
+export function PromptBar({ children, onSubmit, kind = "product", onSuccess }: PromptBarProps) {
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [version, setVersion] = useState(0); // remounts the fields to clear them after a job starts
@@ -41,8 +42,12 @@ export function PromptBar({ children, onSubmit, kind = "product" }: PromptBarPro
     setError(null);
     const res = await onSubmit(new FormData(e.currentTarget));
     setSending(false);
-    if (res.error) setError(res.error);
-    else setVersion((v) => v + 1);
+    if (res.error) {
+      setError(res.error);
+    } else {
+      setVersion((v) => v + 1);
+      onSuccess?.();
+    }
   }
 
   const meta = MODULE_META[kind] ?? MODULE_META.product;
@@ -54,17 +59,6 @@ export function PromptBar({ children, onSubmit, kind = "product" }: PromptBarPro
       className="flex h-full flex-col justify-between p-4 md:p-5"
     >
       <div className="flex flex-col gap-4">
-        {/* Panel Header & Tabs matching Higgsfield */}
-        <div className="flex items-center justify-between border-b border-line pb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold tracking-wider text-ink uppercase">Create</span>
-            <span className="size-1.5 rounded-full bg-emerald-500" aria-label="ready" />
-          </div>
-          <span className="rounded-md border border-line bg-card/60 px-2 py-0.5 text-[10px] font-semibold text-muted">
-            {meta.badge}
-          </span>
-        </div>
-
         {/* Feature Engine Preview Card */}
         <div className="rounded-2xl border border-line/80 bg-gradient-to-br from-card to-card/40 p-3.5 shadow-xs">
           <div className="flex items-center justify-between">
@@ -72,7 +66,7 @@ export function PromptBar({ children, onSubmit, kind = "product" }: PromptBarPro
               {meta.studio}
             </span>
             <span className="rounded-full bg-violet2/10 px-2 py-0.5 text-[10px] font-bold text-violet2">
-              Studio v2
+              {meta.badge}
             </span>
           </div>
           <p className="mt-1 text-xs text-muted leading-relaxed">{meta.tag}</p>
