@@ -1,6 +1,6 @@
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { runStatus, safeJobFile, understandingMeta } from "./local";
+import { carouselBrief, runStatus, safeJobFile, understandingMeta } from "./local";
 
 const ROOT = resolve("/repo");
 
@@ -51,6 +51,19 @@ describe("understandingMeta", () => {
     expect(meta).toEqual({
       duration: 42, route: "transcript", speech_ratio: 0.86, asr_confidence: 0.91, genre: "unknown", genre_confidence: 0,
       word_count: 1, segments: [{ start: 0.4, end: 3, text: "Welcome back.", visual: null }],
+    });
+  });
+});
+
+describe("carouselBrief", () => {
+  it("turns the form input into kairos_carousel's brief", () => {
+    expect(carouselBrief({
+      name: "Plan your week", topic: "Plan your week", brand_name: "Flowdesk", primary: "#3b4cca", goal: "tips",
+      problem: "Monday starts with a blank page.", points: ["List what must ship: Only work with a deadline.", "Review on Friday"],
+    })).toEqual({
+      brand: { name: "Flowdesk", primary: "#3b4cca" },
+      topic: "Plan your week", goal: "tips", problem: "Monday starts with a blank page.",
+      points: [{ heading: "List what must ship", detail: "Only work with a deadline." }, { heading: "Review on Friday" }],
     });
   });
 });

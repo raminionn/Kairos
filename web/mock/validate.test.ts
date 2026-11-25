@@ -46,11 +46,31 @@ describe("validateCreate", () => {
     });
   });
 
-  it("needs a carousel topic, text or source", () => {
-    expect(validateCreate("carousel", form({ topic: "  " }))).toEqual({ ok: false, error: "Add a topic, text or a source video." });
+  const NL = String.fromCharCode(10);
+  const carousel = (f: Record<string, string>) =>
+    validateCreate("carousel", form({ brand_name: "Flowdesk", topic: "Plan your week", points: "List what must ship" + NL + "Review on Friday", ...f }));
+
+  it("needs a carousel topic", () => {
+    expect(carousel({ topic: "  " })).toEqual({ ok: false, error: "Add a topic." });
   });
 
-  it("accepts a carousel topic", () => {
-    expect(validateCreate("carousel", form({ topic: "Funding tips" }))).toEqual({ ok: true, input: { name: "Funding tips", topic: "Funding tips" } });
+  it("needs a brand name for the carousel", () => {
+    expect(carousel({ brand_name: "" })).toEqual({ ok: false, error: "Add your brand name." });
+  });
+
+  it("needs 1 to 5 key points", () => {
+    expect(carousel({ points: " " + NL + " " })).toEqual({ ok: false, error: "Add 1 to 5 key points, one per line." });
+    expect(carousel({ points: ["a", "b", "c", "d", "e", "f"].join(NL) })).toEqual({ ok: false, error: "Add 1 to 5 key points, one per line." });
+  });
+
+  it("checks the brand colour", () => {
+    expect(carousel({ primary: "blue" })).toEqual({ ok: false, error: "Brand colour must look like #5b12f5." });
+  });
+
+  it("accepts a carousel with defaults", () => {
+    expect(carousel({})).toEqual({
+      ok: true,
+      input: { name: "Plan your week", topic: "Plan your week", brand_name: "Flowdesk", primary: "#5b12f5", goal: "tips", points: ["List what must ship", "Review on Friday"] },
+    });
   });
 });

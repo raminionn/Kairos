@@ -39,3 +39,18 @@ export function understandingMeta(u: {
     segments: u.segments.map(({ start, end, text, visual }) => ({ start, end, text, visual })),
   };
 }
+
+/** Carousel form input (mock/validate.ts) -> kairos_carousel brief JSON. "Heading: detail" splits a point. */
+export function carouselBrief(input: Record<string, unknown>) {
+  const points = (input.points as string[]).map((p) => {
+    const at = p.indexOf(":");
+    return at > 0 ? { heading: p.slice(0, at).trim(), detail: p.slice(at + 1).trim() } : { heading: p };
+  });
+  return {
+    brand: { name: input.brand_name, primary: input.primary },
+    topic: input.topic,
+    goal: input.goal,
+    ...(input.problem ? { problem: input.problem } : {}),
+    points,
+  };
+}

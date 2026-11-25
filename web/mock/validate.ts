@@ -3,6 +3,7 @@ import type { Category, JobKind } from "@/lib/api-types";
 const VIDEO_EXT = ["mp4", "mov", "mkv", "webm"];
 const IMAGE_EXT = ["jpg", "jpeg", "png", "webp"];
 const CATEGORIES: Category[] = ["fashion", "app", "product", "packaging"];
+const GOALS = ["launch", "tips", "offer", "explain"];
 
 type Result = { ok: true; input: Record<string, unknown> } | { ok: false; error: string };
 
@@ -30,17 +31,16 @@ export function validateCreate(kind: JobKind, form: FormData): Result {
     return { ok: true, input: { name, category, ...(props && { props }), n_variants } };
   }
 
+  // Carousel: the fields kairos_carousel's brief needs (carousel/README.md).
   const topic = text(form, "topic");
-  const body = text(form, "text");
-  const source_job_id = text(form, "source_job_id");
-  if (!topic && !body && !source_job_id) return { ok: false, error: "Add a topic, text or a source video." };
-  return {
-    ok: true,
-    input: {
-      name: topic || body.slice(0, 40) || "From video",
-      ...(topic && { topic }),
-      ...(body && { text: body }),
-      ...(source_job_id && { source_job_id }),
-    },
-  };
+  if (!topic) return { ok: false, error: "Add a topic." };
+  const brand_name = text(form, "brand_name");
+  if (!brand_name) return { ok: false, error: "Add your brand name." };
+  const points = text(form, "points").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (points.length < 1 || points.length > 5) return { ok: false, error: "Add 1 to 5 key points, one per line." };
+  const primary = text(form, "primary") || "#5b12f5";
+  if (!/^#[0-9a-fA-F]{6}$/.test(primary)) return { ok: false, error: "Brand colour must look like #5b12f5." };
+  const goal = GOALS.includes(text(form, "goal")) ? text(form, "goal") : "tips";
+  const problem = text(form, "problem");
+  return { ok: true, input: { name: topic, topic, brand_name, primary, goal, points, ...(problem && { problem }) } };
 }
