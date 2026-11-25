@@ -1,0 +1,14 @@
+device: cuda            # cpu also works, slower
+max_retries: 2
+n_variants: 3
+cache_dir: data/cache/product
+models:                 # OpenRouter image model ids (must support input_references)
+  fashion: google/gemini-3.1-flash-image
+  app: google/gemini-3.1-flash-image
+  product: google/gemini-3.1-flash-image
+  packaging: google/gemini-3.1-flash-image
+thresholds:             # starting values; tuned on the first eval items
+  product:   { ocr_cer_max: 0.10, dino_sim_min: 0.80, delta_e_max: 8, silhouette_iou_min: 0.85, repair_min: 0.70 }
+  packaging: { ocr_cer_max: 0.10, dino_sim_min: 0.80, delta_e_max: 8, silhouette_iou_min: 0.85, repair_min: 0.70 }
+  fashion:   { ocr_cer_max: 0.15, dino_sim_min: 0.75, delta_e_max: 10, silhouette_iou_min: 0.60 }
+  app:       { ssim_min: 0.90 }

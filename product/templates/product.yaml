@@ -1,0 +1,6 @@
+# placeholder: Ahmad replaces the prompt
+prompt: |
+  Professional e-commerce product photo of the product in the first image, on a clean studio
+  surface with soft, even light and a subtle shadow. {props}
+  Keep the product exactly the same: same shape, colours, label text and logo. Do not add text.
+aspect_ratio: "4:5"

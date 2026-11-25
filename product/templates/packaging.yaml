@@ -1,0 +1,6 @@
+# placeholder: Ahmad replaces the prompt
+prompt: |
+  Premium packaging photo of the package in the first image, placed in a styled scene with
+  natural light. {props}
+  Keep the package exactly the same: same shape, colours, printed text and logo. Do not add text.
+aspect_ratio: "4:5"

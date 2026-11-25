@@ -9,6 +9,7 @@ __pycache__/
 .venv/
 venv/
 node_modules/
+.next/
 models/
 data/
 .claude/
@@ -16,10 +17,5 @@ claude/
 CLAUDE.md
 
 Kairos_FYP_Proposal.pdf
-docs/
 scratch/
 cache/
-.claude/
-CLAUDE.md
-
-Kairos_FYP_Proposal.pdf

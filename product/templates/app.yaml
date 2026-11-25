@@ -1,0 +1,6 @@
+# placeholder: Ahmad replaces the prompt. The screen MUST stay solid pure green (#00FF00).
+prompt: |
+  Photo of a modern smartphone held in a hand in a bright, tidy workspace. {props}
+  The phone screen is a solid, flat, pure green (#00FF00) with nothing on it, fully visible,
+  no reflections, no glare, no fingers over the screen.
+aspect_ratio: "4:5"
