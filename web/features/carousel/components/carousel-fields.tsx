@@ -1,6 +1,6 @@
 "use client";
 
-import { ImagePlus, LoaderCircle, Plus, Sparkles, X } from "lucide-react";
+import { ImagePlus, LoaderCircle, PenLine, Plus, Sparkles, X } from "lucide-react";
 import { useRef, useState } from "react";
 import type { Draft } from "@/lib/carousel-draft";
 import { Field, inputClass } from "@/components/ui/field";
@@ -25,6 +25,11 @@ const ACCEPT = "image/png,image/jpeg,image/webp";
 function Count({ n, max }: { n: number; max: number }) {
   return <span className={`text-[11px] tabular-nums ${n > max ? "text-red-400" : "text-muted"}`}>{n}/{max}</span>;
 }
+
+const MODES = [
+  { value: "ai", label: "AI writes it", hint: "Paste your notes, then edit the draft.", icon: Sparkles },
+  { value: "manual", label: "I write it", hint: "Fill in the slides yourself.", icon: PenLine },
+] as const;
 
 interface Point { id: number; heading: string; detail: string; image?: string }
 let nextId = 0;
@@ -61,7 +66,8 @@ export function CarouselFields() {
   const edit = (id: number, p: Partial<Point>) => setPoints((ps) => ps.map((x) => (x.id === id ? { ...x, ...p } : x)));
   const box = useRef<HTMLDivElement>(null);
   const [photo, setPhoto] = useState<string | null>(null);
-  const [aiOpen, setAiOpen] = useState(false);
+  const [mode, setMode] = useState<"ai" | "manual">("ai");
+  const [drafted, setDrafted] = useState(false);
   const [writing, setWriting] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
@@ -85,10 +91,25 @@ export function CarouselFields() {
     form.querySelectorAll<HTMLInputElement>("[name=stat_label]").forEach((el, i) => { el.value = d.stats[i]?.label ?? ""; });
     setPoints(d.points.map((p) => ({ ...blank(), heading: p.heading, detail: p.detail })));
     form.querySelector("details[data-more]")?.setAttribute("open", "");
+    setDrafted(true);
   }
 
   return (
     <div ref={box} className="space-y-4">
+      <fieldset>
+        <legend className="mb-2 text-sm font-semibold text-white">How do you want to write it?</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {MODES.map((m) => (
+            <label key={m.value}
+              className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-line bg-[#0f1017] p-3 transition-colors hover:border-white/30 has-checked:border-lime/60 has-checked:bg-lime/[0.04] has-[:focus-visible]:border-lime">
+              <input type="radio" name="mode" value={m.value} checked={mode === m.value} onChange={() => setMode(m.value)} className="sr-only" />
+              <m.icon size={18} className="mt-0.5 shrink-0 text-lime" />
+              <span><span className="block text-sm font-medium text-white">{m.label}</span><span className="text-[11px] text-muted">{m.hint}</span></span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <Section n={1} title="You">
         <div className="flex items-center gap-3">
           <label className="flex shrink-0 cursor-pointer flex-col items-center gap-1 text-[11px] text-muted hover:text-white">
@@ -109,28 +130,24 @@ export function CarouselFields() {
       </Section>
 
       <Section n={2} title="Content">
-        {aiOpen ? (
+        {mode === "ai" && (
           <div className="space-y-2 rounded-lg border border-lime/30 bg-lime/[0.03] p-3">
             <Field label="Your notes" htmlFor="summary">
-              <textarea id="summary" name="summary" rows={3} maxLength={3000} autoFocus className={`${inputClass} resize-none`}
-                placeholder="Paste notes or a post. The AI fills the fields below." />
+              <textarea id="summary" name="summary" rows={4} maxLength={3000} className={`${inputClass} resize-none`}
+                placeholder="Paste notes, a post or a few facts. The AI writes the slides from them." />
             </Field>
-            <div className="flex gap-2">
-              <button type="button" onClick={writeWithAi} disabled={writing}
-                className="flex items-center gap-1.5 rounded-lg bg-lime px-3 py-1.5 text-xs font-medium text-black hover:bg-lime/90 disabled:opacity-60">
-                {writing ? <LoaderCircle size={14} className="animate-spin" /> : <Sparkles size={14} />} {writing ? "Writing… (about 30 s)" : "Write draft"}
-              </button>
-              <button type="button" onClick={() => setAiOpen(false)} className="px-2 text-xs text-muted hover:text-white">Cancel</button>
-            </div>
+            <button type="button" onClick={writeWithAi} disabled={writing}
+              className="flex items-center gap-1.5 rounded-lg bg-lime px-3 py-1.5 text-xs font-medium text-black hover:bg-lime/90 disabled:opacity-60">
+              {writing ? <LoaderCircle size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              {writing ? "Writing… (about 30 s)" : drafted ? "Write again" : "Write draft"}
+            </button>
             {aiError && <p role="alert" className="text-xs text-red-400">{aiError}</p>}
+            {drafted && !aiError && <p className="text-xs text-lime">Draft ready. Check and edit it below.</p>}
           </div>
-        ) : (
-          <button type="button" onClick={() => setAiOpen(true)}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-lime/40 py-2 text-xs text-lime hover:bg-lime/5">
-            <Sparkles size={14} /> Write with AI from your notes
-          </button>
         )}
 
+        {/* hidden, not unmounted: the AI fills these inputs in place */}
+        <div hidden={mode === "ai" && !drafted} className="space-y-3">
         <Field label="Topic" htmlFor="topic">
           <input id="topic" name="topic" placeholder="e.g. Plan your week in 10 minutes" className={inputClass} />
         </Field>
@@ -188,6 +205,7 @@ export function CarouselFields() {
               className="flex items-center gap-1.5 text-xs text-muted hover:text-white"><Plus size={14} /> Add point</button>
           )}
         </fieldset>
+        </div>
       </Section>
 
       <Section n={3} title="Design">
