@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>{{ title }}</title>
+<style>{{ fonts_css }}{{ vars_css }}{{ css }}</style></head>
+<body><main class="deck theme-{{ theme }}">
+{#- Bold Numbers: dot-grid ground, heavy condensed caps, huge "01 ->" numbers, "->" bullets, highlighter box, accent quote line. -#}
+{%- set arrow = '<svg class="arr" viewBox="0 0 60 40" aria-hidden="true"><path d="M4 20h46M34 5l16 15-16 15" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="square"/></svg>' %}
+{%- macro top(b) %}<header class="chrome-top"><span data-guard="text">{{ b.name|upper }}</span>{% if b.handle or b.site %}<span data-guard="text">{{ b.handle or b.site }}</span>{% endif %}</header>{% endmacro -%}
+{%- macro bottom(b, i) %}<footer class="chrome-bottom"><span class="who">{{ avatar }}<span data-guard="text">{{ b.person or b.name }}</span></span><span class="count" data-guard="text">{{ '%02d' % (i + 1) }} / {{ '%02d' % total }}</span></footer>{% endmacro -%}
+{%- macro boxed(text) %}{% set w = text.rsplit(' ', 1) %}{% if w|length == 2 %}{{ w[0] }} <mark class="hl">{{ w[1] }}</mark>{% else %}<mark class="hl">{{ text }}</mark>{% endif %}{% endmacro -%}
+{%- macro blocks(bs) %}{% for b in bs %}{% if b.p is defined %}<p data-guard="text">{{ b.p }}</p>{% else %}<ul class="list list--{{ b.style }}">{% for it in b.list %}<li data-guard="text">{{ it }}</li>{% endfor %}</ul>{% endif %}{% endfor %}{% endmacro -%}
+{% for s in slides %}
+{%- set fit = ' style="--fit:' ~ s.fit ~ '"' if s.fit else '' %}
+{% if s.type == 'cover' %}
+<section class="slide slide--cover" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}
+  <div class="body body--center">
+    <h1 class="title" data-guard="text">{{ s.title_html }}</h1>
+    {% if brand.series and brand.series != s.title %}<p class="quote" data-guard="text">{{ brand.series }}</p>{% endif %}
+    <span class="swipe"><span data-guard="text">SWIPE</span>{{ arrow|safe }}</span>
+  </div>
+  {{ bottom(brand, loop.index0) }}
+</section>
+{% elif s.type == 'cta' %}
+<section class="slide slide--cta" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}
+  <div class="body body--center">
+    <h2 class="title" data-guard="text">{{ boxed(s.heading) }}</h2>
+    <span class="button"><span data-guard="text">{{ s.button }}</span>{{ arrow|safe }}</span>
+  </div>
+  {{ bottom(brand, loop.index0) }}
+</section>
+{% else %}
+{%- set media = s.media_html if s.media and s.media.kind != 'folder' else None %}
+<section class="slide slide--content{{ ' has-media' if media else '' }}" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}
+  <div class="body{{ ' body--center' if not media else '' }}">
+    <div class="head">
+      <span class="num"><span data-guard="text">{{ '%02d' % loop.index0 }}</span>{{ arrow|safe }}</span>
+      <h2 class="title" data-guard="text">{{ boxed(s.heading) }}</h2>
+      {% if s.lead_blocks %}<div class="lead">{{ blocks(s.lead_blocks) }}</div>{% endif %}
+    </div>
+    <div class="main">
+      {% if s.detail_blocks %}<div class="details">{{ blocks(s.detail_blocks) }}</div>{% endif %}
+      {% if media %}<div class="media">{{ media }}</div>{% endif %}
+    </div>
+  </div>
+  {{ bottom(brand, loop.index0) }}
+</section>
+{% endif %}
+{% endfor %}
+</main></body></html>

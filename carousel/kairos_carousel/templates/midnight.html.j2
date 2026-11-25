@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>{{ title }}</title>
+<style>{{ fonts_css }}{{ vars_css }}{{ css }}</style></head>
+<body><main class="deck theme-{{ theme }}">
+{#- Midnight: near-black, thin headline with a bold marked phrase, Swipe pill, author pill, huge faded number. -#}
+{%- macro top(b) %}<header class="chrome-top"><span data-guard="text">{{ b.name }}</span>{% if b.handle %}<span class="tag" data-guard="text">{{ b.handle }}</span>{% endif %}</header>{% endmacro -%}
+{%- macro bottom(b, save=False) %}<footer class="chrome-bottom">{% if b.site %}<span class="site" data-guard="text">www.<b>{{ b.site.split('.')[0] }}</b>{{ '.' ~ b.site.split('.', 1)[1] if '.' in b.site else '' }}</span>{% else %}<span></span>{% endif %}{% if save %}<svg class="bookmark" viewBox="0 0 24 32" aria-hidden="true"><path d="M2 2h20v28l-10-7-10 7z" fill="currentColor"/></svg>{% endif %}</footer>{% endmacro -%}
+{%- macro author(b, av) %}<div class="author">{{ av }}<span data-guard="text">{{ b.person or b.name }}</span></div>{% endmacro -%}
+{%- macro blocks(bs) %}{% for b in bs %}{% if b.p is defined %}<p data-guard="text">{{ b.p }}</p>{% else %}<ul class="list list--{{ b.style }}">{% for it in b.list %}<li data-guard="text">{{ it }}</li>{% endfor %}</ul>{% endif %}{% endfor %}{% endmacro -%}
+{% for s in slides %}
+{%- set fit = ' style="--fit:' ~ s.fit ~ '"' if s.fit else '' %}
+{% if s.type == 'cover' %}
+<section class="slide slide--cover" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}
+  <div class="body body--center">
+    <span class="swipe" data-guard="text">Swipe</span>
+    <h1 class="title" data-guard="text">{{ s.title_html }}</h1>
+    {{ author(brand, avatar) }}
+  </div>
+  {{ bottom(brand) }}
+</section>
+{% elif s.type == 'cta' %}
+<section class="slide slide--cta" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}
+  <div class="body body--center">
+    <h2 class="title" data-guard="text">{{ s.heading }}</h2>
+    <span class="button" data-guard="text">{{ s.button }}</span>
+    {{ author(brand, avatar) }}
+  </div>
+  {{ bottom(brand, save=True) }}
+</section>
+{% else %}
+{%- set media = s.media_html if s.media and s.media.kind != 'folder' else None %}
+<section class="slide slide--content{{ ' has-media' if media else '' }}" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  <span class="bignum" aria-hidden="true">{{ '%02d' % loop.index0 }}</span>
+  {{ top(brand) }}
+  <div class="body{{ ' body--center' if not media else '' }}">
+    <div class="head"><span class="swipe" data-guard="text">Swipe</span><h2 class="title" data-guard="text">{{ s.heading }}</h2>{{ blocks(s.lead_blocks) }}</div>
+    <div class="main">
+      {% if s.detail_blocks %}<div class="details">{{ blocks(s.detail_blocks) }}</div>{% endif %}
+      {% if media %}<div class="media">{{ media }}</div>{% endif %}
+    </div>
+    {% if not media %}{{ author(brand, avatar) }}{% endif %}
+  </div>
+  {{ bottom(brand) }}
+</section>
+{% endif %}
+{% endfor %}
+</main></body></html>

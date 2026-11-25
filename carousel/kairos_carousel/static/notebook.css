@@ -1,0 +1,63 @@
+/* Notebook theme. 1080x1350 canvas, --fit scales text (layout guard). Margins 120px. */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#d8d8d8}
+@page{size:1080px 1350px;margin:0}
+.deck{display:flex;flex-direction:column;align-items:center;gap:32px;padding:32px 0}
+@media print{html,body{background:none}.deck{display:block;padding:0}.slide{break-after:page}.slide:last-child{break-after:auto}}
+
+.theme-notebook .slide{position:relative;width:1080px;height:1350px;flex:none;overflow:hidden;--fit:1;--M:120px;
+  --bg:#f6f2ec;--ink:#0c0c0c;--muted:#2b2b2b;--line:#e7e1d8;--pen:var(--accent);
+  background:var(--bg) linear-gradient(var(--line) 2px,transparent 2px) 0 0/56px 56px,
+             var(--bg) linear-gradient(90deg,var(--line) 2px,transparent 2px) 0 0/56px 56px;
+  background-blend-mode:normal;color:var(--ink);font-family:var(--f-sans);-webkit-font-smoothing:antialiased}
+.theme-notebook .slide{background-image:linear-gradient(var(--line) 2px,transparent 2px),linear-gradient(90deg,var(--line) 2px,transparent 2px);
+  background-size:56px 56px;background-color:var(--bg)}
+
+/* label tag with paperclip */
+.chrome-top{position:absolute;left:var(--M);right:var(--M);top:124px;display:flex}
+.chrome-top--right{justify-content:flex-end}
+.label{position:relative;display:flex;align-items:center;gap:14px;background:#dbe2f1;padding:30px 40px 30px 84px;min-width:320px;
+  font:400 30px/1 var(--f-sans);letter-spacing:.02em}
+.clip{position:absolute;left:24px;top:-26px;width:36px;height:84px;color:#111}
+
+/* footer: handle left, three dots right */
+.chrome-bottom{position:absolute;left:var(--M);right:var(--M);bottom:110px;display:flex;justify-content:space-between;align-items:center;
+  font:400 34px/1.2 var(--f-sans)}
+.who{display:flex;align-items:center;gap:16px}
+.avatar{width:58px;height:58px;border-radius:50%;overflow:hidden;flex:none;background:#ccc;display:inline-block}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar--initials{color:#fff;background:var(--pen);font:600 22px/58px var(--f-sans);text-align:center}
+.dots{display:flex;gap:16px}.dots i{width:26px;height:26px;border-radius:50%;background:var(--pen)}
+
+/* text */
+.body{position:absolute;left:150px;right:var(--M);top:300px;bottom:230px;display:flex;flex-direction:column;justify-content:center;z-index:1}
+.has-media .body{justify-content:flex-start}
+.title{font:500 calc(112px*var(--fit))/1.06 var(--f-display);letter-spacing:-.025em;color:var(--ink)}
+.slide--content .title{font-size:calc(104px*var(--fit))}
+.has-media .title{font-size:calc(76px*var(--fit))}
+.slide--cta .title{font-size:calc(96px*var(--fit))}
+.sub{margin-top:60px;font:400 calc(38px*var(--fit))/1.45 var(--f-sans)}
+/* hand-drawn double circle around the key word */
+.title mark,.title .hl{position:relative;display:inline-block;background:none;color:inherit;padding:0;margin:0;box-shadow:none;white-space:nowrap}
+.title mark::before,.title mark::after{content:"";position:absolute;inset:-.06em -.24em -.02em -.28em;border:5px solid var(--pen);border-radius:50%;
+  transform:rotate(-3deg);pointer-events:none;width:auto;height:auto;background:none}
+.title mark::after{inset:-.12em -.18em .02em -.2em;transform:rotate(-6deg);border-width:3px}
+.title .hl--wrap{white-space:normal}
+p,.list{font:400 calc(38px*var(--fit))/1.45 var(--f-sans);color:var(--muted)}
+.head p{margin-top:56px;max-width:780px}
+.details p{margin-top:24px}.details p:first-child{margin-top:0}
+.list{list-style:none;margin-top:22px}.list:first-child{margin-top:0}
+.list li{position:relative;padding-left:44px;margin-top:10px}
+.list li::before{content:"";position:absolute;left:4px;top:.55em;width:18px;height:18px;border-radius:50%;border:4px solid var(--pen)}
+.main{flex:none;display:flex;flex-direction:column;margin-top:50px}
+.has-media .main{flex:1;min-height:0;margin-top:34px}
+.media{flex:1;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;margin-top:24px}
+.media .m-image{border-radius:6px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.button{align-self:flex-start;margin-top:56px;background:var(--pen);color:#fff;border-radius:12px;padding:18px 36px;font:500 32px/1.2 var(--f-sans)}
+
+/* arrows in the margins (decoration only) */
+.arrow{position:absolute;color:var(--pen);z-index:0}
+.arrow--tr{right:180px;top:160px;width:170px}
+.arrow--arc{right:-10px;top:330px;width:140px}
+.arrow--l{left:-10px;top:330px;width:120px;transform:rotate(18deg)}
+.has-media .arrow--arc,.has-media .arrow--l{top:170px}

@@ -37,7 +37,23 @@ BUNDLED_FONTS = [
     {"family": "Poppins", "file": "Poppins-Regular.ttf", "weight": "400"},
     {"family": "Poppins", "file": "Poppins-Medium.ttf", "weight": "500"},
     {"family": "Poppins", "file": "Poppins-SemiBold.ttf", "weight": "600"},
+    {"family": "Poppins", "file": "Poppins-Light.ttf", "weight": "300"},
+    {"family": "Poppins", "file": "Poppins-Bold.ttf", "weight": "700"},
+    {"family": "Anton", "file": "Anton-Regular.ttf", "weight": "400"},
+    {"family": "DM Sans", "file": "DMSans.ttf", "weight": "100 1000"},
 ]
+
+# A theme is a template + stylesheet pair over the same slide data, so the brief, the layout guard
+# and every slide type stay the same. Fonts are the theme's own (all bundled, OFL).
+THEMES = {
+    "editorial": {"template": "deck.html.j2", "css": "deck.css", "fonts": {}},
+    "midnight": {"template": "midnight.html.j2", "css": "midnight.css",
+                 "fonts": {"display": "Poppins", "sans": "Poppins", "handle": "Poppins"}},
+    "notebook": {"template": "notebook.html.j2", "css": "notebook.css",
+                 "fonts": {"display": "DM Sans", "sans": "DM Sans", "handle": "DM Sans"}},
+    "bold": {"template": "bold.html.j2", "css": "bold.css",
+             "fonts": {"display": "Anton", "sans": "Inter", "handle": "Inter"}},
+}
 FIT_CSS = lambda s: f"{s:g}"
 
 
@@ -213,10 +229,18 @@ def _resolve(s, i, brand, fits):
 def build_html(deck: dict, brand: dict, fits: dict | None = None):
     brand = copy.deepcopy(brand)
     brand.update({k: v for k, v in deck.get("overrides", {}).items() if k in ("series", "site", "handle", "name")})
+    theme = brand.get("theme") or "editorial"
+    if theme not in THEMES:
+        raise ValueError(f"Theme must be one of {sorted(THEMES)}.")
+    t = THEMES[theme]
+    brand["fonts"] = {**brand["fonts"], **t["fonts"]}
     slides = [_resolve(s, i, brand, fits) for i, s in enumerate(_normalize(deck["slides"], brand))]
     fonts, missing = _fonts_css(brand)
     env = Environment(loader=FileSystemLoader(PKG / "templates"), autoescape=select_autoescape(["j2"]))
-    html = env.get_template("deck.html.j2").render(
-        brand=brand, slides=slides, avatar=_avatar(brand), fonts_css=Markup(fonts), vars_css=Markup(_vars(brand)),
-        css=Markup((PKG / "static" / "deck.css").read_text(encoding="utf-8")), title=brand["series"])
+    logo = Markup(f'<img class="logo" src="{M.data_uri(brand["logo"], brand["_base"])}" alt="">') if brand.get("logo") else ""
+    html = env.get_template(t["template"]).render(
+        brand=brand, slides=slides, avatar=_avatar(brand), logo=logo, theme=theme, total=len(slides),
+        fonts_css=Markup(fonts), vars_css=Markup(_vars(brand)),
+        css=Markup(("" if theme == "editorial" else (PKG / "static" / "media.css").read_text(encoding="utf-8"))
+                   + (PKG / "static" / t["css"]).read_text(encoding="utf-8")), title=brand["series"])
     return html, missing

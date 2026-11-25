@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>{{ title }}</title>
+<style>{{ fonts_css }}{{ vars_css }}{{ css }}</style></head>
+<body><main class="deck theme-{{ theme }}">
+{#- Notebook: cream grid paper, paperclip label tag, big headline, hand-drawn circle on a key word, arrows, dots. -#}
+{%- macro clip() %}<svg class="clip" viewBox="0 0 30 70" aria-hidden="true"><path d="M21 14v38a9 9 0 0 1-18 0V12a6 6 0 0 1 12 0v36a3 3 0 0 1-6 0V18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>{% endmacro -%}
+{%- macro top(b, right=False) %}<header class="chrome-top{{ ' chrome-top--right' if right else '' }}"><span class="label">{{ clip() }}<span data-guard="text">{{ b.name|upper }}</span></span></header>{% endmacro -%}
+{%- macro bottom(b) %}<footer class="chrome-bottom"><span class="who">{{ avatar }}<span data-guard="text">{{ b.handle or b.person or b.name }}</span></span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></footer>{% endmacro -%}
+{%- macro circled(text) %}{% set w = text.rsplit(' ', 1) %}{% if w|length == 2 %}{{ w[0] }} <mark class="circ">{{ w[1] }}</mark>{% else %}<mark class="circ">{{ text }}</mark>{% endif %}{% endmacro -%}
+{%- macro blocks(bs) %}{% for b in bs %}{% if b.p is defined %}<p data-guard="text">{{ b.p }}</p>{% else %}<ul class="list list--{{ b.style }}">{% for it in b.list %}<li data-guard="text">{{ it }}</li>{% endfor %}</ul>{% endif %}{% endfor %}{% endmacro -%}
+{%- set arrows = [
+  '<svg class="arrow arrow--tr" viewBox="0 0 170 40" aria-hidden="true"><path d="M4 26c40-6 90-8 150-6M134 8l22 12-22 14" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  '<svg class="arrow arrow--arc" viewBox="0 0 140 120" aria-hidden="true"><path d="M136 8C70 6 20 44 10 112" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg>',
+  '<svg class="arrow arrow--l" viewBox="0 0 150 70" aria-hidden="true"><path d="M2 46c40-10 80-14 130-12M108 10l30 24-34 22" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+] %}
+{% for s in slides %}
+{%- set fit = ' style="--fit:' ~ s.fit ~ '"' if s.fit else '' %}
+{% if s.type == 'cover' %}
+<section class="slide slide--cover" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}{{ arrows[0]|safe }}
+  <div class="body">
+    <h1 class="title" data-guard="text">{{ s.title_html }}</h1>
+    {% if brand.series and brand.series != s.title %}<p class="sub" data-guard="text">{{ brand.series }}</p>{% endif %}
+  </div>
+  {{ bottom(brand) }}
+</section>
+{% elif s.type == 'cta' %}
+<section class="slide slide--cta" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand, right=True) }}{{ arrows[1]|safe }}
+  <div class="body body--center">
+    <h2 class="title" data-guard="text">{{ circled(s.heading) }}</h2>
+    <span class="button" data-guard="text">{{ s.button }}</span>
+  </div>
+  {{ bottom(brand) }}
+</section>
+{% else %}
+{%- set media = s.media_html if s.media and s.media.kind != 'folder' else None %}
+<section class="slide slide--content{{ ' has-media' if media else '' }}" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}{{ arrows[loop.index0 % 2 + 1]|safe }}
+  <div class="body{{ ' body--center' if not media else '' }}">
+    <div class="head"><h2 class="title" data-guard="text">{{ circled(s.heading) }}</h2>{{ blocks(s.lead_blocks) }}</div>
+    <div class="main">
+      {% if s.detail_blocks %}<div class="details">{{ blocks(s.detail_blocks) }}</div>{% endif %}
+      {% if media %}<div class="media">{{ media }}</div>{% endif %}
+    </div>
+  </div>
+  {{ bottom(brand) }}
+</section>
+{% endif %}
+{% endfor %}
+</main></body></html>
