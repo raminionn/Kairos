@@ -1,0 +1,45 @@
+{
+  "name": "Northfield Coffee",
+  "handle": "@northfield.coffee",
+  "site": "northfieldcoffee.example",
+  "series": "Fresh roasted",
+  "primary": "#1f6f4a",
+  "cta": {
+    "button": "Order your first box",
+    "goto": "northfieldcoffee.example"
+  },
+  "product": {
+    "description": "Small-batch roasted coffee beans delivered monthly",
+    "audience": "home coffee drinkers",
+    "tone": "warm and direct",
+    "facts": [
+      "Roasted to order",
+      "Ships within 2 days of roasting",
+      "Skip or pause any month",
+      "Four tasting notes: chocolate, citrus, caramel, berry"
+    ],
+    "points": [
+      {
+        "heading": "Stale beans, every time",
+        "detail": "Supermarket coffee sits for weeks before it reaches your cup."
+      },
+      {
+        "heading": "Roasted to order",
+        "detail": "Your beans are roasted after you order, not before.",
+        "items": [
+          "Roasted to order",
+          "Ships within 2 days of roasting",
+          "Skip or pause any month"
+        ],
+        "media": "folder FRESHNESS | OUR PROMISE",
+        "layout": "right"
+      },
+      {
+        "heading": "Four tasting notes",
+        "detail": "Pick the profile that fits your morning.",
+        "media": "orbs Chocolate | Citrus | Caramel | Berry"
+      },
+      "Skip or pause any month: No lock-in, change your plan whenever you like."
+    ]
+  }
+}
