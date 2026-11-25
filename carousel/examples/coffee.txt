@@ -1,0 +1,26 @@
+Title: ==Fresh roasted== beans, ==delivered monthly==
+---
+Stale beans, every time
+Supermarket coffee sits for weeks before it reaches your cup.
+You taste the difference by the second sip.
+---
+Roasted to order
+Your beans are roasted after you order, not before.
+✓ Roasted to order
+✓ Ships within 2 days of roasting
+✓ Skip or pause any month
+@media: folder FRESHNESS | OUR PROMISE
+@layout: right
+---
+Four tasting notes
+Pick the profile that fits your morning.
+@media: orbs Chocolate | Citrus | Caramel | Berry
+---
+How it works
+Choose your roast and how often it arrives.
+We roast and ship it within days.
+Brew it fresh at home.
+@media: phone
+@layout: left
+---
+CTA: Ready for fresher coffee? | Order your first box | northfieldcoffee.example

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>{{ title }}</title>
+<style>{{ fonts_css }}{{ vars_css }}{{ css }}</style></head>
+<body><main class="deck">
+{%- macro top(b) %}<header class="chrome-top"><span data-guard="text">{{ b.series }}</span><span data-guard="text">{{ b.site }}</span></header>{% endmacro -%}
+{%- macro bottom(b, av) %}<footer class="chrome-bottom"><div class="who">{{ av }}<div><div class="handle" data-guard="text">{{ b.handle }}</div><div class="name" data-guard="text">{{ b.name }}</div></div></div><div class="save"><svg viewBox="0 0 24 32" aria-hidden="true"><path d="M2 2h20v28l-10-7-10 7z" fill="currentColor"/></svg><span data-guard="text">{{ b.save_text }}</span></div></footer>{% endmacro -%}
+{%- macro blocks(bs) %}{% for b in bs %}{% if b.p is defined %}<p data-guard="text">{{ b.p }}</p>{% else %}<ul class="list list--{{ b.style }}">{% for it in b.list %}<li data-guard="text">{{ it }}</li>{% endfor %}</ul>{% endif %}{% endfor %}{% endmacro -%}
+{% for s in slides %}
+{%- set fit = ' style="--fit:' ~ s.fit ~ '"' if s.fit else '' %}
+{% if s.type == 'cover' %}
+<section class="slide slide--cover" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  <div class="grid"></div>
+  {{ top(brand) }}
+  <div class="stack">
+    <div class="sheet sheet--a"></div><div class="sheet sheet--b"></div>
+    <article class="card">
+      <svg class="deco deco--clip" data-deco viewBox="0 0 64 150" aria-hidden="true"><path d="M44 28v82a20 20 0 0 1-40 0V34a14 14 0 0 1 28 0v70a7 7 0 0 1-14 0V44" fill="none" stroke="#9a9aa0" stroke-width="5" stroke-linecap="round"/></svg>
+      <h1 class="cover-title" data-guard="text">{{ s.title_html }}</h1>
+      <svg class="deco deco--folder" data-deco data-slots="528,96;44,96;528,330;44,330;528,560;44,560;528,690;44,690" viewBox="0 0 100 80" aria-hidden="true"><path d="M6 14a8 8 0 0 1 8-8h22l10 12h40a8 8 0 0 1 8 8v42a8 8 0 0 1-8 8H14a8 8 0 0 1-8-8z" fill="{{ brand.cover.folder }}"/></svg>
+      <svg class="deco deco--bookmark" data-deco data-slots="50,640;550,640;50,420;550,420;50,150;550,150;50,270;550,270" viewBox="0 0 60 80" aria-hidden="true"><path d="M6 4h44a4 4 0 0 1 4 4v66L28 54 2 74V8a4 4 0 0 1 4-4z" fill="{{ brand.cover.bookmark }}"/></svg>
+      <svg class="deco deco--arrow" data-deco data-slots="530,640;50,520;530,520;50,330;530,330;50,200;530,200" viewBox="0 0 70 60" aria-hidden="true"><path d="M6 8c20-6 44 4 40 24-3 14-22 12-20-2 2-10 18-8 22 6M54 38l-2 12m2-12l12-4" fill="none" stroke="{{ brand.cover.hl2_handle }}" stroke-width="4" stroke-linecap="round"/></svg>
+      <div class="tape" data-guard="text">{{ s.tape }}{% if s.tape_arrow %}<svg class="arr" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h16M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}</div>
+      <svg class="deco deco--binder" data-deco data-slots="610,560;610,430;610,300;610,180" viewBox="0 0 150 120" aria-hidden="true"><defs><linearGradient id="bc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ececee"/><stop offset="1" stop-color="#9d9da3"/></linearGradient></defs><path d="M70 28C150 10 150 110 70 92" fill="none" stroke="#a9a9ae" stroke-width="7" stroke-linecap="round"/><rect x="0" y="14" width="78" height="92" rx="9" fill="url(#bc)"/></svg>
+    </article>
+  </div>
+  {{ bottom(brand, avatar) }}
+</section>
+{% elif s.type == 'cta' %}
+<section class="slide slide--cta" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}
+  <div class="cta-wrap">
+    <h2 class="cta-title" data-guard="text">{{ s.heading }}</h2>
+    <div class="pill">{{ avatar }}<span class="plus" data-guard="text">+</span><span class="you" data-guard="text">You</span><span class="pill__t" data-guard="text">{{ s.button }}</span></div>
+    {% if s.goto %}<p class="goto" data-guard="text">GO TO: {{ s.goto }}</p>{% endif %}
+  </div>
+  {{ bottom(brand, avatar) }}
+</section>
+{% else %}
+<section class="slide slide--content layout-{{ s.layout }}" data-index="{{ loop.index0 }}"{{ fit|safe }}>
+  {{ top(brand) }}
+  <div class="body">
+    <div class="head"><h2 data-guard="text">{{ s.heading }}</h2>{{ blocks(s.lead_blocks) }}</div>
+    <div class="main">
+      {% if s.detail_blocks %}<div class="details">{{ blocks(s.detail_blocks) }}</div>{% endif %}
+      {% if s.media_html %}<div class="media">{{ s.media_html }}</div>{% endif %}
+    </div>
+  </div>
+  {{ bottom(brand, avatar) }}
+</section>
+{% endif %}
+{% endfor %}
+</main></body></html>

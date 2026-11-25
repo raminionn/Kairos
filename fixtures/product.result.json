@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "category": "product",
+  "model": "google/gemini-2.5-flash-image",
+  "reference_text": "ORGANIC HONEY 500g",
+  "variants": [
+    {
+      "id": "v1",
+      "path": "variants/v1.png",
+      "attempts": 2,
+      "repaired": true,
+      "passed": true,
+      "checks": { "ocr_cer": 0.04, "dino_sim": 0.91, "delta_e": 3.2, "silhouette_iou": 0.88 },
+      "fail_reasons": []
+    }
+  ]
+}

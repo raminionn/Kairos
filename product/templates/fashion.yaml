@@ -1,0 +1,6 @@
+# placeholder: Ahmad replaces the prompt
+prompt: |
+  Website-ready fashion product image of the garment in the first image, shown on a plain light
+  background with soft studio light. {props}
+  Keep the garment exactly the same: same colour, pattern, print, logo and cut.
+aspect_ratio: "4:5"

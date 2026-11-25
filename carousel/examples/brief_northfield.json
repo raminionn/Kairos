@@ -1,0 +1,15 @@
+{
+  "brand": {"name": "Northfield Coffee", "handle": "@northfield.coffee", "site": "northfieldcoffee.example",
+            "primary": "#1f6f4a", "logo": "examples/logo_northfield.png"},
+  "topic": "Cold brew, made fresh",
+  "goal": "launch",
+  "problem": "Bottled cold brew often sits for weeks before you drink it.",
+  "points": [
+    {"heading": "Brewed in small batches", "detail": "Each batch is brewed slowly and bottled the same day."},
+    {"heading": "Smooth and low acid", "detail": "Slow brewing keeps the taste mellow."},
+    {"heading": "Ships cold", "detail": "Insulated boxes keep every bottle chilled on the way to you."}
+  ],
+  "steps": ["Choose your bottle size", "We brew and ship within days", "Pour over ice and enjoy"],
+  "offer": "Your first box ships free.",
+  "cta": {"button": "Order your first box"}
+}

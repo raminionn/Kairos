@@ -1,0 +1,7 @@
+# local environment and generated output
+.venv/
+__pycache__/
+*.pyc
+out*/
+carousel_output/
+profiles/
