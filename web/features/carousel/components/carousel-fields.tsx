@@ -27,8 +27,8 @@ function Count({ n, max }: { n: number; max: number }) {
 }
 
 const MODES = [
-  { value: "ai", label: "AI writes it", hint: "Paste your notes, then edit the draft.", icon: Sparkles },
-  { value: "manual", label: "I write it", hint: "Fill in the slides yourself.", icon: PenLine },
+  { value: "ai", label: "AI", hint: "Paste your notes. The AI writes a draft, then you edit it.", icon: Sparkles },
+  { value: "manual", label: "Me", hint: "You type the topic and the points yourself.", icon: PenLine },
 ] as const;
 
 interface Point { id: number; heading: string; detail: string; image?: string }
@@ -96,18 +96,18 @@ export function CarouselFields() {
 
   return (
     <div ref={box} className="space-y-4">
-      <fieldset>
-        <legend className="mb-2 text-sm font-semibold text-white">How do you want to write it?</legend>
-        <div className="grid grid-cols-2 gap-2">
+      <fieldset className="space-y-2">
+        <legend className="mb-2 text-sm font-semibold text-white">Who writes the slides?</legend>
+        <div className="grid grid-cols-2 rounded-lg border border-line bg-[#0f1017] p-1">
           {MODES.map((m) => (
             <label key={m.value}
-              className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-line bg-[#0f1017] p-3 transition-colors hover:border-white/30 has-checked:border-lime/60 has-checked:bg-lime/[0.04] has-[:focus-visible]:border-lime">
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-md py-2 text-sm text-muted transition-colors hover:text-white has-checked:bg-lime has-checked:font-medium has-checked:text-black has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-lime">
               <input type="radio" name="mode" value={m.value} checked={mode === m.value} onChange={() => setMode(m.value)} className="sr-only" />
-              <m.icon size={18} className="mt-0.5 shrink-0 text-lime" />
-              <span><span className="block text-sm font-medium text-white">{m.label}</span><span className="text-[11px] text-muted">{m.hint}</span></span>
+              <m.icon size={16} /> {m.label}
             </label>
           ))}
         </div>
+        <p className="text-xs text-muted">{MODES.find((m) => m.value === mode)?.hint}</p>
       </fieldset>
 
       <Section n={1} title="You">
@@ -130,6 +130,19 @@ export function CarouselFields() {
       </Section>
 
       <Section n={2} title="Content">
+        <fieldset>
+          <legend className="mb-1.5 text-xs font-medium text-white/85">Goal</legend>
+          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+            {GOALS.map((g) => (
+              <label key={g.value}
+                className="cursor-pointer rounded-lg border border-line bg-[#0f1017] px-2 py-2 text-center text-xs text-muted transition-colors hover:text-white has-checked:border-lime/60 has-checked:text-white has-[:focus-visible]:border-lime">
+                <input type="radio" name="goal" value={g.value} defaultChecked={g.value === "tips"} className="sr-only" />
+                {g.label}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         {mode === "ai" && (
           <div className="space-y-2 rounded-lg border border-lime/30 bg-lime/[0.03] p-3">
             <Field label="Your notes" htmlFor="summary">
@@ -152,18 +165,6 @@ export function CarouselFields() {
           <input id="topic" name="topic" placeholder="e.g. Plan your week in 10 minutes" className={inputClass} />
         </Field>
 
-        <fieldset>
-          <legend className="mb-1.5 text-xs font-medium text-white/85">Goal</legend>
-          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-            {GOALS.map((g) => (
-              <label key={g.value}
-                className="cursor-pointer rounded-lg border border-line bg-[#0f1017] px-2 py-2 text-center text-xs text-muted transition-colors hover:text-white has-checked:border-lime/60 has-checked:text-white has-[:focus-visible]:border-lime">
-                <input type="radio" name="goal" value={g.value} defaultChecked={g.value === "tips"} className="sr-only" />
-                {g.label}
-              </label>
-            ))}
-          </div>
-        </fieldset>
 
         <fieldset className="space-y-2">
           <legend className="text-xs font-medium text-white/85">Key points</legend>
