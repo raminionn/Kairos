@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-page: #090a0f;
+  --color-ink: #f9fafb;
+  --color-muted: #9497a7;
+  --color-line: #1e202b;
+  --color-card: #12131a;
+  --color-lime: #d9f928;
+  --color-violet: #8b5cf6;
+  --color-violet2: #d9f928;
+  --color-pink: #ec4899;
+  --color-yellow: #d9f928;
+  --color-orange: #f97316;
+  --color-peri: #38bdf8;
+  --color-pass: #10b981;
+  --color-fail: #ef4444;
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+}
+
+@utility font-wide {
+  font-stretch: 112%;
+}
+
+html {
+  font-stretch: 108%;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+}
+
+/* Placeholder tile while a result is being made. */
+.shimmer {
+  background: linear-gradient(110deg, #13141d 25%, #222432 50%, #13141d 75%) 0 0 / 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+@keyframes shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Work area: a quiet dot grid, like a design canvas. */
+.canvas {
+  background-color: var(--color-page);
+  background-image: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px);
+  background-size: 22px 22px;
+}

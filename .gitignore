@@ -12,6 +12,7 @@ node_modules/
 .next/
 models/
 data/
+.superpowers/
 .claude/
 claude/
 CLAUDE.md
