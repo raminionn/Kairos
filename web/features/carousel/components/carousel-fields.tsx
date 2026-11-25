@@ -38,7 +38,7 @@ export function CarouselFields() {
         </div>
       </fieldset>
 
-      <Field label="Key points" hint="1 to 5, one per line" htmlFor="points">
+      <Field label="Key points" hint="1 to 5, one per line · heading up to 80 characters" htmlFor="points">
         <textarea id="points" name="points" rows={4} className={`${inputClass} resize-none`}
           placeholder={"List what must ship: only work with a deadline\nBlock time for deep work\nReview on Friday"} />
       </Field>

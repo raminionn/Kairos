@@ -1,6 +1,7 @@
 // Pure helpers for the local runner (KAIROS_LOCAL=1). See docs/specs/2026-11-24-web-local-runner-design.md.
 import { isAbsolute, join, relative, resolve } from "node:path";
 import type { JobStatus, UnderstandingMeta } from "@/lib/api-types";
+import { splitPoint } from "@/mock/validate";
 
 const JOB_ID = /^[\w-]+$/;
 
@@ -40,12 +41,9 @@ export function understandingMeta(u: {
   };
 }
 
-/** Carousel form input (mock/validate.ts) -> kairos_carousel brief JSON. "Heading: detail" splits a point. */
+/** Carousel form input (mock/validate.ts) -> kairos_carousel brief JSON. Points split by splitPoint. */
 export function carouselBrief(input: Record<string, unknown>) {
-  const points = (input.points as string[]).map((p) => {
-    const at = p.indexOf(":");
-    return at > 0 ? { heading: p.slice(0, at).trim(), detail: p.slice(at + 1).trim() } : { heading: p };
-  });
+  const points = (input.points as string[]).map(splitPoint);
   return {
     brand: { name: input.brand_name, primary: input.primary },
     topic: input.topic,
