@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle, Plus, Sparkles, X } from "lucide-react";
+import { ImagePlus, LoaderCircle, Plus, Sparkles, X } from "lucide-react";
 import { useRef, useState } from "react";
 import type { Draft } from "@/lib/carousel-draft";
 import { Field, inputClass } from "@/components/ui/field";
@@ -13,12 +13,10 @@ const GOALS = [
   { value: "educate", label: "Explain" },
 ];
 
-/** A tiny look of each kairos_carousel theme (carousel/kairos_carousel/static/<theme>.css). */
+/** Cover previews rendered by kairos_carousel itself (public/carousel-themes/<theme>.webp). */
 const THEMES = [
-  { value: "editorial", label: "Editorial", tile: "bg-[#f4efe6] text-[#1a1a1a] font-serif", sample: <>Aa <span className="bg-[#ffd84d] px-0.5">b</span></> },
-  { value: "midnight", label: "Midnight", tile: "bg-[#1b1b1b] text-white font-light", sample: <>Aa <b className="font-bold">b</b></> },
-  { value: "notebook", label: "Notebook", tile: "bg-[#f6f2ec] text-black bg-[linear-gradient(#e7e1d8_1px,transparent_1px),linear-gradient(90deg,#e7e1d8_1px,transparent_1px)] bg-[size:8px_8px]", sample: <>Aa <span className="rounded-full border-2 border-[#3b4cca] px-1">b</span></> },
-  { value: "bold", label: "Bold", tile: "bg-[#f2f0e8] text-black font-black uppercase tracking-tight", sample: <><span className="text-[#3b4cca]">01→</span> <span className="bg-[#3b4cca] px-0.5 text-white">B</span></> },
+  { value: "editorial", label: "Editorial" }, { value: "midnight", label: "Midnight" },
+  { value: "notebook", label: "Notebook" }, { value: "bold", label: "Bold" },
 ];
 
 const fileClass = "block w-full text-xs text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-white hover:file:bg-white/15";
@@ -36,6 +34,7 @@ export function CarouselFields() {
   const [points, setPoints] = useState<Point[]>([{ heading: "", detail: "" }, { heading: "", detail: "" }, { heading: "", detail: "" }]);
   const edit = (i: number, p: Partial<Point>) => setPoints((ps) => ps.map((x, j) => (j === i ? { ...x, ...p } : x)));
   const box = useRef<HTMLDivElement>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const [writing, setWriting] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
@@ -47,7 +46,7 @@ export function CarouselFields() {
     setWriting(true);
     setAiError(null);
     const res = await fetch("/api/carousel/draft", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ summary: get("summary"), brand_name: get("brand_name"), goal: (form.querySelector("[name=goal]:checked") as HTMLInputElement | null)?.value }) })
+      body: JSON.stringify({ summary: get("summary"), brand_name: get("username"), goal: (form.querySelector("[name=goal]:checked") as HTMLInputElement | null)?.value }) })
       .catch(() => null);
     const data = await res?.json().catch(() => null);
     setWriting(false);
@@ -75,14 +74,19 @@ export function CarouselFields() {
         {aiError && <p role="alert" className="text-xs text-red-400">{aiError}</p>}
       </div>
 
-      <div className="grid grid-cols-[1fr_auto] gap-3">
-        <Field label="Brand name" htmlFor="brand_name">
-          <input id="brand_name" name="brand_name" placeholder="e.g. Flowdesk" maxLength={40} className={inputClass} />
-        </Field>
-        <Field label="Colour" htmlFor="primary">
-          <input id="primary" name="primary" type="color" defaultValue="#5b12f5"
-            className="h-[38px] w-14 cursor-pointer rounded-lg border border-line bg-[#0f1017] p-1" />
-        </Field>
+      <div className="flex items-end gap-3">
+        <label className="group relative size-[38px] shrink-0 cursor-pointer overflow-hidden rounded-full border border-line bg-[#0f1017] hover:border-white/30 focus-within:border-lime"
+          title="Your photo or logo">
+          {/* eslint-disable-next-line @next/next/no-img-element -- local blob preview */}
+          {photo ? <img src={photo} alt="" className="size-full object-cover" /> : <ImagePlus size={16} className="m-auto mt-[10px] text-muted" />}
+          <input name="photo" type="file" accept={ACCEPT} aria-label="Your photo or logo" className="sr-only"
+            onChange={(e) => { const f = e.target.files?.[0]; setPhoto(f ? URL.createObjectURL(f) : null); }} />
+        </label>
+        <div className="flex-1">
+          <Field label="Username" htmlFor="username">
+            <input id="username" name="username" placeholder="@yourname" maxLength={40} autoComplete="username" className={inputClass} />
+          </Field>
+        </div>
       </div>
 
       <Field label="Topic" htmlFor="topic">
@@ -109,7 +113,8 @@ export function CarouselFields() {
             <label key={t.value}
               className="cursor-pointer rounded-lg border border-line bg-[#0f1017] p-1.5 text-center text-xs text-muted transition-colors hover:text-white has-checked:border-lime/60 has-checked:text-white has-[:focus-visible]:border-lime">
               <input type="radio" name="theme" value={t.value} defaultChecked={t.value === "editorial"} className="sr-only" />
-              <span aria-hidden="true" className={`mb-1.5 flex aspect-[4/5] items-center justify-center rounded text-lg ${t.tile}`}>{t.sample}</span>
+              {/* eslint-disable-next-line @next/next/no-img-element -- 6 KB static preview */}
+              <img src={`/carousel-themes/${t.value}.webp`} alt="" width={216} height={270} className="mb-1.5 aspect-[4/5] w-full rounded object-cover" />
               {t.label}
             </label>
           ))}
@@ -159,14 +164,9 @@ export function CarouselFields() {
           <Field label="Cover line" hint="Optional · ==word== is highlighted" htmlFor="hook">
             <input id="hook" name="hook" placeholder="e.g. Plan your week in ==10 minutes==" className={inputClass} />
           </Field>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Field label="Your name" htmlFor="person"><input id="person" name="person" maxLength={40} className={inputClass} /></Field>
-            <Field label="Handle" htmlFor="handle"><input id="handle" name="handle" maxLength={40} placeholder="@flowdesk" className={inputClass} /></Field>
-            <Field label="Website" htmlFor="site"><input id="site" name="site" maxLength={60} placeholder="flowdesk.app" className={inputClass} /></Field>
-          </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Your photo" htmlFor="photo"><input id="photo" name="photo" type="file" accept={ACCEPT} className={fileClass} /></Field>
-            <Field label="Logo" htmlFor="logo"><input id="logo" name="logo" type="file" accept={ACCEPT} className={fileClass} /></Field>
+            <Field label="Your name" htmlFor="person"><input id="person" name="person" maxLength={40} className={inputClass} /></Field>
+            <Field label="Website" htmlFor="site"><input id="site" name="site" maxLength={60} placeholder="flowdesk.app" className={inputClass} /></Field>
           </div>
           <fieldset className="space-y-1.5">
             <div className="flex items-baseline justify-between">

@@ -5,12 +5,14 @@ const IMAGE_EXT = ["jpg", "jpeg", "png", "webp"];
 const CATEGORIES: Category[] = ["fashion", "app", "product", "packaging"];
 // kairos_carousel values and limits (carousel/kairos_carousel/brief.py, render.py THEMES).
 export const GOALS = ["launch", "tips", "offer", "educate"];
-export const THEMES = ["editorial", "midnight", "notebook", "bold"];
+/** Each theme brings its own brand colour (the form has no colour picker). */
+export const THEME_COLORS: Record<string, string> = { editorial: "#5b12f5", midnight: "#5b12f5", notebook: "#3b4cca", bold: "#ff5a1f" };
+export const THEMES = Object.keys(THEME_COLORS);
 export const HEADING_MAX = 80;
 export const DETAIL_MAX = 220;
 const IMAGE_MAX = 4 * 1024 ** 2;
 /** Optional carousel text fields, passed through as typed. */
-const OPTIONAL = ["hook", "problem", "person", "handle", "site", "cta_heading", "cta_button"];
+const OPTIONAL = ["hook", "problem", "person", "site", "cta_heading", "cta_button"];
 
 type Result = { ok: true; input: Record<string, unknown> } | { ok: false; error: string };
 
@@ -53,8 +55,9 @@ export function validateCreate(kind: JobKind, form: FormData): Result {
   // text limits again and its message reaches the user, so only the common mistakes are caught here.
   const topic = text(form, "topic");
   if (!topic) return { ok: false, error: "Add a topic." };
-  const brand_name = text(form, "brand_name");
-  if (!brand_name) return { ok: false, error: "Add your brand name." };
+  const username = text(form, "username").replace(/^@/, "");
+  if (!username) return { ok: false, error: "Add your username." };
+  if (!/^[\w.-]{1,39}$/.test(username)) return { ok: false, error: "Username: use letters, numbers, dots, dashes or underscores." };
   const points: { heading: string; detail?: string }[] = [];
   for (const { row, heading, detail } of pointRows(form)) {
     if (!heading) return { ok: false, error: `Key point ${row}: add a heading.` };
@@ -63,11 +66,10 @@ export function validateCreate(kind: JobKind, form: FormData): Result {
     points.push(detail ? { heading, detail } : { heading });
   }
   if (points.length < 1 || points.length > 5) return { ok: false, error: "Add 1 to 5 key points." };
-  const primary = text(form, "primary") || "#5b12f5";
-  if (!/^#[0-9a-fA-F]{6}$/.test(primary)) return { ok: false, error: "Brand colour must look like #5b12f5." };
   const goal = GOALS.includes(text(form, "goal")) ? text(form, "goal") : "tips";
   const theme = THEMES.includes(text(form, "theme")) ? text(form, "theme") : "editorial";
-  for (const key of ["photo", "logo", "point_image"]) {
+  const primary = THEME_COLORS[theme];
+  for (const key of ["photo", "point_image"]) {
     for (const f of form.getAll(key)) {
       if (typeof f === "string" || f.size === 0) continue;
       if (!IMAGE_EXT.includes(ext(f.name))) return { ok: false, error: `${f.name}: use a jpg, png or webp image.` };
@@ -80,5 +82,5 @@ export function validateCreate(kind: JobKind, form: FormData): Result {
   if (stats.length === 1) return { ok: false, error: "Numbers: give at least 2 values, or none." };
   if (stats.some((s) => !s.value || !Number.isFinite(Number(s.value)))) return { ok: false, error: "Each number needs a numeric value, e.g. 40." };
   const optional = Object.fromEntries(OPTIONAL.map((k) => [k, text(form, k)]).filter(([, v]) => v));
-  return { ok: true, input: { name: topic, topic, brand_name, primary, goal, theme, points, ...(stats.length && { stats }), ...optional } };
+  return { ok: true, input: { name: topic, topic, brand_name: username, handle: `@${username}`, primary, goal, theme, points, ...(stats.length && { stats }), ...optional } };
 }

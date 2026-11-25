@@ -41,7 +41,7 @@ export function understandingMeta(u: {
 }
 
 /** Uploaded carousel images as data URIs (kairos_carousel accepts them in the brief). */
-export interface CarouselImages { photo?: string; logo?: string; points?: (string | null)[] }
+export interface CarouselImages { photo?: string; points?: (string | null)[] }
 
 /** Carousel form input (mock/validate.ts) + images -> kairos_carousel brief JSON. */
 export function carouselBrief(input: Record<string, unknown>, images: CarouselImages = {}) {
@@ -50,7 +50,7 @@ export function carouselBrief(input: Record<string, unknown>, images: CarouselIm
     .map((p, i) => (images.points?.[i] ? { ...p, image: images.points[i] } : p));
   return {
     brand: { name: input.brand_name, primary: input.primary, ...pick("person", "handle", "site"),
-      ...(images.photo && { photo: images.photo }), ...(images.logo && { logo: images.logo }) },
+      ...(images.photo && { photo: images.photo }) },
     topic: input.topic,
     goal: input.goal,
     theme: input.theme ?? "editorial",

@@ -48,7 +48,7 @@ describe("validateCreate", () => {
 
   /** Carousel form; `rows` are [heading, detail] pairs, appended as repeated fields like the real form. */
   const carousel = (f: Record<string, string | File> = {}, rows: [string, string][] = [["List what must ship", ""], ["Review on Friday", "Move what slipped."]]) => {
-    const fd = form({ brand_name: "Flowdesk", topic: "Plan your week", ...f });
+    const fd = form({ username: "@flowdesk", topic: "Plan your week", ...f });
     for (const [h, d] of rows) { fd.append("point_heading", h); fd.append("point_detail", d); }
     return validateCreate("carousel", fd);
   };
@@ -57,8 +57,9 @@ describe("validateCreate", () => {
     expect(carousel({ topic: "  " })).toEqual({ ok: false, error: "Add a topic." });
   });
 
-  it("needs a brand name for the carousel", () => {
-    expect(carousel({ brand_name: "" })).toEqual({ ok: false, error: "Add your brand name." });
+  it("needs a plain username", () => {
+    expect(carousel({ username: "@" })).toEqual({ ok: false, error: "Add your username." });
+    expect(carousel({ username: "my name" })).toEqual({ ok: false, error: "Username: use letters, numbers, dots, dashes or underscores." });
   });
 
   it("needs 1 to 5 key points and skips empty rows", () => {
@@ -72,25 +73,21 @@ describe("validateCreate", () => {
     expect(carousel({}, [["Short", "y".repeat(221)]])).toEqual({ ok: false, error: "Key point 1: keep the detail under 220 characters." });
   });
 
-  it("checks the brand colour", () => {
-    expect(carousel({ primary: "blue" })).toEqual({ ok: false, error: "Brand colour must look like #5b12f5." });
-  });
-
   it("checks uploaded images", () => {
     expect(carousel({ photo: file("me.gif") })).toEqual({ ok: false, error: "me.gif: use a jpg, png or webp image." });
   });
 
   it("checks the numbers", () => {
     expect(carousel({ stat_value: "4", stat_label: "Tasks" })).toEqual({ ok: false, error: "Numbers: give at least 2 values, or none." });
-    const fd = form({ brand_name: "B", topic: "T", point_heading: "H", point_detail: "" });
+    const fd = form({ username: "b", topic: "T", point_heading: "H", point_detail: "" });
     for (const v of ["4", "many"]) { fd.append("stat_value", v); fd.append("stat_label", "x"); }
     expect(validateCreate("carousel", fd)).toEqual({ ok: false, error: "Each number needs a numeric value, e.g. 40." });
   });
 
   it("accepts a carousel with defaults and passes optional fields through", () => {
-    expect(carousel({ theme: "bold", goal: "educate", handle: "@flowdesk", hook: " " })).toEqual({
+    expect(carousel({ theme: "bold", goal: "educate", primary: "#000000", hook: " " })).toEqual({
       ok: true,
-      input: { name: "Plan your week", topic: "Plan your week", brand_name: "Flowdesk", primary: "#5b12f5", goal: "educate", theme: "bold", handle: "@flowdesk",
+      input: { name: "Plan your week", topic: "Plan your week", brand_name: "flowdesk", handle: "@flowdesk", primary: "#ff5a1f", goal: "educate", theme: "bold",
         points: [{ heading: "List what must ship" }, { heading: "Review on Friday", detail: "Move what slipped." }] },
     });
     expect(carousel({ theme: "neon", goal: "explain" })).toMatchObject({ input: { theme: "editorial", goal: "tips" } });

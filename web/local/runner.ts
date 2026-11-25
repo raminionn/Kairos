@@ -76,7 +76,7 @@ export async function startLocalJob(kind: JobKind, form: FormData, input: Record
     // kairos_carousel runs from inside carousel/ (carousel/README.md).
     const uri = async (f: FormDataEntryValue | null) => (f && typeof f !== "string" && f.size > 0
       ? `data:${f.type || "image/png"};base64,${Buffer.from(await f.arrayBuffer()).toString("base64")}` : undefined);
-    const images = { photo: await uri(form.get("photo")), logo: await uri(form.get("logo")),
+    const images = { photo: await uri(form.get("photo")),
       points: await Promise.all(pointRows(form).map((r) => uri(r.image).then((u) => u ?? null))) };
     await writeFile(join(dir, "brief.json"), JSON.stringify(carouselBrief(input, images), null, 2));
     args = ["-m", "kairos_carousel", "--brief", join(dir, "brief.json"), "--out", dir];
