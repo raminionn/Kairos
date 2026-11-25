@@ -39,3 +39,23 @@ export function understandingMeta(u: {
     segments: u.segments.map(({ start, end, text, visual }) => ({ start, end, text, visual })),
   };
 }
+
+/** Uploaded carousel images as data URIs (kairos_carousel accepts them in the brief). */
+export interface CarouselImages { photo?: string; points?: (string | null)[] }
+
+/** Carousel form input (mock/validate.ts) + images -> kairos_carousel brief JSON. */
+export function carouselBrief(input: Record<string, unknown>, images: CarouselImages = {}) {
+  const pick = (...keys: string[]) => Object.fromEntries(keys.filter((k) => input[k]).map((k) => [k, input[k]]));
+  const points = (input.points as { heading: string; detail?: string }[])
+    .map((p, i) => (images.points?.[i] ? { ...p, image: images.points[i] } : p));
+  return {
+    brand: { name: input.brand_name, primary: input.primary, ...pick("person", "handle", "site"),
+      ...(images.photo && { photo: images.photo }) },
+    topic: input.topic,
+    goal: input.goal,
+    theme: input.theme ?? "editorial",
+    ...pick("hook", "problem", "stats"),
+    ...(input.cta_heading || input.cta_button ? { cta: { heading: input.cta_heading ?? "", button: input.cta_button ?? "" } } : {}),
+    points,
+  };
+}

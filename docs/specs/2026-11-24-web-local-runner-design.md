@@ -8,6 +8,7 @@ Use the real Python stages from the UI now, before Adina's `api/` exists, on Ahm
 ## Goals / non-goals
 - Goal: video upload runs Rameen's `understanding` for real; the UI shows its result.
 - Goal: product upload runs `product` for real when that module is present.
+- Goal: carousel runs Adina's `kairos_carousel` for real.
 - Non-goal: queue, database, multi-user, deployment. Those are `api/`'s job.
 - Anti-goal: mixing real and fake results in one view without saying which is which.
 
@@ -31,7 +32,10 @@ Use the real Python stages from the UI now, before Adina's `api/` exists, on Ahm
 - Product: only when `<repo>/product/` exists, else 422 "The product module is not on this branch."
   Writes `request.json` (contract `ProductRequest`), runs `python -m product request.json result.json`,
   maps `result.json` variants to `product_image` outputs.
-- Carousel: stays mocked (no module yet).
+- Carousel (added 2026-11-25, after Adina's `carousel/` merged): the form sends brand name, colour,
+  topic, goal, 1 to 5 key points and an optional problem. The runner writes `brief.json`
+  (`carousel/README.md` format) and runs `python -m kairos_carousel --brief brief.json --out data/jobs/<id>`
+  from inside `carousel/`. Output: `carousel.pdf` plus `slide-NN.png`, shown in the slide viewer.
 - Files: in local mode `/files/<job>/<path>` reads from `data/jobs/<job>/`, path must stay inside that
   folder (no `..`). Upload limits: video 2 GB, image 20 MB.
 - Types: `Output.kind` gains `"understanding"`. The real API needs the same kind; tell Adina.

@@ -78,6 +78,14 @@ def normalize_logo(value):
     return _uri(im.crop((x, y, x + s, y + s)).resize((256, 256), getattr(Image, "Resampling", Image).LANCZOS))
 
 
+def normalize_image(value, label="Image"):
+    """A slide image (photo, chart, screenshot): checked like the screenshot, any shape kept."""
+    try:
+        return normalize_screenshot(value)
+    except ValueError as e:
+        raise ValueError(str(e).replace("Screenshot", label)) from None
+
+
 def normalize_screenshot(value):
     raw = _raw(value, "Screenshot")
     if raw is None:
@@ -99,11 +107,12 @@ def _points(rows):
         head = _s(p.get("heading"), f"Point {i} heading", 80)
         detail = _s(p.get("detail"), f"Point {i} detail", 220)
         items = [_s(x, f"Point {i} item", 70) for x in (p.get("items") or []) if str(x).strip()][:6]
+        image = normalize_image(p.get("image"), f"Point {i} image")
         if not (head or detail or items):
             continue
         if not head:
             raise ValueError(f"Point {i} needs a heading.")
-        out.append({"heading": head, "detail": detail, "items": items})
+        out.append({"heading": head, "detail": detail, "items": items, "image": image})
     if len(out) > MAX_POINTS:
         raise ValueError(f"Use at most {MAX_POINTS} key points (you gave {len(out)}): a carousel works best when each slide has one idea.")
     return out
@@ -119,6 +128,11 @@ def deck_from_brief(brief: dict):
     if not HEX.match(primary):
         raise ValueError("Brand colour must look like #1f6f4a.")
     topic = _s(brief.get("topic"), "Topic", 80, True)
+    from .render import THEMES
+    theme = brief.get("theme") or "editorial"
+    if theme not in THEMES:
+        raise ValueError(f"Theme must be one of {sorted(THEMES)}.")
+    person = _s(b.get("person"), "Your name", 40)
     goal = brief.get("goal") or "launch"
     if goal not in GOALS:
         raise ValueError(f"Goal must be one of {sorted(GOALS)}.")
@@ -147,7 +161,8 @@ def deck_from_brief(brief: dict):
                                    media={"kind": "folder", "label": g["folder"], "tab": name.upper()[:18]}))
     for p in points:
         blocks = ([{"p": p["detail"]}] if p["detail"] else []) + ([{"list": p["items"], "style": "check"}] if p["items"] else [])
-        slides.append(_content(p["heading"], blocks))
+        media = {"kind": "image", "src": p["image"]} if p["image"] else None
+        slides.append(_content(p["heading"], blocks, layout="bottom" if media else None, media=media))
     if steps:
         shot = normalize_screenshot(brief.get("screenshot"))
         slides.append(_content("How it works", [{"list": steps, "style": "bullet"}], layout="right", media={"kind": "phone", "src": shot}))
@@ -166,7 +181,8 @@ def deck_from_brief(brief: dict):
                    "button": _s(cta.get("button"), "Button text", 40) or g["button"], "goto": site})
 
     brand = {"name": name, "handle": handle, "site": site, "series": series, "primary": primary,
-             "avatar": normalize_logo(b.get("logo")), "tape": g["tape"], "cta": {"button": None, "goto": site}}
+             "avatar": normalize_logo(b.get("photo")) or normalize_logo(b.get("logo")), "logo": normalize_logo(b.get("logo")),
+             "person": person, "theme": theme, "tape": g["tape"], "cta": {"button": None, "goto": site}}
     return {"slides": slides, "overrides": {}}, brand
 
 

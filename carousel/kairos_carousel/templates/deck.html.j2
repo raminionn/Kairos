@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><title>{{ title }}</title>
 <style>{{ fonts_css }}{{ vars_css }}{{ css }}</style></head>
-<body><main class="deck">
+<body><main class="deck theme-{{ theme }}">
 {%- macro top(b) %}<header class="chrome-top"><span data-guard="text">{{ b.series }}</span><span data-guard="text">{{ b.site }}</span></header>{% endmacro -%}
 {%- macro bottom(b, av) %}<footer class="chrome-bottom"><div class="who">{{ av }}<div><div class="handle" data-guard="text">{{ b.handle }}</div><div class="name" data-guard="text">{{ b.name }}</div></div></div><div class="save"><svg viewBox="0 0 24 32" aria-hidden="true"><path d="M2 2h20v28l-10-7-10 7z" fill="currentColor"/></svg><span data-guard="text">{{ b.save_text }}</span></div></footer>{% endmacro -%}
 {%- macro blocks(bs) %}{% for b in bs %}{% if b.p is defined %}<p data-guard="text">{{ b.p }}</p>{% else %}<ul class="list list--{{ b.style }}">{% for it in b.list %}<li data-guard="text">{{ it }}</li>{% endfor %}</ul>{% endif %}{% endfor %}{% endmacro -%}

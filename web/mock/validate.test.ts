@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateCreate } from "./validate";
+import { pointRows, validateCreate } from "./validate";
 
 const file = (name: string) => new File(["x"], name);
 const form = (fields: Record<string, string | File>) => {
@@ -46,11 +46,59 @@ describe("validateCreate", () => {
     });
   });
 
-  it("needs a carousel topic, text or source", () => {
-    expect(validateCreate("carousel", form({ topic: "  " }))).toEqual({ ok: false, error: "Add a topic, text or a source video." });
+  /** Carousel form; `rows` are [heading, detail] pairs, appended as repeated fields like the real form. */
+  const carousel = (f: Record<string, string | File> = {}, rows: [string, string][] = [["List what must ship", ""], ["Review on Friday", "Move what slipped."]]) => {
+    const fd = form({ username: "@flowdesk", topic: "Plan your week", ...f });
+    for (const [h, d] of rows) { fd.append("point_heading", h); fd.append("point_detail", d); }
+    return validateCreate("carousel", fd);
+  };
+
+  it("needs a carousel topic", () => {
+    expect(carousel({ topic: "  " })).toEqual({ ok: false, error: "Add a topic." });
   });
 
-  it("accepts a carousel topic", () => {
-    expect(validateCreate("carousel", form({ topic: "Funding tips" }))).toEqual({ ok: true, input: { name: "Funding tips", topic: "Funding tips" } });
+  it("needs a plain username", () => {
+    expect(carousel({ username: "@" })).toEqual({ ok: false, error: "Add your username." });
+    expect(carousel({ username: "my name" })).toEqual({ ok: false, error: "Username: use letters, numbers, dots, dashes or underscores." });
+  });
+
+  it("needs 1 to 5 key points and skips empty rows", () => {
+    expect(carousel({}, [[" ", ""]])).toEqual({ ok: false, error: "Add 1 to 5 key points." });
+    expect(carousel({}, Array.from({ length: 6 }, (_, i): [string, string] => [`P${i}`, ""]))).toEqual({ ok: false, error: "Add 1 to 5 key points." });
+    expect(carousel({}, [["", ""], ["", "only a detail"]])).toEqual({ ok: false, error: "Key point 2: add a heading." });
+  });
+
+  it("checks heading and detail limits", () => {
+    expect(carousel({}, [["x".repeat(81), ""]])).toEqual({ ok: false, error: "Key point 1: keep the heading under 80 characters." });
+    expect(carousel({}, [["Short", "y".repeat(221)]])).toEqual({ ok: false, error: "Key point 1: keep the detail under 220 characters." });
+  });
+
+  it("checks uploaded images", () => {
+    expect(carousel({ photo: file("me.gif") })).toEqual({ ok: false, error: "me.gif: use a jpg, png or webp image." });
+  });
+
+  it("checks the numbers", () => {
+    expect(carousel({ stat_value: "4", stat_label: "Tasks" })).toEqual({ ok: false, error: "Numbers: give at least 2 values, or none." });
+    const fd = form({ username: "b", topic: "T", point_heading: "H", point_detail: "" });
+    for (const v of ["4", "many"]) { fd.append("stat_value", v); fd.append("stat_label", "x"); }
+    expect(validateCreate("carousel", fd)).toEqual({ ok: false, error: "Each number needs a numeric value, e.g. 40." });
+  });
+
+  it("accepts a carousel with defaults and passes optional fields through", () => {
+    expect(carousel({ theme: "bold", goal: "educate", primary: "#000000", hook: " " })).toEqual({
+      ok: true,
+      input: { name: "Plan your week", topic: "Plan your week", brand_name: "flowdesk", handle: "@flowdesk", primary: "#ff5a1f", goal: "educate", theme: "bold",
+        points: [{ heading: "List what must ship" }, { heading: "Review on Friday", detail: "Move what slipped." }] },
+    });
+    expect(carousel({ theme: "neon", goal: "explain" })).toMatchObject({ input: { theme: "editorial", goal: "tips" } });
+  });
+});
+
+describe("pointRows", () => {
+  it("keeps each image with its own row when an earlier row is empty", () => {
+    const fd = new FormData();
+    const img = new File(["x"], "b.png");
+    for (const [h, i] of [["", new File([], "")], ["B", img]] as const) { fd.append("point_heading", h); fd.append("point_detail", ""); fd.append("point_image", i); }
+    expect(pointRows(fd)).toEqual([{ row: 2, heading: "B", detail: "", image: img }]);
   });
 });

@@ -8,7 +8,7 @@ const carouselModule: ModuleConfig = {
   kind: "carousel",
   title: "Carousels",
   description: "Start from a topic, your own text or a finished video. Kairos turns it into slides.",
-  summary: (job) => (job.input?.source_job_id ? "from a video" : job.input?.text ? "from text" : ""),
+  summary: (job) => [job.input?.brand_name, job.input?.goal].filter(Boolean).join(" · "),
   gridClass: "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4",
   tileAspect: "aspect-[4/5]",
   renderTile: (o) => o.kind === "carousel_pdf" && <CarouselTile output={o} />,
