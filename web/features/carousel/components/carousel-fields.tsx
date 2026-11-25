@@ -207,7 +207,7 @@ export function CarouselFields() {
         </fieldset>
       </Section>
 
-      <details className="rounded-lg border border-line bg-[#0f1017]/60 p-3 [&_summary]:cursor-pointer">
+      <details data-more className="rounded-lg border border-line bg-[#0f1017]/60 p-3 [&_summary]:cursor-pointer">
         <summary className="text-xs font-medium text-white/85">More options</summary>
         <div className="mt-3 space-y-3">
           <Field label="Problem" htmlFor="problem">
