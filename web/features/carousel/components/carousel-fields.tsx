@@ -1,7 +1,8 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { LoaderCircle, Plus, Sparkles, X } from "lucide-react";
+import { useRef, useState } from "react";
+import type { Draft } from "@/lib/carousel-draft";
 import { Field, inputClass } from "@/components/ui/field";
 import { DETAIL_MAX, HEADING_MAX } from "@/mock/validate";
 
@@ -34,9 +35,46 @@ interface Point { heading: string; detail: string }
 export function CarouselFields() {
   const [points, setPoints] = useState<Point[]>([{ heading: "", detail: "" }, { heading: "", detail: "" }, { heading: "", detail: "" }]);
   const edit = (i: number, p: Partial<Point>) => setPoints((ps) => ps.map((x, j) => (j === i ? { ...x, ...p } : x)));
+  const box = useRef<HTMLDivElement>(null);
+  const [writing, setWriting] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  /** Asks the server route for a draft, then fills the fields so the user can edit before Generate. */
+  async function writeWithAi() {
+    const form = box.current?.closest("form");
+    if (!form) return;
+    const get = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value ?? "";
+    setWriting(true);
+    setAiError(null);
+    const res = await fetch("/api/carousel/draft", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ summary: get("summary"), brand_name: get("brand_name"), goal: (form.querySelector("[name=goal]:checked") as HTMLInputElement | null)?.value }) })
+      .catch(() => null);
+    const data = await res?.json().catch(() => null);
+    setWriting(false);
+    if (!res?.ok) return setAiError(data?.detail ?? "The AI did not answer. Try again.");
+    const d = data as Draft;
+    const set = (n: string, v: string) => { const el = form.elements.namedItem(n) as HTMLInputElement | null; if (el) el.value = v; };
+    set("topic", d.topic); set("hook", d.hook); set("problem", d.problem); set("cta_heading", d.cta.heading); set("cta_button", d.cta.button);
+    form.querySelectorAll<HTMLInputElement>("[name=stat_value]").forEach((el, i) => { el.value = d.stats[i] ? String(d.stats[i].value) : ""; });
+    form.querySelectorAll<HTMLInputElement>("[name=stat_label]").forEach((el, i) => { el.value = d.stats[i]?.label ?? ""; });
+    setPoints(d.points.map((p) => ({ heading: p.heading, detail: p.detail })));
+    form.querySelector("details")?.setAttribute("open", "");
+  }
 
   return (
     <>
+      <div ref={box} className="space-y-2 rounded-lg border border-lime/30 bg-lime/[0.03] p-3">
+        <Field label="Write with AI" hint="Optional · the AI uses only your facts" htmlFor="summary">
+          <textarea id="summary" name="summary" rows={3} maxLength={3000} className={`${inputClass} resize-none`}
+            placeholder="Paste notes, a post or a summary. The AI fills the fields below, then you edit them." />
+        </Field>
+        <button type="button" onClick={writeWithAi} disabled={writing}
+          className="flex items-center gap-1.5 rounded-lg border border-lime/50 px-3 py-1.5 text-xs text-lime hover:bg-lime/10 disabled:opacity-60">
+          {writing ? <LoaderCircle size={14} className="animate-spin" /> : <Sparkles size={14} />} {writing ? "Writing…" : "Write with AI"}
+        </button>
+        {aiError && <p role="alert" className="text-xs text-red-400">{aiError}</p>}
+      </div>
+
       <div className="grid grid-cols-[1fr_auto] gap-3">
         <Field label="Brand name" htmlFor="brand_name">
           <input id="brand_name" name="brand_name" placeholder="e.g. Flowdesk" maxLength={40} className={inputClass} />
