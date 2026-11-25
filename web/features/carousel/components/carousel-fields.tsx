@@ -30,15 +30,14 @@ interface Point { id: number; heading: string; detail: string; image?: string }
 let nextId = 0;
 const blank = (): Point => ({ id: nextId++, heading: "", detail: "" });
 
-/** Numbered form section with a title and a one-line explanation. */
-function Section({ n, title, hint, children }: { n: number; title: string; hint: string; children: React.ReactNode }) {
+/** Numbered form section. */
+function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-3 border-t border-line pt-4 first:border-0 first:pt-0">
       <div>
         <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
           <span className="grid size-5 place-items-center rounded-full bg-lime text-[11px] font-bold text-black">{n}</span>{title}
         </h3>
-        <p className="mt-0.5 pl-7 text-[11px] text-muted">{hint}</p>
       </div>
       {children}
     </section>
@@ -58,7 +57,7 @@ function Label({ htmlFor, text, n, max }: { htmlFor: string; text: string; n: nu
 /** The fields of kairos_carousel's brief (carousel/README.md). Names are read by mock/validate.ts. */
 export function CarouselFields() {
   // Rows are keyed by id, not index: each row holds an uncontrolled file input that must stay with its row.
-  const [points, setPoints] = useState<Point[]>(() => [blank(), blank(), blank()]);
+  const [points, setPoints] = useState<Point[]>(() => [blank()]);
   const edit = (id: number, p: Partial<Point>) => setPoints((ps) => ps.map((x) => (x.id === id ? { ...x, ...p } : x)));
   const box = useRef<HTMLDivElement>(null);
   const [photo, setPhoto] = useState<string | null>(null);
@@ -85,12 +84,12 @@ export function CarouselFields() {
     form.querySelectorAll<HTMLInputElement>("[name=stat_value]").forEach((el, i) => { el.value = d.stats[i] ? String(d.stats[i].value) : ""; });
     form.querySelectorAll<HTMLInputElement>("[name=stat_label]").forEach((el, i) => { el.value = d.stats[i]?.label ?? ""; });
     setPoints(d.points.map((p) => ({ ...blank(), heading: p.heading, detail: p.detail })));
-    form.querySelector("details")?.setAttribute("open", "");
+    form.querySelector("details[data-more]")?.setAttribute("open", "");
   }
 
   return (
     <div ref={box} className="space-y-4">
-      <Section n={1} title="You" hint="Shown in the corner of every slide.">
+      <Section n={1} title="You">
         <div className="flex items-center gap-3">
           <label className="flex shrink-0 cursor-pointer flex-col items-center gap-1 text-[11px] text-muted hover:text-white">
             <span className="grid size-12 place-items-center overflow-hidden rounded-full border border-dashed border-white/25 bg-[#0f1017]">
@@ -109,12 +108,12 @@ export function CarouselFields() {
         </div>
       </Section>
 
-      <Section n={2} title="Content" hint="Type it yourself, or let the AI write a first draft from your notes.">
+      <Section n={2} title="Content">
         {aiOpen ? (
           <div className="space-y-2 rounded-lg border border-lime/30 bg-lime/[0.03] p-3">
-            <Field label="Your notes" hint="The AI uses only your facts" htmlFor="summary">
+            <Field label="Your notes" htmlFor="summary">
               <textarea id="summary" name="summary" rows={3} maxLength={3000} autoFocus className={`${inputClass} resize-none`}
-                placeholder="Paste notes, a post or a summary. The fields below get filled in, then you edit them." />
+                placeholder="Paste notes or a post. The AI fills the fields below." />
             </Field>
             <div className="flex gap-2">
               <button type="button" onClick={writeWithAi} disabled={writing}
@@ -132,7 +131,7 @@ export function CarouselFields() {
           </button>
         )}
 
-        <Field label="Topic" hint="Becomes the cover" htmlFor="topic">
+        <Field label="Topic" htmlFor="topic">
           <input id="topic" name="topic" placeholder="e.g. Plan your week in 10 minutes" className={inputClass} />
         </Field>
 
@@ -150,34 +149,38 @@ export function CarouselFields() {
         </fieldset>
 
         <fieldset className="space-y-2">
-          <div className="flex items-baseline justify-between">
-            <legend className="text-xs font-medium text-white/85">Key points</legend>
-            <span className="text-[11px] text-muted">1 to 5 · each one becomes a slide</span>
-          </div>
+          <legend className="text-xs font-medium text-white/85">Key points</legend>
           {points.map((p, i) => (
-            <div key={p.id} className="space-y-2 rounded-lg border border-line bg-[#0f1017]/60 p-3">
-              <div className="flex items-center justify-between text-[11px] font-medium text-white/85">
-                Point {i + 1}
+            <div key={p.id} className="space-y-1.5 rounded-lg border border-line bg-[#0f1017]/60 p-3">
+              <div className="flex items-center gap-2">
+                <div className="flex-1"><Label htmlFor={`ph${p.id}`} text={`Point ${i + 1} heading`} n={p.heading.length} max={HEADING_MAX} /></div>
                 {points.length > 1 && (
                   <button type="button" aria-label={`Remove point ${i + 1}`} onClick={() => setPoints((ps) => ps.filter((x) => x.id !== p.id))}
                     className="text-muted hover:text-white"><X size={14} /></button>
                 )}
               </div>
-              <div className="space-y-1">
-                <Label htmlFor={`ph${p.id}`} text="Heading" n={p.heading.length} max={HEADING_MAX} />
+              <div>
                 <input id={`ph${p.id}`} name="point_heading" value={p.heading} onChange={(e) => edit(p.id, { heading: e.target.value })}
                   placeholder={["List what must ship", "Block time for deep work", "Review on Friday"][i] ?? "Short heading"} className={inputClass} />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor={`pd${p.id}`} text="Detail (optional)" n={p.detail.length} max={DETAIL_MAX} />
-                <textarea id={`pd${p.id}`} name="point_detail" rows={2} value={p.detail} onChange={(e) => edit(p.id, { detail: e.target.value })}
-                  placeholder="One or two sentences: what to do, or why it matters." className={`${inputClass} resize-none`} />
-              </div>
-              <label className="inline-flex cursor-pointer items-center gap-1.5 text-[11px] text-muted hover:text-white">
-                <ImagePlus size={14} /> {p.image ?? "Add an image (optional)"}
-                <input name="point_image" type="file" accept={ACCEPT} className="sr-only"
-                  onChange={(e) => edit(p.id, { image: e.target.files?.[0]?.name })} />
-              </label>
+              <details open={p.detail || p.image ? true : undefined} className="[&_summary]:cursor-pointer">
+                <summary className="text-[11px] text-muted hover:text-white">Detail and image</summary>
+                <div className="mt-2 space-y-2">
+                  <div className="space-y-1">
+                    <Label htmlFor={`pd${p.id}`} text="Detail" n={p.detail.length} max={DETAIL_MAX} />
+                    <textarea id={`pd${p.id}`} name="point_detail" rows={2} value={p.detail} onChange={(e) => edit(p.id, { detail: e.target.value })}
+                      placeholder="What to do, or why it matters." className={`${inputClass} resize-none`} />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[11px] text-white/70">Image</span>
+                    <label className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-line px-3 py-2 text-xs text-muted hover:text-white">
+                      <ImagePlus size={14} /> {p.image ?? "Choose image"}
+                      <input name="point_image" type="file" accept={ACCEPT} aria-label={`Point ${i + 1} image`} className="sr-only"
+                        onChange={(e) => edit(p.id, { image: e.target.files?.[0]?.name })} />
+                    </label>
+                  </div>
+                </div>
+              </details>
             </div>
           ))}
           {points.length < 5 && (
@@ -187,7 +190,7 @@ export function CarouselFields() {
         </fieldset>
       </Section>
 
-      <Section n={3} title="Design" hint="Each design has its own colours and fonts.">
+      <Section n={3} title="Design">
         <fieldset>
           <legend className="sr-only">Design</legend>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -205,12 +208,12 @@ export function CarouselFields() {
       </Section>
 
       <details className="rounded-lg border border-line bg-[#0f1017]/60 p-3 [&_summary]:cursor-pointer">
-        <summary className="text-xs font-medium text-white/85">More options <span className="font-normal text-muted">· problem, cover line, numbers, closing slide</span></summary>
+        <summary className="text-xs font-medium text-white/85">More options</summary>
         <div className="mt-3 space-y-3">
-          <Field label="Problem" hint="Adds a “Sound familiar?” slide" htmlFor="problem">
+          <Field label="Problem" htmlFor="problem">
             <input id="problem" name="problem" placeholder="e.g. Monday starts with a blank page and a full inbox." className={inputClass} />
           </Field>
-          <Field label="Cover line" hint="Replaces the topic on the cover · ==word== is highlighted" htmlFor="hook">
+          <Field label="Cover line" hint="==word== is highlighted" htmlFor="hook">
             <input id="hook" name="hook" placeholder="e.g. Plan your week in ==10 minutes==" className={inputClass} />
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -218,20 +221,18 @@ export function CarouselFields() {
             <Field label="Website" htmlFor="site"><input id="site" name="site" maxLength={60} placeholder="flowdesk.app" className={inputClass} /></Field>
           </div>
           <fieldset className="space-y-1.5">
-            <div className="flex items-baseline justify-between">
-              <legend className="text-xs font-medium text-white/85">Numbers</legend>
-              <span className="text-[11px] text-muted">2 to 4 make a bar chart · leave empty for none</span>
-            </div>
-            <div className="grid grid-cols-[5rem_1fr] gap-x-2 text-[11px] text-white/70"><span>Value</span><span>Label</span></div>
-            {[0, 1, 2, 3].map((i) => (
+            <legend className="text-xs font-medium text-white/85">Chart numbers <span className="font-normal text-muted">(2 to 3)</span></legend>
+            {[0, 1, 2].map((i) => (
               <div key={i} className="grid grid-cols-[5rem_1fr] gap-2">
-                <input name="stat_value" inputMode="decimal" aria-label={`Number ${i + 1} value`} placeholder={["40", "12", "", ""][i]} className={inputClass} />
-                <input name="stat_label" aria-label={`Number ${i + 1} label`} maxLength={30} placeholder={["Tasks a day", "Focus hours", "", ""][i]} className={inputClass} />
+                <div className="space-y-1"><label htmlFor={`sv${i}`} className="text-[11px] text-white/70">Number {i + 1}</label>
+                  <input id={`sv${i}`} name="stat_value" inputMode="decimal" placeholder={["40", "12", "3"][i]} className={inputClass} /></div>
+                <div className="space-y-1"><label htmlFor={`sl${i}`} className="text-[11px] text-white/70">Label {i + 1}</label>
+                  <input id={`sl${i}`} name="stat_label" maxLength={30} placeholder={["Tasks a day", "Focus hours", "Meetings"][i]} className={inputClass} /></div>
               </div>
             ))}
           </fieldset>
           <div className="grid gap-3 sm:grid-cols-[1fr_12rem]">
-            <Field label="Closing line" hint="Last slide" htmlFor="cta_heading"><input id="cta_heading" name="cta_heading" maxLength={80} placeholder="Want more like this?" className={inputClass} /></Field>
+            <Field label="Closing line" htmlFor="cta_heading"><input id="cta_heading" name="cta_heading" maxLength={80} placeholder="Want more like this?" className={inputClass} /></Field>
             <Field label="Button" htmlFor="cta_button"><input id="cta_button" name="cta_button" maxLength={40} placeholder="Follow for more" className={inputClass} /></Field>
           </div>
         </div>
