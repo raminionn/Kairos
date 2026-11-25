@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { splitPoint, validateCreate } from "./validate";
+import { pointRows, validateCreate } from "./validate";
 
 const file = (name: string) => new File(["x"], name);
 const form = (fields: Record<string, string | File>) => {
@@ -46,9 +46,12 @@ describe("validateCreate", () => {
     });
   });
 
-  const NL = String.fromCharCode(10);
-  const carousel = (f: Record<string, string>) =>
-    validateCreate("carousel", form({ brand_name: "Flowdesk", topic: "Plan your week", points: "List what must ship" + NL + "Review on Friday", ...f }));
+  /** Carousel form; `rows` are [heading, detail] pairs, appended as repeated fields like the real form. */
+  const carousel = (f: Record<string, string | File> = {}, rows: [string, string][] = [["List what must ship", ""], ["Review on Friday", "Move what slipped."]]) => {
+    const fd = form({ brand_name: "Flowdesk", topic: "Plan your week", ...f });
+    for (const [h, d] of rows) { fd.append("point_heading", h); fd.append("point_detail", d); }
+    return validateCreate("carousel", fd);
+  };
 
   it("needs a carousel topic", () => {
     expect(carousel({ topic: "  " })).toEqual({ ok: false, error: "Add a topic." });
@@ -58,53 +61,47 @@ describe("validateCreate", () => {
     expect(carousel({ brand_name: "" })).toEqual({ ok: false, error: "Add your brand name." });
   });
 
-  it("needs 1 to 5 key points", () => {
-    expect(carousel({ points: " " + NL + " " })).toEqual({ ok: false, error: "Add 1 to 5 key points, one per line." });
-    expect(carousel({ points: ["a", "b", "c", "d", "e", "f"].join(NL) })).toEqual({ ok: false, error: "Add 1 to 5 key points, one per line." });
+  it("needs 1 to 5 key points and skips empty rows", () => {
+    expect(carousel({}, [[" ", ""]])).toEqual({ ok: false, error: "Add 1 to 5 key points." });
+    expect(carousel({}, Array.from({ length: 6 }, (_, i): [string, string] => [`P${i}`, ""]))).toEqual({ ok: false, error: "Add 1 to 5 key points." });
+    expect(carousel({}, [["", ""], ["", "only a detail"]])).toEqual({ ok: false, error: "Key point 2: add a heading." });
+  });
+
+  it("checks heading and detail limits", () => {
+    expect(carousel({}, [["x".repeat(81), ""]])).toEqual({ ok: false, error: "Key point 1: keep the heading under 80 characters." });
+    expect(carousel({}, [["Short", "y".repeat(221)]])).toEqual({ ok: false, error: "Key point 1: keep the detail under 220 characters." });
   });
 
   it("checks the brand colour", () => {
     expect(carousel({ primary: "blue" })).toEqual({ ok: false, error: "Brand colour must look like #5b12f5." });
   });
 
-  it("accepts a carousel with defaults", () => {
-    expect(carousel({})).toEqual({
+  it("checks uploaded images", () => {
+    expect(carousel({ photo: file("me.gif") })).toEqual({ ok: false, error: "me.gif: use a jpg, png or webp image." });
+  });
+
+  it("checks the numbers", () => {
+    expect(carousel({ stat_value: "4", stat_label: "Tasks" })).toEqual({ ok: false, error: "Numbers: give at least 2 values, or none." });
+    const fd = form({ brand_name: "B", topic: "T", point_heading: "H", point_detail: "" });
+    for (const v of ["4", "many"]) { fd.append("stat_value", v); fd.append("stat_label", "x"); }
+    expect(validateCreate("carousel", fd)).toEqual({ ok: false, error: "Each number needs a numeric value, e.g. 40." });
+  });
+
+  it("accepts a carousel with defaults and passes optional fields through", () => {
+    expect(carousel({ theme: "bold", goal: "educate", handle: "@flowdesk", hook: " " })).toEqual({
       ok: true,
-      input: { name: "Plan your week", topic: "Plan your week", brand_name: "Flowdesk", primary: "#5b12f5", goal: "tips", points: ["List what must ship", "Review on Friday"] },
+      input: { name: "Plan your week", topic: "Plan your week", brand_name: "Flowdesk", primary: "#5b12f5", goal: "educate", theme: "bold", handle: "@flowdesk",
+        points: [{ heading: "List what must ship" }, { heading: "Review on Friday", detail: "Move what slipped." }] },
     });
+    expect(carousel({ theme: "neon", goal: "explain" })).toMatchObject({ input: { theme: "editorial", goal: "tips" } });
   });
 });
 
-describe("splitPoint", () => {
-  it("splits on the first colon", () => {
-    expect(splitPoint("List what must ship: only work with a deadline")).toEqual({ heading: "List what must ship", detail: "only work with a deadline" });
-  });
-
-  it("splits a long line with no colon at its first sentence", () => {
-    const long = "Building hardware is slow because every prototype takes weeks to arrive. Plan two versions ahead and order parts early.";
-    expect(splitPoint(long)).toEqual({
-      heading: "Building hardware is slow because every prototype takes weeks to arrive",
-      detail: "Plan two versions ahead and order parts early.",
-    });
-  });
-
-  it("keeps a short line as the heading", () => {
-    expect(splitPoint("Review on Friday")).toEqual({ heading: "Review on Friday" });
-  });
-});
-
-describe("carousel limits", () => {
-  const f = (points: string) => {
+describe("pointRows", () => {
+  it("keeps each image with its own row when an earlier row is empty", () => {
     const fd = new FormData();
-    for (const [k, v] of Object.entries({ brand_name: "B", topic: "T", points })) fd.append(k, v);
-    return validateCreate("carousel", fd);
-  };
-
-  it("rejects a heading over 80 characters before sending", () => {
-    expect(f("x".repeat(81))).toEqual({ ok: false, error: "Key point 1: keep the heading under 80 characters. Put details after a colon (Heading: detail)." });
-  });
-
-  it("rejects a detail over 220 characters", () => {
-    expect(f(`Short heading: ${"y".repeat(221)}`)).toEqual({ ok: false, error: "Key point 1: keep the detail under 220 characters." });
+    const img = new File(["x"], "b.png");
+    for (const [h, i] of [["", new File([], "")], ["B", img]] as const) { fd.append("point_heading", h); fd.append("point_detail", ""); fd.append("point_image", i); }
+    expect(pointRows(fd)).toEqual([{ row: 2, heading: "B", detail: "", image: img }]);
   });
 });

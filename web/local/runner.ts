@@ -6,6 +6,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { extname, join, resolve } from "node:path";
 import type { Job, JobKind, Output } from "@/lib/api-types";
 import { createJob, setLocalHooks } from "@/mock/store";
+import { pointRows } from "@/mock/validate";
 import { carouselBrief, runStatus, safeJobFile, understandingMeta } from "./local";
 
 export const LOCAL = process.env.KAIROS_LOCAL === "1";
@@ -73,7 +74,11 @@ export async function startLocalJob(kind: JobKind, form: FormData, input: Record
 
   if (kind === "carousel") {
     // kairos_carousel runs from inside carousel/ (carousel/README.md).
-    await writeFile(join(dir, "brief.json"), JSON.stringify(carouselBrief(input), null, 2));
+    const uri = async (f: FormDataEntryValue | null) => (f && typeof f !== "string" && f.size > 0
+      ? `data:${f.type || "image/png"};base64,${Buffer.from(await f.arrayBuffer()).toString("base64")}` : undefined);
+    const images = { photo: await uri(form.get("photo")), logo: await uri(form.get("logo")),
+      points: await Promise.all(pointRows(form).map((r) => uri(r.image).then((u) => u ?? null))) };
+    await writeFile(join(dir, "brief.json"), JSON.stringify(carouselBrief(input, images), null, 2));
     args = ["-m", "kairos_carousel", "--brief", join(dir, "brief.json"), "--out", dir];
     cwd = join(REPO, "carousel");
   } else if (kind === "video") {

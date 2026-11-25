@@ -3,31 +3,31 @@ import type { Category, JobKind } from "@/lib/api-types";
 const VIDEO_EXT = ["mp4", "mov", "mkv", "webm"];
 const IMAGE_EXT = ["jpg", "jpeg", "png", "webp"];
 const CATEGORIES: Category[] = ["fashion", "app", "product", "packaging"];
-const GOALS = ["launch", "tips", "offer", "explain"];
-
-// kairos_carousel limits (carousel/kairos_carousel/brief.py).
-const HEADING_MAX = 80;
-const DETAIL_MAX = 220;
-
-/**
- * One key point line -> heading and optional detail. "Heading: detail" splits on the first colon;
- * a long line with no colon splits at its first sentence (as kairos_carousel's own parser does).
- */
-export function splitPoint(line: string): { heading: string; detail?: string } {
-  const at = line.indexOf(":");
-  if (at > 0) return { heading: line.slice(0, at).trim(), detail: line.slice(at + 1).trim() };
-  const end = line.search(/[.!?]\s/);
-  if (line.length > HEADING_MAX && end > 0) {
-    return { heading: line.slice(0, end).trim(), detail: line.slice(end + 1).trim() };
-  }
-  return { heading: line.trim() };
-}
+// kairos_carousel values and limits (carousel/kairos_carousel/brief.py, render.py THEMES).
+export const GOALS = ["launch", "tips", "offer", "educate"];
+export const THEMES = ["editorial", "midnight", "notebook", "bold"];
+export const HEADING_MAX = 80;
+export const DETAIL_MAX = 220;
+const IMAGE_MAX = 4 * 1024 ** 2;
+/** Optional carousel text fields, passed through as typed. */
+const OPTIONAL = ["hook", "problem", "person", "handle", "site", "cta_heading", "cta_button"];
 
 type Result = { ok: true; input: Record<string, unknown> } | { ok: false; error: string };
 
 const fileName = (v: FormDataEntryValue | null) => (v && typeof v === "object" && "name" in v ? v.name : null);
 const ext = (name: string) => name.split(".").pop()?.toLowerCase() ?? "";
 const text = (form: FormData, key: string) => String(form.get(key) ?? "").trim();
+
+/** Filled key point rows of the carousel form (empty rows skipped), with each row's optional image. */
+export function pointRows(form: FormData) {
+  const details = form.getAll("point_detail");
+  const images = form.getAll("point_image");
+  return form.getAll("point_heading").map((h, i) => {
+    const img = images[i];
+    return { row: i + 1, heading: String(h).trim(), detail: String(details[i] ?? "").trim(),
+      image: img && typeof img !== "string" && img.size > 0 ? img : null };
+  }).filter((r) => r.heading || r.detail);
+}
 
 /** Same checks the real API makes on POST /jobs/<kind> (system design section 8). */
 export function validateCreate(kind: JobKind, form: FormData): Result {
@@ -49,23 +49,36 @@ export function validateCreate(kind: JobKind, form: FormData): Result {
     return { ok: true, input: { name, category, ...(props && { props }), n_variants } };
   }
 
-  // Carousel: the fields kairos_carousel's brief needs (carousel/README.md).
+  // Carousel: the fields kairos_carousel's brief needs (carousel/README.md). Python checks the other
+  // text limits again and its message reaches the user, so only the common mistakes are caught here.
   const topic = text(form, "topic");
   if (!topic) return { ok: false, error: "Add a topic." };
   const brand_name = text(form, "brand_name");
   if (!brand_name) return { ok: false, error: "Add your brand name." };
-  const points = text(form, "points").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  if (points.length < 1 || points.length > 5) return { ok: false, error: "Add 1 to 5 key points, one per line." };
-  for (const [i, line] of points.entries()) {
-    const { heading, detail } = splitPoint(line);
-    if (heading.length > HEADING_MAX) {
-      return { ok: false, error: `Key point ${i + 1}: keep the heading under ${HEADING_MAX} characters. Put details after a colon (Heading: detail).` };
-    }
-    if ((detail?.length ?? 0) > DETAIL_MAX) return { ok: false, error: `Key point ${i + 1}: keep the detail under ${DETAIL_MAX} characters.` };
+  const points: { heading: string; detail?: string }[] = [];
+  for (const { row, heading, detail } of pointRows(form)) {
+    if (!heading) return { ok: false, error: `Key point ${row}: add a heading.` };
+    if (heading.length > HEADING_MAX) return { ok: false, error: `Key point ${row}: keep the heading under ${HEADING_MAX} characters.` };
+    if (detail.length > DETAIL_MAX) return { ok: false, error: `Key point ${row}: keep the detail under ${DETAIL_MAX} characters.` };
+    points.push(detail ? { heading, detail } : { heading });
   }
+  if (points.length < 1 || points.length > 5) return { ok: false, error: "Add 1 to 5 key points." };
   const primary = text(form, "primary") || "#5b12f5";
   if (!/^#[0-9a-fA-F]{6}$/.test(primary)) return { ok: false, error: "Brand colour must look like #5b12f5." };
   const goal = GOALS.includes(text(form, "goal")) ? text(form, "goal") : "tips";
-  const problem = text(form, "problem");
-  return { ok: true, input: { name: topic, topic, brand_name, primary, goal, points, ...(problem && { problem }) } };
+  const theme = THEMES.includes(text(form, "theme")) ? text(form, "theme") : "editorial";
+  for (const key of ["photo", "logo", "point_image"]) {
+    for (const f of form.getAll(key)) {
+      if (typeof f === "string" || f.size === 0) continue;
+      if (!IMAGE_EXT.includes(ext(f.name))) return { ok: false, error: `${f.name}: use a jpg, png or webp image.` };
+      if (f.size > IMAGE_MAX) return { ok: false, error: `${f.name}: images must be 4 MB or smaller.` };
+    }
+  }
+  const labels = form.getAll("stat_label").map((v) => String(v).trim());
+  const stats = form.getAll("stat_value").map((v, i) => ({ value: String(v).trim(), label: labels[i] ?? "" }))
+    .filter((s) => s.value || s.label);
+  if (stats.length === 1) return { ok: false, error: "Numbers: give at least 2 values, or none." };
+  if (stats.some((s) => !s.value || !Number.isFinite(Number(s.value)))) return { ok: false, error: "Each number needs a numeric value, e.g. 40." };
+  const optional = Object.fromEntries(OPTIONAL.map((k) => [k, text(form, k)]).filter(([, v]) => v));
+  return { ok: true, input: { name: topic, topic, brand_name, primary, goal, theme, points, ...(stats.length && { stats }), ...optional } };
 }

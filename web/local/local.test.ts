@@ -56,14 +56,18 @@ describe("understandingMeta", () => {
 });
 
 describe("carouselBrief", () => {
-  it("turns the form input into kairos_carousel's brief", () => {
+  it("turns the form input and images into kairos_carousel's brief", () => {
     expect(carouselBrief({
-      name: "Plan your week", topic: "Plan your week", brand_name: "Flowdesk", primary: "#3b4cca", goal: "tips",
-      problem: "Monday starts with a blank page.", points: ["List what must ship: Only work with a deadline.", "Review on Friday"],
-    })).toEqual({
-      brand: { name: "Flowdesk", primary: "#3b4cca" },
-      topic: "Plan your week", goal: "tips", problem: "Monday starts with a blank page.",
+      name: "Plan your week", topic: "Plan your week", brand_name: "Flowdesk", primary: "#3b4cca", goal: "tips", theme: "bold",
+      problem: "Monday starts with a blank page.", handle: "@flowdesk", cta_button: "Follow",
+      stats: [{ value: "4", label: "Tasks" }, { value: "2", label: "Blocks" }],
       points: [{ heading: "List what must ship", detail: "Only work with a deadline." }, { heading: "Review on Friday" }],
+    }, { photo: "data:image/png;base64,AA", points: [null, "data:image/png;base64,BB"] })).toEqual({
+      brand: { name: "Flowdesk", primary: "#3b4cca", handle: "@flowdesk", photo: "data:image/png;base64,AA" },
+      topic: "Plan your week", goal: "tips", theme: "bold", problem: "Monday starts with a blank page.",
+      stats: [{ value: "4", label: "Tasks" }, { value: "2", label: "Blocks" }],
+      cta: { heading: "", button: "Follow" },
+      points: [{ heading: "List what must ship", detail: "Only work with a deadline." }, { heading: "Review on Friday", image: "data:image/png;base64,BB" }],
     });
   });
 });
